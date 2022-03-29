@@ -1,6 +1,6 @@
 ## 开始使用
 
-下载 PaddleOCR-json.rar 并解压，即可。
+下载 [PaddleOCR-json v1.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.0) 并解压，即可。
 
 ## 命令行试用
 
@@ -44,7 +44,7 @@ print("识别结果为：",getObj)
 
 #### 实用例子
 
-[PaddleOCR.py](PaddleOCR.py)
+[PaddleOCR-demo.py](PaddleOCR-demo.py)
 
 ## 输出值JSON说明
 
