@@ -41,7 +41,7 @@ class OCR:
                 imgPath = imgPath[:-1]
             return {"error": f"读取识别器进程输出值失败，疑似传入了不存在或无法识别的图片【{imgPath}】。{e}"}
         try:
-            # 走到这里不一定成功，可能c++内部已经处理了异常，getStr本身就是 {"error":"xxxxx"}
+            # 走到这里不一定代表识别成功，可能c++内部已经处理了异常，getStr本身就是 {"error":"xxxxx"}
             return jsonLoads(getStr)
         except Exception as e:
             if imgPath[-1] == "\n":
