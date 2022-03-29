@@ -77,7 +77,7 @@ print("识别结果为：",getObj)
     rec_model_dir  rec_fr
     char_list_file french_dict.txt
     ```
-6. 保存文件，打开软件，将 **识别器路径** 改为 `PaddleOCR_Green\PaddleOCR_json_fr.exe`。
+6. 保存文件。`PaddleOCR_json_fr.exe`即为法文专精的识别器。
 
 ## 切换模型库
 
