@@ -5,7 +5,7 @@
 **本程序的GUI形式：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
 
 
-## 开始使用
+## 准备工作
 
 下载 [PaddleOCR-json v1.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.0) 并解压，即可。
 
