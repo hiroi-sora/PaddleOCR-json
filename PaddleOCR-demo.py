@@ -1,16 +1,24 @@
 import subprocess
-import json
+from sys import platform as sysPlatform  # popen静默模式
+from json import loads as jsonLoads
 
 
 class OCR:
 
-    def __init__(self, exePath):
+    def __init__(self, exePath, cwd=None):
         """初始化识别器。\n
-        传入识别器exe路径。"""
+        传入识别器exe路径，子进程目录(exe父目录)"""
+        startupinfo = None  # 静默模式设置
+        if 'win32' in str(sysPlatform).lower():
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags = subprocess.CREATE_NEW_CONSOLE | subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
         self.ret = subprocess.Popen(  # 打开管道
             exePath,
+            cwd=cwd,
             stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
+            startupinfo=startupinfo  # 开启静默模式
         )
         self.ret.stdout.readline()  # 读掉第一行
 
@@ -21,13 +29,27 @@ class OCR:
         识别失败时，返回字典 {error:异常信息，text:(若存在)原始识别字符串} 。"""
         if not imgPath[-1] == "\n":
             imgPath += "\n"
-        self.ret.stdin.write(imgPath.encode("gbk"))
-        self.ret.stdin.flush()
-        getStr = self.ret.stdout.readline().decode('utf-8', errors='ignore')
         try:
-            return json.loads(getStr)
+            self.ret.stdin.write(imgPath.encode("gbk"))
+            self.ret.stdin.flush()
         except Exception as e:
-            return {"error": e, "text": getStr}
+            return {"error": f"向识别器进程写入图片地址失败，疑似该进程已崩溃。{e}"}
+        try:
+            getStr = self.ret.stdout.readline().decode('utf-8', errors='ignore')
+        except Exception as e:
+            if imgPath[-1] == "\n":
+                imgPath = imgPath[:-1]
+            return {"error": f"读取识别器进程输出值失败，疑似传入了不存在或无法识别的图片【{imgPath}】。{e}"}
+        try:
+            # 走到这里不一定成功，可能c++内部已经处理了异常，getStr本身就是 {"error":"xxxxx"}
+            return jsonLoads(getStr)
+        except Exception as e:
+            if imgPath[-1] == "\n":
+                imgPath = imgPath[:-1]
+            return {"error": f"识别器输出值反序列化JSON失败，疑似传入了不存在或无法识别的图片【{imgPath}】。{e}", "text": getStr}
+
+    def __del__(self):
+        self.ret.kill()  # 关闭子进程
 
 
 if __name__ == "__main__":
