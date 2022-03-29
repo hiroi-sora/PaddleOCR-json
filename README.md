@@ -52,6 +52,7 @@ print("识别结果为：",getObj)
 #### 实用例子
 
 [PaddleOCR-demo.py](PaddleOCR-demo.py)
+
 这里代码可能与下载的`PaddleOCR-json.rar`中的不一样，以这里为准。
 
 ## 输出值JSON说明
