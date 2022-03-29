@@ -1,3 +1,10 @@
+# PaddleOCR-json 图片转文字程序
+
+图片批量离线OCR文字识别程序。输入图片路径，输出识别结果json字符串，方便别的程序调用。
+
+**本程序的GUI形式：[Umi-OCR](https://github.com/hiroi-sora/Umi-OCR)**
+
+
 ## 开始使用
 
 下载 [PaddleOCR-json v1.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.0) 并解压，即可。
