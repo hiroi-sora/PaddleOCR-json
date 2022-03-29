@@ -103,3 +103,8 @@ print("识别结果为：",getObj)
 
 1. 下载并编译飞桨PaddleOCR C++预测库，可参考 [这篇教程](https://cloud.tencent.com/developer/article/1843504) 。
 2. 将本项目`src`、`include`目录中的文件替换进去。
+
+### 感谢
+
+本项目中使用了 [configor](https://github.com/Nomango/configor) ：
+> “一个为 C++11 量身打造的轻量级 config 库，轻松完成 JSON 解析和序列化功能，并和 C++ 输入输出流交互。”
