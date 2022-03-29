@@ -93,7 +93,7 @@ print("识别结果为：",getObj)
   - 程序正常启动时会输出一句`Active code page: 65001`代表控制台已切换到utf-8编码，此外不会输出其他信息，直到传入图片路径。
 
 #### 3. 调整配置
-- `[exe名称]_config.txt`是全局配置文件，可设置模型位置、识别参数、开启GPU等。具体参考[官方文档](https://gitee.com/paddlepaddle/PaddleOCR/blob/release/2.4/doc/doc_ch/config.md)。
+- `[exe名称]_config.txt`是全局配置文件，可设置模型位置、识别参数等。调整它也许能获得更高的识别精度和效率。具体参考[官方文档](https://gitee.com/paddlepaddle/PaddleOCR/blob/release/2.4/doc/doc_ch/config.md)。
 - 如果修改了exe名称，也需要同步修改配置文件名的前缀。
   - 即，什么样的exe对应什么样的配置文件。这样一个目录下可以共存多个识别不同语言的exe，它们共用一部分模型库和dll。
 
