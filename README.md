@@ -89,7 +89,7 @@ print("识别结果为：",getObj)
 
 #### 2. 放置模型
 - 将下载下来的方向分类器（如`ch_ppocr_mobile_v2.0_cls_infer.tar`）、检测模型（如`ch_PP-OCRv2_det_infer.tar`）、识别模型（如`ch_PP-OCRv2_rec_infer.tar`）解压，将文件分别放到对应文件夹 `cls、det、rec`。
-- 打开PaddleOcr_json.exe。若无报错，则模型文件已正确加载。“Active code page: 65001”是正常现象。
+- 打开PaddleOcr_json.exe。若无报错，则模型文件已正确加载。程序正常启动时会输出一句`Active code page: 65001`代表控制台已切换到utf-8编码，此外不会输出其他信息，直到传入图片路径。
 
 #### 3. 调整配置
 - `[exe名称]_config.txt`是全局配置文件，可设置模型位置、识别参数、开启GPU等。具体参考[官方文档](https://gitee.com/paddlepaddle/PaddleOCR/blob/release/2.4/doc/doc_ch/config.md)。
