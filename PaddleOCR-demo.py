@@ -1,13 +1,14 @@
-import subprocess
+import os
+import subprocess  # 进程，管道
 from sys import platform as sysPlatform  # popen静默模式
 from json import loads as jsonLoads
 
 
-class OCR:
-
-    def __init__(self, exePath, cwd=None):
+class CallingOCR:
+    def __init__(self, exePath):
         """初始化识别器。\n
-        传入识别器exe路径，子进程目录(exe父目录)"""
+        传入识别器exe路径"""
+        cwd = os.path.abspath(os.path.join(exePath, os.pardir))  # exe父文件夹
         startupinfo = None  # 静默模式设置
         if 'win32' in str(sysPlatform).lower():
             startupinfo = subprocess.STARTUPINFO()
@@ -21,6 +22,7 @@ class OCR:
             startupinfo=startupinfo  # 开启静默模式
         )
         self.ret.stdout.readline()  # 读掉第一行
+        print("OCR初始化完毕。")
 
     def run(self, imgPath):
         """对一张图片文字识别。
@@ -33,15 +35,14 @@ class OCR:
             self.ret.stdin.write(imgPath.encode("gbk"))
             self.ret.stdin.flush()
         except Exception as e:
-            return {"error": f"向识别器进程写入图片地址失败，疑似该进程已崩溃。{e}"}
+            return {"error": f"向识别器进程写入图片地址失败，疑似该进程已崩溃。{e}", "text": ""}
         try:
             getStr = self.ret.stdout.readline().decode('utf-8', errors='ignore')
         except Exception as e:
             if imgPath[-1] == "\n":
                 imgPath = imgPath[:-1]
-            return {"error": f"读取识别器进程输出值失败，疑似传入了不存在或无法识别的图片【{imgPath}】。{e}"}
+            return {"error": f"读取识别器进程输出值失败，疑似传入了不存在或无法识别的图片【{imgPath}】。{e}", "text": ""}
         try:
-            # 走到这里不一定代表识别成功，可能c++内部已经处理了异常，getStr本身就是 {"error":"xxxxx"}
             return jsonLoads(getStr)
         except Exception as e:
             if imgPath[-1] == "\n":
@@ -50,14 +51,19 @@ class OCR:
 
     def __del__(self):
         self.ret.kill()  # 关闭子进程
+        print("OCR子进程已关闭。")
 
 
 if __name__ == "__main__":
-    oCN = OCR("PaddleOCR_json.exe")  # 默认中文识别器
-    oJP = OCR("PaddleOCR_json_jp.exe")  # 日文识别器
+    oCN = CallingOCR("PaddleOCR-json\PaddleOCR_json.exe")  # 中文识别器
+    oJP = CallingOCR("PaddleOCR-json\PaddleOCR_json_jp.exe")  # 日文识别器
     while True:
-        p = input("请输入图片路径：\n")
-        if input("本图片识别为中文（敲回车）还是日文（敲1）：") == "":
+        p = input("请输入图片路径：（退出程序请回车）\n")
+        if p == "":
+            del oCN  # 销毁对象，析构函数自动关闭子进程
+            del oJP
+            exit(0)
+        if input("本图片识别为中文（敲回车）还是日文（敲1）") == "":
             dic = oCN.run(p)
         else:
             dic = oJP.run(p)
