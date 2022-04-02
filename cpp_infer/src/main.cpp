@@ -13,11 +13,11 @@
 #include <fstream>
 #include <numeric>
 
-#include <include/config.h>
-#include <include/ocr_det.h>
-#include <include/ocr_rec.h>
+#include "include/config.h"
+#include "include/ocr_det.h"
+#include "include/ocr_rec.h"
 
-#include <include/configor/json.hpp> // json库 
+#include "include/configor/json.hpp" // json库 
 using namespace configor;
 
 using namespace std;
@@ -26,7 +26,6 @@ using namespace PaddleOCR;
 
 int main(int argc, char* argv[])
 {
-    system("chcp 65001"); // 控制台转utf-8编码 
     // 获取程序名称，根据名称选择对应的配置 
     string argvName = argv[0];
     string::size_type xPos = argvName.rfind('\\') + 1; // 最后一个斜杠位置 
@@ -55,33 +54,43 @@ int main(int argc, char* argv[])
         config.gpu_mem, config.cpu_math_library_num_threads,
         config.use_mkldnn, config.char_list_file,
         config.use_tensorrt, config.use_fp16);
+    // 控制台转utf-8编码，输出这行代表初始化成功 
+    system("chcp 65001"); 
 
-    std::string img_path; 
-    while(getline(cin, img_path)) { // 读取图片路径，读到空行退出 
+    while(true) {
+        std::string img_path;  
+        getline(cin, img_path);
         // 去除控制台遇到空格路径自动加的双引号 
         if (img_path[0] == '\"') {
             img_path = img_path.substr(1, img_path.length() - 2);
         }
 
         // 载入图片 
+        // cv::imread 读入一副彩色图片，忽略alpha通道
+        // img_path 支持双右斜线、双左斜线、单左斜线、三种混合 
         cv::Mat srcimg = cv::imread(img_path, cv::IMREAD_COLOR);
-        if (!srcimg.data) // 读入图片失败 
+        if (!srcimg.data) // 读入图片失败，输出报错 
         {
-            json errjson = { {"error", "读取图片失败  " + img_path} };
+            json errjson = { {"code", 200}, {"data", "Failed to load image from file \"" + img_path + "\"."}};
             std::cout << errjson << endl;
             continue;
         }
         
         // 运行 
-        std::vector<std::vector<std::vector<int>>> boxes; // 识别出的包围盒 
-        std::vector<std::string> out_str; // 识别出的字符串 
-        std::vector<float> out_score; // 识别字符串的置信度 
-        det.Run(srcimg, boxes); 
-        rec.Run(boxes, srcimg, cls, out_str, out_score);
+        std::vector<std::vector<std::vector<int>>> boxes; // 存放包围盒 
+        std::vector<std::string> out_str; // 存放文本字符串 
+        std::vector<float> out_score; // 存放置信度 
+        det.Run(srcimg, boxes); // 执行文本检测：查找图片中的文本行，得到包围盒 
+        rec.Run(boxes, srcimg, cls, out_str, out_score); // 执行文本识别：根据包围盒，得到文本字符串 
 
         // 转json 
         json textArr = json::array({});
         int s = out_str.size(); 
+        if (s == 0) { // 无文字 
+            json outJson = { {"code", 101}, {"data", "No text found in image."}};
+            std::cout << outJson << endl;
+            continue;
+        }
         for (int i = 0; i < s; i++) {
             json textObj = {
                     {"text", out_str[i]},
@@ -91,7 +100,8 @@ int main(int argc, char* argv[])
             };
             textArr[s-i-1] = textObj;
         }
-        std::cout << textArr << endl;
+        json outJson = { {"code", 100}, {"data", textArr} };
+        std::cout << outJson << endl;
     }
     return 0;
 }
