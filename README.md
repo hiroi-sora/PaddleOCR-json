@@ -7,13 +7,13 @@
 
 ## 准备工作
 
-下载 [PaddleOCR-json v1.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.0) 并解压，即可。
+下载 [PaddleOCR-json v1.1](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.1) 并解压，即可。
 
 ## 命令行试用
 
 直接打开`PaddleOcr_json.exe`。输入图片路径，回车。
-- 任务成功时，输出图片识别信息的json（数组）。
-- 任务失败时，输出json为：{"error":"异常原因xxxx"} 。
+- 任务成功时，输出图片识别信息json字符串。格式见下。
+- 任务失败时，输出错误信息json字符串。
 - 输出一条信息后，可继续接收路径输入；程序是死循环。
 - 支持输入带空格的路径。
 - 命令行模式下仅支持英文路径。
@@ -22,7 +22,7 @@
 
 示例：
 
-![](https://tupian.li/images/2022/04/01/imageff5a965f77f1bfda.png)
+![](https://tupian.li/images/2022/04/02/image491a4e9ba75069dc.png)
 
 ## python调用
 
@@ -58,15 +58,27 @@ print("识别结果为：",getObj)
 
 [PaddleOCR-demo.py](PaddleOCR-demo.py)
 
-这里代码可能与下载的`PaddleOCR-json.rar`中的不一样，以这里为准。
+这里代码若与下载的`PaddleOCR-json.rar`中的同名文件不一样，以这里的最新版为准。
 
 ## 输出值JSON说明
 
-`PaddleOcr_json.exe` 将把识别信息以json格式字符串的形式打印到控制台。
-正常情况下，输出值为 **数组** ，数组中每一项含三个元素：
-- `text` ：文本内容，字符串。
-- `box` ：文本包围盒，长度为8的数组，分别为左上角xy、右上角xy、右下角xy、左下角xy。整数。
-- `score` ：识别置信度，浮点数。
+`PaddleOcr_json.exe` 将把识别信息以json格式字符串的形式打印到控制台。根含且只含两个元素：状态码`code`和内容`data`。状态码code为整数，每种状态码对应一种data形式：
+
+##### 识别到文字（100）
+
+- data内容为数组。数组每一项为字典，含三个元素：
+  - `text` ：文本内容，字符串。
+  - `box` ：文本包围盒，长度为8的数组，分别为左上角xy、右上角xy、右下角xy、左下角xy。整数。
+  - `score` ：识别置信度，浮点数。
+
+##### 未识别到文字（101）
+
+- data为字符串：`No text found in image.`
+
+##### 加载图片错误（200）
+
+- data为字符串：`Failed to load image form file "{图片路径}".`
+
 
 ## 载入多国语言语言
 
@@ -113,3 +125,12 @@ print("识别结果为：",getObj)
 
 本项目中使用了 [configor](https://github.com/Nomango/configor) ：
 > “一个为 C++11 量身打造的轻量级 config 库，轻松完成 JSON 解析和序列化功能，并和 C++ 输入输出流交互。”
+
+
+## 更新日志
+
+#### v1.1 `2022.4.2` 
+- 修改了json输出格式，改为状态码+内容，便于调用方判断。
+
+
+#### v1.0 `2022.3.28`

@@ -58,24 +58,27 @@ if __name__ == "__main__":
     oCN = CallingOCR("PaddleOCR-json\PaddleOCR_json.exe")  # 中文识别器
     oJP = CallingOCR("PaddleOCR-json\PaddleOCR_json_jp.exe")  # 日文识别器
     while True:
-        p = input("请输入图片路径：（退出程序请回车）\n")
+        p = input("\n请输入图片路径：（退出程序请回车）\n")
         if p == "":
             del oCN  # 销毁对象，析构函数自动关闭子进程
             del oJP
             exit(0)
+        if "& '" in p:  # 处理下vscode控制台加的东西
+            p = p[3:-1]
         if input("本图片识别为中文（敲回车）还是日文（敲1）") == "":
             dic = oCN.run(p)
         else:
             dic = oJP.run(p)
-        if isinstance(dic, dict):
-            print("识别失败，原因：", dic["error"])
-            if "text" in dic:
-                print("原始数据：\n", dic["text"])
-        else:
-            for i in dic:
+
+        if dic["code"] == 100:
+            for i in dic["data"]:
                 print(f'''
 {i["text"]}
     左上角：{i["box"][0]},{i["box"][1]}
     右下角：{i["box"][4]},{i["box"][5]}
     置信度：{i["score"]}
     ''')
+        elif dic["code"] == 101:
+            print("图像中未识别到文字。")
+        else:
+            print(f'程序异常。错误码：{dic["code"]}\n错误内容：{str(dic["data"])}')
