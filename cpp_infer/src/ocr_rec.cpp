@@ -91,6 +91,10 @@ namespace PaddleOCR {
                 out_score.push_back(score); // 记录输出置信度 
                 out_str.push_back(strget); // 记录输出字符串 
             } 
+            else {
+                out_score.push_back(-1); // 返回标志值 
+                out_str.push_back(""); // 占位 
+            }
 
             /*for (int i = 0; i < str_res.size(); i++) {
                 std::cout << str_res[i];

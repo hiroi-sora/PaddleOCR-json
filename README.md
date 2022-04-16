@@ -7,7 +7,7 @@
 
 ## 准备工作
 
-下载 [PaddleOCR-json v1.1](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.1) 并解压，即可。
+下载 [PaddleOCR-json v1.1.1](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.1.1) 并解压，即可。
 
 ## 命令行试用
 
@@ -137,8 +137,10 @@ print("识别结果为：",getObj)
 
 ## 更新日志
 
-#### v1.1 `2022.4.2` 
-- 修改了json输出格式，改为状态码+内容，便于调用方判断。
+#### v1.1.1 `2022.4.16` 
+- 修正了漏洞：当`文本检测`识别到区域但`文本识别`未在区域中检测到文字时，可能输出不相符的包围盒。
 
+#### v1.1.0 `2022.4.2` 
+- 修改了json输出格式，改为状态码+内容，便于调用方判断。
 
 #### v1.0 `2022.3.28`

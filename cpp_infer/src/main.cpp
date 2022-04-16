@@ -85,22 +85,23 @@ int main(int argc, char* argv[])
 
         // 转json 
         json textArr = json::array({});
-        int s = out_str.size(); 
-        if (s == 0) { // 无文字 
+        int ti = 0; // 待输出的字符串数量 
+        for (int i = out_str.size() -1; i >= 0; i--) {
+            if (out_score[i] > 0) { // 检验标志值 
+                json textObj = {
+                    {"text", out_str[i]},
+                    {"score", out_score[i]},
+                    {"box", { boxes[i][0][0], boxes[i][0][1], boxes[i][1][0], boxes[i][1][1], boxes[i][2][0], boxes[i][2][1], boxes[i][3][0], boxes[i][3][1] } }
+                };
+                textArr[ti++] = textObj;
+            } 
+        }
+        if (ti == 0) { // 无文字 
             json outJson = { {"code", 101}, {"data", "No text found in image."}};
             std::cout << outJson << endl;
             continue;
         }
-        for (int i = 0; i < s; i++) {
-            json textObj = {
-                    {"text", out_str[i]},
-                    {"score", out_score[i]},
-                    {"box", { boxes[i][0][0], boxes[i][0][1], boxes[i][1][0], boxes[i][1][1], boxes[i][2][0], boxes[i][2][1], boxes[i][3][0], boxes[i][3][1] },
-                }
-            };
-            textArr[s-i-1] = textObj;
-        }
-        json outJson = { {"code", 100}, {"data", textArr} };
+        json outJson = { {"code", 100}, {"data", textArr} }; // 正常输出 
         std::cout << outJson << endl;
     }
     return 0;
