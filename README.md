@@ -109,7 +109,6 @@ ret.kill()
     rec_model_dir  rec_fr
     char_list_file french_dict.txt
     ```
-6. 保存文件，打开软件，将 **识别器路径** 改为 `PaddleOCR-json\PaddleOCR_json_fr.exe`。
 
 ## 切换模型库
 
