@@ -52,13 +52,28 @@ ret.stdin.flush() # 发送
 getStr = self.ret.stdout.readline().decode('utf-8', errors='ignore') # 获取结果，解码utf-8
 getObj = json.loads(getStr) # 反序列化json
 print("识别结果为：",getObj)
+ret.kill()
 ```
+
 
 #### 实用例子
 
 [PaddleOCR-demo.py](PaddleOCR-demo.py)
 
 这里代码若与下载的`PaddleOCR-json.rar`中的同名文件不一样，以这里的最新版为准。
+
+## PowerShell调用
+
+[PaddleOCR-demo-powershell.py](PaddleOCR-demo-powershell.py)
+
+<details>
+<summary>这个调用demo不完善，当前存在一些问题</summary>
+
+1. 处理OCR结果的业务函数 OcrFlow 不运行在主窗口中，所以用Windows PowerShell运行代码似乎不会显示它输出的内容，只有在vscode中运行才可以看到。
+2. 编码转换问题，得到的 $ocrStr 的内容是utf-8但编码是gbk，因此表现为中文乱码，要重新将字符串编码为utf-8才行。
+3. 任务结束退出程序时似乎存在问题，OCR识别器进程能被正常关闭，而powershell进程未结束，exit不起作用。（或许需要强制杀死本进程$pid？）
+
+</details>
 
 ## 输出值JSON说明
 
