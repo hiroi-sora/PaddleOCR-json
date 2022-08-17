@@ -1,5 +1,5 @@
 ﻿<#
-PowerShell 调用Umi-OCR的demo
+PowerShell 调用PaddleOCR进行批量图片转文字的demo
 
 不完善，当前存在问题：
 1. 处理OCR结果的业务函数 OcrFlow 不运行在主窗口中，所以用Windows PowerShell运行代码似乎不会显示它输出的内容，只有在vscode中运行才可以看到。
