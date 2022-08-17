@@ -95,9 +95,40 @@ ret.kill()
 - data为字符串：`Failed to load image form file "{图片路径}".`
 
 
-## 载入多国语言语言 & 切换模型库
+## 载入多国语言语言
 
-请参考 [Umi-OCR#识别器设置](https://github.com/hiroi-sora/Umi-OCR#%E8%AF%86%E5%88%AB%E5%99%A8%E8%AE%BE%E7%BD%AE)
+需要下载和简单修改配置文件。以法文为例：
+
+1. 前往 [PP-OCR系列 多语言识别模型列表](https://gitee.com/paddlepaddle/PaddleOCR/blob/release/2.4/doc/doc_ch/models_list.md#23-%E5%A4%9A%E8%AF%AD%E8%A8%80%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B%E6%9B%B4%E5%A4%9A%E8%AF%AD%E8%A8%80%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%E4%B8%AD) 下载对应的 **推理模型**`french_mobile_v2.0_rec_infer.tar` 和 **字典文件**`french_dict.txt`。
+2. 在`PaddleOCR-json`目录下创建文件夹`rec_fr`，将解压后的三个模型文件放进去。字典文件可直接放在目录下。
+3. 复制一份识别器`PaddleOCR_json.exe`，命名为`PaddleOCR_json_fr.exe`
+4. 复制一份配置单`PaddleOCR_json_config.txt`，命名为`PaddleOCR_json_fr_config.txt`
+5. 打开配置单`PaddleOCR_json_fr_config.txt`，将`# rec config`相关的两个配置项改为：
+    ```sh
+    # rec config
+    rec_model_dir  rec_fr
+    char_list_file french_dict.txt
+    ```
+6. 保存文件，打开软件，将 **识别器路径** 改为 `PaddleOCR-json\PaddleOCR_json_fr.exe`。
+
+## 切换模型库
+
+本程序兼容v2和v3版本模型库，但个人实测v3的效果不稳定，v2在速度和精确性上均占优。（[见issue #4](https://github.com/hiroi-sora/Umi-OCR/issues/4#issuecomment-1141735773)）（推测，可能是本项目对v3模型的优化不够好；未来将尝试解决这个问题。）
+
+1. 下载模型
+ - 前往[PaddleOCR](https://gitee.com/paddlepaddle/PaddleOCR#pp-ocr%E7%B3%BB%E5%88%97%E6%A8%A1%E5%9E%8B%E5%88%97%E8%A1%A8%E6%9B%B4%E6%96%B0%E4%B8%AD)下载一组推理模型（非训练模型）。**中英文超轻量PP-OCRv2模型** 体积小、速度快，**中英文通用PP-OCR server模型** 体积大、精度高。一般来说，轻量模型的精度已经非常不错，无需使用标准模型。
+
+2. 放置模型
+- 将下载下来的方向分类器（如`ch_ppocr_mobile_v2.0_cls_infer.tar`）、检测模型（如`ch_PP-OCRv2_det_infer.tar`）、识别模型（如`ch_PP-OCRv2_rec_infer.tar`）解压，将文件分别放到对应文件夹 `cls、det、rec`。
+
+3. 调整配置
+- 仿照修改语言的方法，复制一份`PaddleOcr_json.exe`及其配置单`[exe名称]_config.txt`，修改其中的路径参数。打开exe，若无报错，则模型文件已正确加载。“Active code page: 65001”是正常现象。
+- 配置单中，可设置更多OCR识别参数等。调整它也许能获得更高的识别精度和效率。具体参考官方文档[配置文件内容与生成](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.5/doc/doc_ch/config.md)、[更多支持的可调节参数解释](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.5/deploy/cpp_infer/readme_ch.md#6-%E5%88%86%E7%B1%BB)。
+- 注意，如果修改了exe名称，也需要同步修改配置文件名的前缀。
+
+#### 如何精准识别超大分辨率图片
+
+- 为了提高速度，PaddleOCR预先将长度超标的图片进行压缩，再执行文字识别。这可能导致超大分辨率（4k以上）图片的识别准确度下降，比如漏掉小字。调整`启用压缩阈值`可改善该问题，[方法见issue #5](https://github.com/hiroi-sora/Umi-OCR/issues/5#issuecomment-1184088016)。注意，减少压缩可能导致识别耗时大幅增加。
 
 
 ## 开发说明
