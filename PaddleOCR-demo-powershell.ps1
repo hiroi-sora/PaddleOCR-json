@@ -59,7 +59,6 @@ function OcrInit {
         }
         # 向业务函数传递识图结果，并获取下一轮图片路径
         OcrFlow $ocrStr ([REF]$nextImgPath)
-        # ===========================================
         Write-Host "第 $nowIndex 轮获取新图片地址：【$nextImgPath】"
         if (!$nextImgPath) {
             # 路径为空，结束进程
