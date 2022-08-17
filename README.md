@@ -64,7 +64,7 @@ ret.kill()
 
 ## PowerShell调用
 
-[PaddleOCR-demo-powershell.py](PaddleOCR-demo-powershell.py)
+[PaddleOCR-demo-powershell.ps1](PaddleOCR-demo-powershell.ps1)
 
 <details>
 <summary>这个调用demo不完善，当前存在一些问题</summary>
