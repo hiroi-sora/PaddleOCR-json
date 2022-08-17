@@ -95,39 +95,10 @@ ret.kill()
 - data为字符串：`Failed to load image form file "{图片路径}".`
 
 
-## 载入多国语言语言
+## 载入多国语言语言 & 切换模型库
 
-以法文为例：
+请参考 [Umi-OCR#识别器设置](https://github.com/hiroi-sora/Umi-OCR#%E8%AF%86%E5%88%AB%E5%99%A8%E8%AE%BE%E7%BD%AE)
 
-1. 前往 [PP-OCR系列 多语言识别模型列表](https://gitee.com/paddlepaddle/PaddleOCR/blob/release/2.4/doc/doc_ch/models_list.md#23-%E5%A4%9A%E8%AF%AD%E8%A8%80%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B%E6%9B%B4%E5%A4%9A%E8%AF%AD%E8%A8%80%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%E4%B8%AD) 下载对应的 **推理模型**`french_mobile_v2.0_rec_infer.tar` 和 **字典文件**`french_dict.txt`。
-2. 在`PaddleOCR_Green`目录下创建文件夹`rec_fr`，将解压后的三个模型文件放进去。字典文件可直接放在目录下。
-3. 复制一份识别器`PaddleOCR_json.exe`，命名为`PaddleOCR_json_fr.exe`
-4. 复制一份配置单`PaddleOCR_json_config.txt`，命名为`PaddleOCR_json_fr_config.txt`
-5. 打开配置单`PaddleOCR_json_fr_config.txt`，将`# rec config`相关的两个配置项改为：
-    ```sh
-    # rec config
-    rec_model_dir  rec_fr
-    char_list_file french_dict.txt
-    ```
-6. 保存文件。`PaddleOCR_json_fr.exe`即为法文专精的识别器。
-
-## 切换模型库
-
-软件附带的模型可能过时，可以重新下载PaddleOCR的最新官方模型，享受更精准的识别质量。或者使用自己训练的模型。
-
-#### 1. 下载模型
- - 前往[PaddleOCR](https://gitee.com/paddlepaddle/PaddleOCR#pp-ocr%E7%B3%BB%E5%88%97%E6%A8%A1%E5%9E%8B%E5%88%97%E8%A1%A8%E6%9B%B4%E6%96%B0%E4%B8%AD)下载一组推理模型（非训练模型）。**中英文超轻量PP-OCRv2模型** 体积小、速度快，**中英文通用PP-OCR server模型** 体积大、精度高。一般来说，轻量模型的精度已经非常不错，无需使用标准模型。
- - 注意只能使用v2.x版模型，不能使用github上[PaddlePaddle/PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)的v1.1版。v1版模型每个压缩包内有model和params两个文件，v2版则是每组三个文件；不能混用。
-
-#### 2. 放置模型
-- 将下载下来的方向分类器（如`ch_ppocr_mobile_v2.0_cls_infer.tar`）、检测模型（如`ch_PP-OCRv2_det_infer.tar`）、识别模型（如`ch_PP-OCRv2_rec_infer.tar`）解压，将文件分别放到对应文件夹 `cls、det、rec`。
-- 打开PaddleOcr_json.exe。若无报错弹窗或输出一些奇奇怪怪的内容，则模型文件已正确加载，程序初始化完成。
-  - 程序正常启动时会输出一句`Active code page: 65001`代表控制台已切换到utf-8编码，此外不会输出其他信息，直到传入图片路径。
-
-#### 3. 调整配置
-- `[exe名称]_config.txt`是全局配置文件，可设置模型位置、识别参数等。调整它也许能获得更高的识别精度和效率。具体参考[官方文档](https://gitee.com/paddlepaddle/PaddleOCR/blob/release/2.4/doc/doc_ch/config.md)。
-- 如果修改了exe名称，也需要同步修改配置文件名的前缀。
-  - 即，什么样的exe对应什么样的配置文件。这样一个目录下可以共存多个识别不同语言的exe，它们共用一部分模型库和dll。
 
 ## 开发说明
 
@@ -138,6 +109,7 @@ ret.kill()
 
 ### 注意避坑
 
+- 为何通过控制台传入图片路径而不是通过启动参数传递？因为本程序初始化时要载入不少模型库文件，若每次启动程序只识别一张图片，则批量处理会多出额外的初始化开销。所以采用了一次初始化，后续多次传入路径的设计。
 - 理论上，程序对于传入的异常文件会有处理，返回错误码200；不影响后续工作。（异常文件指：不存在的路径，opencv不支持的图片格式，已损坏的图片。）
     但使用中，若通过管道传入的gbk编码**含中文路径**若存在异常（如`测试文件夹\\已损坏的图片.png`），大多数情况下能处理，有小概率**进程直接挂掉**。如果是纯英文路径（如`test\\damaged image.png`），则貌似没有这个问题。目前尚未清楚原因，目测跟opencv的imread()有关。
     当然，含中文路径不存在异常时，不会出现以上bug。
