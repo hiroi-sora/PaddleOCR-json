@@ -1,4 +1,6 @@
-# PaddleOCR-json 图片转文字程序
+# PaddleOCR-json 图片转文字程序 
+
+`v1.1.1`
 
 图片批量离线OCR文字识别程序。输入图片路径，输出识别结果json字符串，方便别的程序调用。
 
@@ -59,8 +61,6 @@ ret.kill()
 #### 实用例子
 
 [PaddleOCR-demo.py](PaddleOCR-demo.py)
-
-这里代码若与下载的`PaddleOCR-json.rar`中的同名文件不一样，以这里的最新版为准。
 
 ## PowerShell调用
 
