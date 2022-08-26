@@ -13,7 +13,7 @@
 
 ## 命令行试用
 
-直接打开`PaddleOcr_json.exe`。控制台会输出一串日志信息，最后清屏，输出：
+直接打开`PaddleOCR_json.exe`。控制台会输出一串日志信息，最后清屏，输出：
 ```
 Active code page: 65001
 OCR initialization completed.
@@ -222,7 +222,7 @@ import os
 
 imgPath = "E:\\test2.jpg"  # 待检测图片路径，支持中文和空格，结尾不能有换行符。
 exePath = r"E:\MyCode\CppCode\PaddleOCR\cpp_infer\build\Release\PaddleOCR_json.exe"
-beginStr = exePath+f' --image_dir="{imgPath}"'  # 拼接启动参数
+beginStr = f'{exePath} --image_dir="{imgPath}"'  # 拼接启动参数
 
 # 打开管道，启动识别器程序
 ret = subprocess.Popen(
