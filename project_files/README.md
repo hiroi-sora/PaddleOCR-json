@@ -4,7 +4,9 @@
 
 1. 按照官方说明 [Visual Studio 2019 Community CMake 编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/docs/windows_vs2019_build.md) ，完成CPU版本demo的编译。这份说明很详细，一般不会有什么坑了。（一定要使用PaddleOCR v2.6版）
 2. 可以使用我的资源文件整合包以保证各工具版本相同。
+3. 
 秒传链接：`11a28975913aa0e1a5016436b4330adc#346fc54d33f2efd5d31eac9fb400f17d#705185184#PaddleOCR-json_构建资源文件.7z`
+
 包含内容：
 
 | 文件                       | 文件名                                             | 备注                     |
