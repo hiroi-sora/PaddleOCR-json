@@ -26,7 +26,7 @@ OCR initialization completed.
 - 支持输入带空格的路径。
 - 命令行模式下仅支持英文路径。
 
-程序接受`gbk`编码输入，而输出是`utf-8`。因此，命令行模式下，无法识别输入的非英文字符。
+程序接受`gbk`编码输入，而输出是`utf-8`。因此，命令行模式下，无法识别输入的非英文（ascii）字符。
 
 示例：
 
@@ -74,6 +74,7 @@ rec_char_dict_path ppocr_keys_v1.txt
 | limit_side_len     | 压缩阈限              | 960    |
 | use_system_pause   | 填false时停用自动暂停 | true   |
 
+- 当调用方难以处理管道utf-8转码时，设`--ensure_ascii=true`，本程序将输出以ascii字符编码utf-8信息，以此规避乱码问题。例：`测试字符串`→`\u6d4b\u8bd5\u5b57\u7b26\u4e32`。
 - 当传入超大分辨率图片(4K)、且图片中含有小字时，调高`limit_side_len`的值，减少压缩以提高精准度。可调至与图片高度一致。但这将大幅增加识别耗时。
 - 默认退出程序前（如单次识别完毕，或有报错），程序会通过 `system("pause")` 自动暂停以便检查。若调用时不想暂停，则可设 `--use_system_pause=false`。
 
@@ -139,11 +140,21 @@ DEFINE_bool(ensure_ascii, false, "Whether characters in the output are escaped w
 
 </details>
 
+### 过滤启动日志
+
+程序启动时会输出大量日志信息，初始化完成后输出`OCR initialization completed.`。当你用别的程序调用本程序时，建议先循环读取过滤掉启动日志，直到读到完成标志，再进入正式工作。以python为例：
+
+```python
+while "OCR initialization completed." not in str(ret.stdout.readline()):
+    pass
+```
+
 ### 传入图片路径
 
-程序有两种方式处理图片：当通过启动参数/配置文件设定了 `image_dir=图片路径` 的值时，识别该图片，输出结果，然后直接结束程序。
+程序有两种方式处理图片：
 
-当未设定 `image_dir` 时，程序进入循环模式，可以通过控制台或管道输入一张图片路径，该图片识别完毕输出结果后，可以继续输入并识别下一张图片。
+1. 当通过启动参数/配置文件设定了 `image_dir=图片路径` 的值时，识别该图片，输出结果，然后直接结束程序。
+2. 当未设定 `image_dir` 时，程序进入循环模式.初始化完成后，可以通过控制台或管道输入一张图片路径，该图片识别完毕输出结果后，可以继续输入并识别下一张图片。
 
 ### 输出值JSON说明
 
@@ -175,11 +186,12 @@ DEFINE_bool(ensure_ascii, false, "Whether characters in the output are escaped w
 
 ## python调用
 
+
+#### 简单示例1（通过管道传路径）
+
 - 通过管道与识别器程序交互。
 - 支持中文路径：将含中文字符串编码为`gbk`输入管道，即可被正确识别。
 - 输入内容必须以换行符结尾。
-
-#### 简单示例1（通过管道传路径）
 
 ```python
 import subprocess
@@ -215,6 +227,9 @@ ret.kill()  # 结束进程
 
 #### 简单示例2（通过启动参数传路径）
 
+- 通过管道接收识别器的返回值。
+- 支持中文路径：含中文字符串无需编码，直接拼接入启动参数。若含空格，需要以双引号包裹。
+
 ```python
 import subprocess
 import json
@@ -222,7 +237,8 @@ import os
 
 imgPath = "E:\\test2.jpg"  # 待检测图片路径，支持中文和空格，结尾不能有换行符。
 exePath = r"E:\MyCode\CppCode\PaddleOCR\cpp_infer\build\Release\PaddleOCR_json.exe"
-beginStr = f'{exePath} --image_dir="{imgPath}"'  # 拼接启动参数
+# 拼接启动参数。设use_system_pause以让进程结束后不暂停，自动退出。
+beginStr = f'{exePath} --use_system_pause=0 --image_dir="{imgPath}"'
 
 # 打开管道，启动识别器程序
 ret = subprocess.Popen(
@@ -235,59 +251,19 @@ ret = subprocess.Popen(
 while "OCR initialization completed." not in str(ret.stdout.readline()):
     pass
 
-# 发送图片路径，获取识别结果
+# 获取识别结果
 getStr = ret.stdout.readline().decode(
     'utf-8', errors='ignore')  # 获取结果，解码utf-8
 getObj = json.loads(getStr)  # 反序列化json
 print("识别结果为：", getObj)
-ret.kill()  # 结束进程
+# 无需kill，进程自动结束。
 ```
 
-### 载入多国语言语言
+### 载入多国语言语言&切换模型库
 
-<details>
-<summary>需要下载和简单修改配置文件</summary>
+新版本README还未写好，可先参考[旧版](backups_previous_version/PaddleOCR-json_v1.1.1/README.md#载入多国语言语言)。
 
-以法文为例：
-
-1. 前往 [PP-OCR系列 多语言识别模型列表](https://gitee.com/paddlepaddle/PaddleOCR/blob/release/2.4/doc/doc_ch/models_list.md#23-%E5%A4%9A%E8%AF%AD%E8%A8%80%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B%E6%9B%B4%E5%A4%9A%E8%AF%AD%E8%A8%80%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%E4%B8%AD) 下载对应的 **推理模型**`french_mobile_v2.0_rec_infer.tar` 和 **字典文件**`french_dict.txt`。
-2. 在`PaddleOCR-json`目录下创建文件夹`rec_fr`，将解压后的三个模型文件放进去。字典文件可直接放在目录下。
-3. 复制一份识别器`PaddleOCR_json.exe`，命名为`PaddleOCR_json_fr.exe`
-4. 复制一份配置单`PaddleOCR_json_config.txt`，命名为`PaddleOCR_json_fr_config.txt`
-5. 打开配置单`PaddleOCR_json_fr_config.txt`，将`# rec config`相关的两个配置项改为：
-    ```sh
-    # rec config
-    rec_model_dir  rec_fr
-    char_list_file french_dict.txt
-    ```
-
-</details>
-
-### 切换模型库
-
-本程序兼容v2和v3版本模型库。
-
-<details>
-<summary>步骤：</summary>
-
-1. 下载模型
- - 前往[PaddleOCR](https://gitee.com/paddlepaddle/PaddleOCR#pp-ocr%E7%B3%BB%E5%88%97%E6%A8%A1%E5%9E%8B%E5%88%97%E8%A1%A8%E6%9B%B4%E6%96%B0%E4%B8%AD)下载一组推理模型（非训练模型）。**中英文超轻量PP-OCRv2模型** 体积小、速度快，**中英文通用PP-OCR server模型** 体积大、精度高。一般来说，轻量模型的精度已经非常不错，无需使用标准模型。
-
-2. 放置模型
-- 将下载下来的方向分类器（如`ch_ppocr_mobile_v2.0_cls_infer.tar`）、检测模型（如`ch_PP-OCRv2_det_infer.tar`）、识别模型（如`ch_PP-OCRv2_rec_infer.tar`）解压，将文件分别放到对应文件夹 `cls、det、rec`。
-
-3. 调整配置
-- 仿照修改语言的方法，复制一份`PaddleOcr_json.exe`及其配置单`[exe名称]_config.txt`，修改其中的路径参数。打开exe，若无报错，则模型文件已正确加载。“Active code page: 65001”是正常现象。
-- 配置单中，可设置更多OCR识别参数等。调整它也许能获得更高的识别精度和效率。具体参考官方文档[配置文件内容与生成](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.5/doc/doc_ch/config.md)、[更多支持的可调节参数解释](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.5/deploy/cpp_infer/readme_ch.md#6-%E5%88%86%E7%B1%BB)。
-- 注意，如果修改了exe名称，也需要同步修改配置文件名的前缀。
-
-#### 如何精准识别超大分辨率图片
-
-- 为了提高速度，PaddleOCR预先将长度超标的图片进行压缩，再执行文字识别。这可能导致超大分辨率（4k以上）图片的识别准确度下降，比如漏掉小字。调整`启用压缩阈值`可改善该问题，[方法见issue #5](https://github.com/hiroi-sora/Umi-OCR/issues/5#issuecomment-1184088016)。注意，减少压缩可能导致识别耗时大幅增加。
-
-</details>
-
-### [项目构建指南](project_files\cpp_infer\README.md)
+### [项目构建指南](project_files/cpp_infer/README.md)
 
 ### 感谢
 
