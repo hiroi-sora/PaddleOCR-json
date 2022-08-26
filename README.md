@@ -263,7 +263,7 @@ print("识别结果为：", getObj)
 
 新版本README还未写好，可先参考[旧版](backups_previous_version/PaddleOCR-json_v1.1.1/README.md#载入多国语言语言)。
 
-### [项目构建指南](project_files/cpp_infer/README.md)
+### [项目构建指南](project_files/README.md)
 
 ### 感谢
 
