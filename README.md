@@ -4,8 +4,6 @@
 
 `v1.2.0` 重构了整个项目，增加了一些新功能和潜在的新BUG。若遇到问题请提issue，或者使用功能稳定的 [v1.1.1版本](backups_previous_version/PaddleOCR-json_v1.1.1) 。
 
-新版本中支持三种传参方式：启动参数、默认配置文件 单次调用和管道多次调用的两种方法。
-
 **本程序的GUI形式：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
 
 
