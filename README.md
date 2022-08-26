@@ -231,12 +231,9 @@ ret = subprocess.Popen(
     stdout=subprocess.PIPE,
     stdin=subprocess.PIPE,
 )
-# 过滤初始化语句
-while(1):
-    r = str(ret.stdout.readline())
-    print(r)
-    if "OCR initialization completed." in r:
-        break
+# 过滤初始化语句，简便写法
+while "OCR initialization completed." not in str(ret.stdout.readline()):
+    pass
 
 # 发送图片路径，获取识别结果
 getStr = ret.stdout.readline().decode(
