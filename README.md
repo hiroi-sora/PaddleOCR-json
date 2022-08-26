@@ -265,6 +265,8 @@ print("识别结果为：", getObj)
 
 ### [项目构建指南](project_files/README.md)
 
+👆当你需要修改本项目代码时欢迎参考。
+
 ### 感谢
 
 本项目中使用了 [nlohmann/json](https://github.com/nlohmann/json) ：
