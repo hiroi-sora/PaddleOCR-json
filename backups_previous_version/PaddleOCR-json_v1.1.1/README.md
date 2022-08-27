@@ -134,7 +134,7 @@ ret.kill()
 
 ### 部署项目
 
-1. 下载并编译飞桨PaddleOCR C++预测库，可参考 [这篇教程](https://cloud.tencent.com/developer/article/1843504) 。
+1. 下载并编译飞桨PaddleOCR C++预测库，可参考 [官方 VS2019 & CMake 编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.1/deploy/cpp_infer/docs/windows_vs2019_build.md) 或 [这篇教程](https://cloud.tencent.com/developer/article/1843504) 或 。注意PaddleOCR c++源码必须使用 [v2.1.1版本](https://github.com/PaddlePaddle/PaddleOCR/releases/tag/v2.1.1) 。
 2. 将本项目`src`、`include`目录中的文件替换进去。
 
 ### 注意避坑
