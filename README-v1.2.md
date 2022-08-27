@@ -65,20 +65,22 @@ rec_char_dict_path ppocr_keys_v1.txt
 
 比较重要的配置项的说明如下
 
-| 键名称             | 值说明                | 默认值 |
-| ------------------ | --------------------- | ------ |
-| det_model_dir      | det库路径             | 必填   |
-| cls_model_dir      | cls库路径             | 必填   |
-| rec_model_dir      | rec库路径             | 必填   |
-| rec_char_dict_path | rec字典路径           | 必填   |
-| rec_img_h          | v3模型填48，v2填32    | 48     |
-| ensure_ascii       | 填true启用ascii转义   | false  |
-| limit_side_len     | 压缩阈限              | 960    |
-| use_system_pause   | 填false时停用自动暂停 | true   |
+| 键名称             | 值说明                  | 默认值 |
+| ------------------ | ----------------------- | ------ |
+| det_model_dir      | det库路径               | 必填   |
+| cls_model_dir      | cls库路径               | 必填   |
+| rec_model_dir      | rec库路径               | 必填   |
+| rec_char_dict_path | rec字典路径             | 必填   |
+| rec_img_h          | v3模型填48，v2填32      | 48     |
+| ensure_ascii       | 填true启用ascii转义     | false  |
+| limit_side_len     | 压缩阈限                | 960    |
+| use_system_pause   | 填false时停用自动暂停   | true   |
+| enable_mkldnn      | 填true时启用CPU推理加速 | false  |
 
 - 当调用方难以处理管道utf-8转码时，设`--ensure_ascii=true`，本程序将输出以ascii字符编码utf-8信息，以此规避乱码问题。例：`测试字符串`→`\u6d4b\u8bd5\u5b57\u7b26\u4e32`。
 - 当传入超大分辨率图片(4K)、且图片中含有小字时，调高`limit_side_len`的值，减少压缩以提高精准度。可调至与图片高度一致。但这将大幅增加识别耗时。
 - 默认退出程序前（如单次识别完毕，或有报错），程序会通过 `system("pause")` 自动暂停以便检查。若调用时不想暂停，则可设 `--use_system_pause=false`。
+- 十分建议启用推理加速 `--enable_mkldnn=true`。
 
 <details>
 <summary>所有配置项定义如下</summary>

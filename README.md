@@ -2,6 +2,8 @@
 
 图片批量离线OCR文字识别程序。输入图片路径，输出识别结果json字符串，方便别的程序调用。
 
+新版本`v1.2.0`正在开发中，同步PaddleOCR v2.6。预计识别精度和速度均会有极大提升。
+
 **本程序的GUI形式：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
 
 
