@@ -18,7 +18,7 @@
 
 ## 通过API调用
 
-#### [Python API](api\python)
+#### [Python API](api/python)
 
 使用示例：
 
