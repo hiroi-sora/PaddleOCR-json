@@ -15,7 +15,32 @@
 
 下载 [PaddleOCR-json v1.2.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.2.0) 并解压，即可。
 
-## 命令行试用
+
+## 通过API调用
+
+#### [Python API](api\python)
+
+使用示例：
+
+```python
+from PPOCR_api import PPOCR
+
+# 初始化，传入 PaddleOCR_json.exe 的路径
+ocr = PPOCR('D:\…………\PaddleOCR_json.exe')
+
+# 识别图片，传入图片路径
+getObj = ocr.run('D:\图片\测试图片1.png')
+print(f"图片识别完毕，结果：\n{getObj}")
+
+# 识图完毕，关闭OCR进程
+del ocr
+```
+
+#### 更多语言API
+
+编写中
+
+## 命令行调用方式简介
 
 简单介绍一下调用程序识别图片的三种方式。
 
@@ -90,7 +115,7 @@
 
 ##### 无法读取图片（201）
 
-- data为字符串：`Image read failed. Path"{图片路径}".`
+- data为字符串：`Image read failed. Path:"{图片路径}".`
 - 此时请检查图片格式是否符合opencv支持；或图片本身是否已损坏。
 
 ##### JSON格式化失败（300）
@@ -224,17 +249,23 @@ ret.kill()  # 调用方结束识别器进程
 </details>
 
 
-## 配置参数说明
+#### 4. 注入配置参数
 
-配置信息规定OCR的各项属性和识别模型库的路径，可通过多种方式传入程序。
+配置信息规定OCR的各项属性和识别模型库的路径，可通过多种方式注入程序。
 
 1. 默认参数：程序内自带一套适用于PaddleOCR v3版本模型库的参数，但是不包含模型库路径。即，用户至少要传入模型库和字典路径，才能启动程序。另，若使用v2版模型库，则必须传入参数`rec_img_h=32`。
 2. 默认配置文件：程序启动时读取同目录下 `程序名_config.txt`。若该文件存在，则读取其中的配置信息。（例：程序名为`PaddleOCR_json.exe`，则默认配置参数为`PaddleOCR_json_config.txt`）
 3. 指定配置文件：可在启动参数中传入 `--config_path=配置文件.txt` ，指定另一个配置文件。此时忽略默认配置文件。支持绝对/相对/带空格路径（加引号）。
 4. 启动参数：可通过启动参数传入配置信息。
+5. 热更新：程序启动后，通过json传入任意配置项。无需重新初始化即可修改参数。但可能存在未知的隐患，建议谨慎使用并多做测试。
+   - 注意，各识别库和字典**路径**等参数不能热更新（它们只在初始化时生效）。
+   - 热更新和识别图片可以在同一回合进行，即json里同时填了`image_dir`和别的参数。
+   - 热更新的回合，返回值json里会额外多出`hotUpdate`元素，值为热更新日志字符串。
 
-以上4种参数的优先级，越往下越高。即，存在同一个配置项冲突时，优先采用 启动参数 > 配置文件 > 默认 。
+以上5种参数的优先级，越往下越高。即，存在同一个配置项冲突时，优先采用 热更新 > 启动参数 > 配置文件 > 默认 。
 
+- 热更新的格式是：`{"键":值}`
+  - 例：`{"use_angle_cls":false, "rec_img_h":32}`
 - 启动参数的格式是：`--键=值 `
   - 例：`PaddleOCR_json  --use_angle_cls=false --rec_img_h=32 --image_dir="E:\测试\img 1.jpg"`
 - 配置文件的格式是：`键 值`，支持#开头的注释（只能在最前面写#来注释一整行）。例：
@@ -249,7 +280,7 @@ rec_model_dir ch_PP-OCRv2_rec_infer
 rec_char_dict_path ppocr_keys_v1.txt
 ```
 
-### 配置信息说明
+#### 配置信息说明
 
 比较重要的配置项的说明如下
 
@@ -265,7 +296,7 @@ rec_char_dict_path ppocr_keys_v1.txt
 | use_system_pause   | 填false时停用自动暂停    | true   |
 | enable_mkldnn      | 填false时停用CPU推理加速 | true   |
 
-- 当调用方难以处理管道utf-8转码时，设`--ensure_ascii=true`，本程序将输出以ascii字符编码utf-8信息，以此规避乱码问题。例：`测试字符串`→`\u6d4b\u8bd5\u5b57\u7b26\u4e32`。
+- 当调用方难以处理管道utf-8转码时，设`--ensure_ascii=true`，本程序将输出以ascii字符编码utf-8信息，以此规避乱码问题。例：`测试字符串`→`\u6d4b\u8bd5\u5b57\u7b26\u4e32`。这个配置项只影响输出，不影响输入图片路径。
 - 当传入超大分辨率图片(4K)、且图片中含有小字时，调高`limit_side_len`的值，减少压缩以提高精准度。可调至与图片高度一致。但这将大幅增加识别耗时。
 - 默认退出程序前（如单次识别完毕，或有报错），程序会通过 `system("pause")` 自动暂停以便检查。若调用时不想暂停，则可设 `--use_system_pause=false`。
 - 十分建议启用推理加速 `--enable_mkldnn=true`。
@@ -331,45 +362,6 @@ DEFINE_bool(ensure_ascii, false, "Whether characters in the output are escaped w
 ```
 
 </details>
-
-
-## python调用
-
-
-
-#### 简单示例2（通过启动参数传路径）
-
-- 通过管道接收识别器的返回值。
-- 支持中文路径：含中文字符串无需编码，直接拼接入启动参数。若含空格，需要以双引号包裹。
-
-```python
-import subprocess
-import json
-import os
-
-imgPath = "E:\\test2.jpg"  # 待检测图片路径，支持中文和空格，结尾不能有换行符。
-exePath = r"E:\MyCode\CppCode\PaddleOCR\cpp_infer\build\Release\PaddleOCR_json.exe"
-# 拼接启动参数。设use_system_pause以让进程结束后不暂停，自动退出。
-beginStr = f'{exePath} --use_system_pause=0 --image_dir="{imgPath}"'
-
-# 打开管道，启动识别器程序
-ret = subprocess.Popen(
-    beginStr,
-    cwd=os.path.abspath(os.path.join(exePath, os.pardir)),
-    stdout=subprocess.PIPE,
-    stdin=subprocess.PIPE,
-)
-# 过滤初始化语句，简便写法
-while "OCR initialization completed." not in str(ret.stdout.readline()):
-    pass
-
-# 获取识别结果
-getStr = ret.stdout.readline().decode(
-    'utf-8', errors='ignore')  # 获取结果，解码utf-8
-getObj = json.loads(getStr)  # 反序列化json
-print("识别结果为：", getObj)
-# 无需kill，进程自动结束。
-```
 
 ### 载入多国语言语言&切换模型库
 
