@@ -20,7 +20,7 @@ DEFINE_bool(use_tensorrt, false, "Whether use tensorrt.");
 DEFINE_int32(gpu_id, 0, "Device id of GPU to execute.");
 DEFINE_int32(gpu_mem, 4000, "GPU id when infering with GPU.");
 DEFINE_int32(cpu_threads, 10, "Num of threads with CPU.");
-DEFINE_bool(enable_mkldnn, false, "Whether use mkldnn with CPU.");
+DEFINE_bool(enable_mkldnn, true, "Whether use mkldnn with CPU.");
 DEFINE_string(precision, "fp32", "Precision be one of fp32/fp16/int8");
 DEFINE_bool(benchmark, false, "Whether use benchmark.");
 DEFINE_string(output, "./output/", "Save benchmark log path.");
@@ -46,8 +46,7 @@ DEFINE_int32(cls_batch_num, 1, "cls_batch_num.");
 // recognition related
 DEFINE_string(rec_model_dir, "", "Path of rec inference model.");
 DEFINE_int32(rec_batch_num, 6, "rec_batch_num.");
-DEFINE_string(rec_char_dict_path, "../../ppocr/utils/ppocr_keys_v1.txt",
-              "Path of dictionary.");
+DEFINE_string(rec_char_dict_path, "", "Path of dictionary.");
 DEFINE_int32(rec_img_h, 48, "rec image height");
 DEFINE_int32(rec_img_w, 320, "rec image width");
 
@@ -55,9 +54,7 @@ DEFINE_int32(rec_img_w, 320, "rec image width");
 DEFINE_string(table_model_dir, "", "Path of table struture inference model.");
 DEFINE_int32(table_max_len, 488, "max len size of input image.");
 DEFINE_int32(table_batch_num, 1, "table_batch_num.");
-DEFINE_string(table_char_dict_path,
-              "../../ppocr/utils/dict/table_structure_dict.txt",
-              "Path of dictionary.");
+DEFINE_string(table_char_dict_path, "", "Path of dictionary.");
 
 // ocr forward related
 DEFINE_bool(det, true, "Whether use det in forward.");
@@ -70,3 +67,6 @@ DEFINE_string(config_path,"","Path of config txt.");
 
 // Êä³öjson×Ö·û´®×ªascii±àÂë 
 DEFINE_bool(ensure_ascii, false, "Whether characters in the output are escaped with sequences to ASCII.");
+
+// ÍË³öÇ°ÔÝÍ£³ÌÐò 
+DEFINE_bool(use_system_pause, true, "Whether system(\"pause\") before exit");

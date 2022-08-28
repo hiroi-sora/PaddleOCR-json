@@ -63,3 +63,5 @@ DECLARE_bool(table);
 DECLARE_string(config_path);
 // 输出json字符串转ascii编码 
 DECLARE_bool(ensure_ascii);
+// 退出前暂停程序 
+DECLARE_bool(use_system_pause);

@@ -17,7 +17,6 @@
 
 #include "auto_log/autolog.h"
 #include <numeric>
-#include <sys/stat.h>
 
 namespace PaddleOCR {
 
@@ -41,8 +40,8 @@ PaddleStructure::structure(std::vector<cv::String> cv_all_img_names,
 
   std::vector<std::vector<StructurePredictResult>> structure_results;
 
-  if (!Utility::PathExists(FLAGS_output) && FLAGS_det) {
-    //mkdir(FLAGS_output.c_str(), 0777);
+  if (!Utility::PathExists(FLAGS_output) && FLAGS_det && FLAGS_visualize) {
+      Utility::CreateDir(FLAGS_output); // 创建输出目录
   }
   for (int i = 0; i < cv_all_img_names.size(); ++i) {
     std::vector<StructurePredictResult> structure_result;

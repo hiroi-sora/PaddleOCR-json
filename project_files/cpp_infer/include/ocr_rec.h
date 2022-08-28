@@ -73,6 +73,30 @@ public:
 
   void Run(std::vector<cv::Mat> img_list, std::vector<std::string> &rec_texts,
            std::vector<float> &rec_text_scores, std::vector<double> &times);
+  
+  // 热更新
+  void HotUpdate(const std::string& model_dir, const bool& use_gpu,
+    const int& gpu_id, const int& gpu_mem,
+    const int& cpu_math_library_num_threads,
+    const bool& use_mkldnn, const string& label_path,
+    const bool& use_tensorrt,
+    const std::string& precision,
+    const int& rec_batch_num, const int& rec_img_h,
+    const int& rec_img_w) {
+    this->use_gpu_ = use_gpu;
+    this->gpu_id_ = gpu_id;
+    this->gpu_mem_ = gpu_mem;
+    this->cpu_math_library_num_threads_ = cpu_math_library_num_threads;
+    this->use_mkldnn_ = use_mkldnn;
+    this->use_tensorrt_ = use_tensorrt;
+    this->precision_ = precision;
+    this->rec_batch_num_ = rec_batch_num;
+    this->rec_img_h_ = rec_img_h;
+    this->rec_img_w_ = rec_img_w;
+    // 更新向量
+    this->rec_image_shape_[1] = rec_img_h;
+    this->rec_image_shape_[2] = rec_img_w;
+  }
 
 private:
   std::shared_ptr<Predictor> predictor_;

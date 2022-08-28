@@ -43,6 +43,31 @@ PPOCR::PPOCR() {
   }
 };
 
+// 热更新
+void PPOCR::HotUpdate() {
+  if (FLAGS_det) {
+    this->detector_->HotUpdate(
+      FLAGS_det_model_dir, FLAGS_use_gpu, FLAGS_gpu_id, FLAGS_gpu_mem,
+      FLAGS_cpu_threads, FLAGS_enable_mkldnn, FLAGS_limit_type,
+      FLAGS_limit_side_len, FLAGS_det_db_thresh, FLAGS_det_db_box_thresh,
+      FLAGS_det_db_unclip_ratio, FLAGS_det_db_score_mode, FLAGS_use_dilation,
+      FLAGS_use_tensorrt, FLAGS_precision);
+  }
+  if (FLAGS_cls && FLAGS_use_angle_cls) {
+    this->classifier_->HotUpdate(
+      FLAGS_cls_model_dir, FLAGS_use_gpu, FLAGS_gpu_id, FLAGS_gpu_mem,
+      FLAGS_cpu_threads, FLAGS_enable_mkldnn, FLAGS_cls_thresh,
+      FLAGS_use_tensorrt, FLAGS_precision, FLAGS_cls_batch_num);
+  }
+  if (FLAGS_rec) {
+    this->recognizer_->HotUpdate(
+      FLAGS_rec_model_dir, FLAGS_use_gpu, FLAGS_gpu_id, FLAGS_gpu_mem,
+      FLAGS_cpu_threads, FLAGS_enable_mkldnn, FLAGS_rec_char_dict_path,
+      FLAGS_use_tensorrt, FLAGS_precision, FLAGS_rec_batch_num,
+      FLAGS_rec_img_h, FLAGS_rec_img_w);
+  }
+}
+
 void PPOCR::det(cv::Mat img, std::vector<OCRPredictResult> &ocr_results,
                 std::vector<double> &times) {
   std::vector<std::vector<std::vector<int>>> boxes;
@@ -156,9 +181,8 @@ PPOCR::ocr(std::vector<cv::String> cv_all_img_names, bool det, bool rec,
       if (!FLAGS_benchmark) {
         //cout << "predict img: " << cv_all_img_names[i] << endl;
       }
-
       cv::Mat srcimg = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
-      if (!srcimg.data) {
+      if (!srcimg.data) { // 读取图片失败
         //std::cerr << "[ERROR] image read failed! image path: "
         //          << cv_all_img_names[i] << endl;
         //system("pause");
@@ -170,7 +194,7 @@ PPOCR::ocr(std::vector<cv::String> cv_all_img_names, bool det, bool rec,
         return ocr_results;
       }
       // det
-      this->det(srcimg, ocr_result, time_info_det);
+      this->det(srcimg, ocr_result, time_info_det); // todo
       if (ocr_result.empty()) { // 没有文字，填充空向量，跳过循环 
         ocr_results.push_back(ocr_result);
         continue;

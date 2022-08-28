@@ -134,7 +134,10 @@ void DBDetector::Run(cv::Mat &img,
   auto inference_start = std::chrono::steady_clock::now();
   input_t->CopyFromCpu(input.data());
 
+  //fclose(stderr);
+  // ↓这句代码第一次调用时会打印一行日志到输出流stderr。不影响stdout。
   this->predictor_->Run();
+  //freopen("CON", "w", stderr);
 
   std::vector<float> out_data;
   auto output_names = this->predictor_->GetOutputNames();
