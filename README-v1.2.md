@@ -1,42 +1,230 @@
 # PaddleOCR-json 图片转文字程序 
 
-图片批量离线OCR文字识别程序。传入图片路径，输出识别结果json字符串，方便别的程序调用。
+图片批量离线OCR文字识别程序。支持多种方式传入图片路径，输出识别结果json字符串，方便别的程序调用。
 
-<font color='red'> v1.2.0 版本还在开发中，已发现存在BUG。</font>建议使用功能稳定的 [v1.1.1版本](backups_previous_version/PaddleOCR-json_v1.1.1) 。
+示例：
 
-~~`v1.2.0` 重构了整个项目，增加了一些新功能和潜在的新BUG。若遇到问题请提issue，或者使用功能稳定的 [v1.1.1版本](backups_previous_version/PaddleOCR-json_v1.1.1) 。~~
+![img-1.jpg](https://tupian.li/images/2022/08/26/img-1.jpg)
+
+`v1.2.0` 重构了整个项目，增加了亿些新功能和潜在的新BUG。遇到问题请提issue，或者使用功能稳定的 [v1.1.1版本](backups_previous_version/PaddleOCR-json_v1.1.1) 。
 
 **本程序的GUI形式：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
 
 
 ## 准备工作
 
-~~下载 [PaddleOCR-json v1.2.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.2.0) 并解压，即可。~~
+下载 [PaddleOCR-json v1.2.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.2.0) 并解压，即可。
 
 ## 命令行试用
 
-直接打开`PaddleOCR_json.exe`。控制台会输出一串日志信息，最后清屏，输出：
-```
-Active code page: 65001
-OCR initialization completed.
-```
-即表示各项参数和模型库加载完成，OCR初始化完毕。随后可传入图片路径来识别。
+简单介绍一下调用程序识别图片的三种方式。
 
-传入路径方式：直接在控制台输入图片的绝对或相对路径，回车。一段时间后显示识别json内容。
+#### 方式1：启动参数
 
-- 输出一条信息后，可继续接收路径输入；程序此时为死循环。
-- 支持输入带空格的路径。
-- 命令行模式下仅支持英文路径。
+1. 打开命令提示符cmd，跳转到本程序目录下。
+    ```
+    cd /d D:\……\PaddleOCR-json
+    ```
+2. 启动 `PaddleOCR_json` ，并通过`-image_dir`参数传入一张图片的路径。
+   - 支持中文和空格路径。建议加双引号将路径字符串裹起来。
+    ```
+    PaddleOCR_json -image_dir="测试图片/test 1.jpg"
+    ```
+3. 程序初始化，输出一大串日志信息；然后识别该图片，打印json字符串。随后自动结束任务并退出程序。
 
-程序接受`gbk`编码输入，而输出是`utf-8`。因此，命令行模式下，无法识别输入的非英文（ascii）字符。
+#### 方式2：直接输入路径
 
-示例：
+1. 双击打开 `PaddleOCR_json.exe` 。控制台会打印一大串日志信息，最后显示以下两行，表示OCR初始化完毕，可进行批量识图操作。
+    ```
+    Active code page: 65001
+    OCR init completed.
+    ```
+2. 直接在控制台输入图片路径，回车。一段时间后显示识别json内容。
+    ```
+    D:/test images/test 1.jpg
+    ```
+3. 识别完后程序不会退出，可以继续输入路径识别新的图片。
+   - 支持带空格的路径，无需引号。
+   - 此时仅支持手动输入纯英文(ascii字符)的路径。不过，调用方将含中文路径编码为gbk字符串再输入管道也可以让本程序识别。
 
-![img-1.jpg](https://tupian.li/images/2022/08/26/img-1.jpg)
+#### 方式3：直接输入json（经过ascii转义）
+
+1. 同方式2，打开 `PaddleOCR_json.exe` ，等待初始化完成。
+2. 在控制台输入json字符串 `{"image_dir":"图片路径"}`。
+   - 当路径含中文(非ascii字符)时，必须经过ascii转义，即将文字转换成`\uxxxx`的字符串。这样可以规避gbk编码问题。
+    ```
+    {"image_dir": "\u6D4B\u8BD5\u56FE\u7247\\test 1.jpg"}
+    ```
+3. 一段时间后显示识别json内容。同方式2，可以继续识别下一张。
+
+## 输出JSON说明
+
+`PaddleOcr_json.exe` 将把图片转文字识别信息以json格式字符串的形式打印到控制台。根含两个元素：状态码`code`和内容`data`。在设置了热更新的回合，还会含有额外元素：参数更新日志`hotUpdate`。
+
+状态码`code`为整数，每种状态码对应一种情况：
+
+##### 识别到文字（100）
+
+- data内容为数组。数组每一项为字典，含三个元素：
+  - `text` ：文本内容，字符串。
+  - `box` ：文本包围盒，长度为8的数组，分别为左上角xy、右上角xy、右下角xy、左下角xy。整数。
+  - `score` ：识别置信度，浮点数。
+- 例：
+  ```
+    {"code":100,"data":[{"box":[24,27,234,27,234,53,24,53],"score":0.9904433488845825,"text":"飞舞的因果交流"}]}
+    ```
+
+##### 未识别到文字（101）
+
+- data为字符串：`No text found in image. Path:"{图片路径}"`
+- 这是正常现象，识别没有文字的空白图片时会出现这种结果。
+- 例：
+    ```
+    {"code":101,"data":"No text found in image. Path:\"D:\\blank.png\""}
+    ```
+
+##### 图片路径不存在（200）
+
+- data为字符串：`Image path not exist. Path:"{图片路径}".`
+- 此时请检查图片路径是否正确。通过控制台或管道传入中文路径时，务必编码为`gbk`或使用ascii转义的json字符串。程序无法识别直接输入的utf-8字符。
+
+##### 无法读取图片（201）
+
+- data为字符串：`Image read failed. Path"{图片路径}".`
+- 此时请检查图片格式是否符合opencv支持；或图片本身是否已损坏。
+
+##### JSON格式化失败（300）
+
+- data为字符串：`JSON dump failed. Coding error.`
+- 此问题基本上是由于输入了utf-8字符引起。
+
+##### hotUpdate元素
+
+- `hotUpdate` 元素仅在设置了热更新的回合出现，与识别码`code`没有关联。其内容为记录热更新日志的字符串。
+- 例：
+    ```
+    {"code":200,"data":"Image path not exist. Path:\"\"","hotUpdate":"det_model_dir set to ch_PP-OCRv2_det_infer. limit_side_len set to 961. rec_img_h set to 32. "}
+    ```
 
 ## 详细使用说明
 
-### 传入配置信息
+用别的程序调用本程序，核心问题是进程间通信。
+
+#### 1. 启动程序，重定向管道
+
+- Window下有三个标准io管道：标准输入stdin，标准输出stdout，标准错误输出stderr。调用方至少要重定向本程序stdin和stdout。此外，还要指定工作目录cwd（即PaddleOCR_json.exe所在的目录）。以python为例：
+    ```python
+    ret = subprocess.Popen(
+        "程序目录\\PaddleOCR_json.exe", cwd="程序目录",
+        stdout=subprocess.PIPE, stdin=subprocess.PIPE,  )
+    ```
+
+#### 2. 过滤启动日志
+
+- 本程序启动时，第三方链接库会打印大量日志信息；因此在输入第一条路径前需要过滤掉日志。
+- 程序输出`OCR init completed.`标志着初始化完成。调用方应该先循环读取过滤掉启动日志，直到读到完成标志，再进入正式工作。以python为例：
+
+    ```python
+    while "OCR init completed." not in str(ret.stdout.readline()):
+        pass
+    ```
+
+#### 3. 传入图片路径 & 获取输出信息
+
+- 程序有四种方式输入图片路径，分别是 ①管道直接输入路径；②管道输入json；③启动参数；④写在配置文件中。
+
+- 其中③和④并不实用，关注①和②即可。因为③和④是一次性的手段，程序识别完第一张图片后自动退出。每次启动程序会消耗初始化和暖机的时间。批量识别多张图片时，重复启动，将造成极大的浪费开销。
+
+<details>
+<summary>①管道直接输入路径</summary>
+
+##### 通过管道传路径
+
+- 支持中文路径：将含中文字符串编码为`gbk`输入管道，即可被正确识别。
+- 输入管道的字符串必须以换行符结尾，一次只能输入一条图片路径。
+- 以python为例：
+
+```python
+import subprocess
+import json
+import os
+
+imgPath = "E:\\test2.jpg\n"  # 待检测图片路径，支持中文和空格，结尾必须有换行符。
+exePath = r"E:\…………\PaddleOCR_json.exe"
+
+# 打开管道，启动识别器程序
+ret = subprocess.Popen(
+    exePath,
+    cwd=os.path.abspath(os.path.join(exePath, os.pardir)),
+    stdout=subprocess.PIPE,
+    stdin=subprocess.PIPE,
+)
+# 过滤初始化语句
+while(1):
+    r = str(ret.stdout.readline())
+    print(r)
+    if "OCR init completed." in r:
+        break
+
+# ↓↓ 发送图片路径，获取识别结果
+ret.stdin.write(imgPath.encode("gbk"))  # 编码gbk
+ret.stdin.flush()  # 发送
+getStr = ret.stdout.readline().decode(
+    'utf-8', errors='ignore')  # 获取结果，解码utf-8
+getObj = json.loads(getStr)  # 反序列化json
+print("识别结果为：", getObj)
+# ↑↑ 可重复进行，批量识别图片。
+ret.kill()  # 调用方结束识别器进程
+```
+
+</details>
+
+<details>
+<summary>②管道输入json</summary>
+
+##### 通过管道传json
+
+- 支持中文路径：将含中文字符串装填入json、设定ascii转义，输入管道，即可被正确识别。
+- 输入管道的json字符串必须以换行符结尾，一次只能输入一条json。
+- json中还可以包含其它参数进行热更新，详见后续。
+- 以python为例：
+
+```python
+import subprocess
+import json
+import os
+
+imgPath = "D:\图片\Screenshots\测试图片\幸运草 (2).png"  # 待检测图片路径，支持中文和空格，结尾无换行符。
+exePath = r"C:\MyCode\CppCode\PaddleOCR\cpp_infer\build\Release\PaddleOCR_json.exe"
+
+# 打开管道，启动识别器程序
+ret = subprocess.Popen(
+    exePath,
+    cwd=os.path.abspath(os.path.join(exePath, os.pardir)),
+    stdout=subprocess.PIPE,
+    stdin=subprocess.PIPE,
+)
+# 过滤初始化语句
+while "OCR init completed." not in str(ret.stdout.readline()):
+    pass
+# ↓↓ 发送图片路径，获取识别结果
+imgObj = {"image_dir": imgPath}
+#                    开启ascii转义，关闭缩进。最后加个换行符。
+imgStr = json.dumps(imgObj, ensure_ascii=True, indent=None)+"\n"
+ret.stdin.write(imgStr.encode())  # 无需指定哪种编码，因为ascii字符都一样
+ret.stdin.flush()  # 发送
+getStr = ret.stdout.readline().decode(
+    'utf-8', errors='ignore')  # 获取结果，解码utf-8
+getObj = json.loads(getStr)  # 反序列化json
+print("识别结果为：", getObj)
+# ↑↑ 可重复进行，批量识别图片。
+ret.kill()  # 调用方结束识别器进程
+```
+
+</details>
+
+
+## 配置参数说明
 
 配置信息规定OCR的各项属性和识别模型库的路径，可通过多种方式传入程序。
 
@@ -65,17 +253,17 @@ rec_char_dict_path ppocr_keys_v1.txt
 
 比较重要的配置项的说明如下
 
-| 键名称             | 值说明                  | 默认值 |
-| ------------------ | ----------------------- | ------ |
-| det_model_dir      | det库路径               | 必填   |
-| cls_model_dir      | cls库路径               | 必填   |
-| rec_model_dir      | rec库路径               | 必填   |
-| rec_char_dict_path | rec字典路径             | 必填   |
-| rec_img_h          | v3模型填48，v2填32      | 48     |
-| ensure_ascii       | 填true启用ascii转义     | false  |
-| limit_side_len     | 压缩阈限                | 960    |
-| use_system_pause   | 填false时停用自动暂停   | true   |
-| enable_mkldnn      | 填true时启用CPU推理加速 | false  |
+| 键名称             | 值说明                   | 默认值 |
+| ------------------ | ------------------------ | ------ |
+| det_model_dir      | det库路径                | 必填   |
+| cls_model_dir      | cls库路径                | 必填   |
+| rec_model_dir      | rec库路径                | 必填   |
+| rec_char_dict_path | rec字典路径              | 必填   |
+| rec_img_h          | v3模型填48，v2填32       | 48     |
+| ensure_ascii       | 填true启用ascii转义      | false  |
+| limit_side_len     | 压缩阈限                 | 960    |
+| use_system_pause   | 填false时停用自动暂停    | true   |
+| enable_mkldnn      | 填false时停用CPU推理加速 | true   |
 
 - 当调用方难以处理管道utf-8转码时，设`--ensure_ascii=true`，本程序将输出以ascii字符编码utf-8信息，以此规避乱码问题。例：`测试字符串`→`\u6d4b\u8bd5\u5b57\u7b26\u4e32`。
 - 当传入超大分辨率图片(4K)、且图片中含有小字时，调高`limit_side_len`的值，减少压缩以提高精准度。可调至与图片高度一致。但这将大幅增加识别耗时。
@@ -144,90 +332,10 @@ DEFINE_bool(ensure_ascii, false, "Whether characters in the output are escaped w
 
 </details>
 
-### 过滤启动日志
-
-程序启动时会输出大量日志信息，初始化完成后输出`OCR initialization completed.`。当你用别的程序调用本程序时，建议先循环读取过滤掉启动日志，直到读到完成标志，再进入正式工作。以python为例：
-
-```python
-while "OCR initialization completed." not in str(ret.stdout.readline()):
-    pass
-```
-
-### 传入图片路径
-
-程序有两种方式处理图片：
-
-1. 当通过启动参数/配置文件设定了 `image_dir=图片路径` 的值时，识别该图片，输出结果，然后直接结束程序。
-2. 当未设定 `image_dir` 时，程序进入循环模式.初始化完成后，可以通过控制台或管道输入一张图片路径，该图片识别完毕输出结果后，可以继续输入并识别下一张图片。
-
-### 输出值JSON说明
-
-`PaddleOcr_json.exe` 将把识别信息以json格式字符串的形式打印到控制台。根含且只含两个元素：状态码`code`和内容`data`。状态码code为整数，每种状态码对应一种data形式：
-
-##### 识别到文字（100）
-
-- data内容为数组。数组每一项为字典，含三个元素：
-  - `text` ：文本内容，字符串。
-  - `box` ：文本包围盒，长度为8的数组，分别为左上角xy、右上角xy、右下角xy、左下角xy。整数。
-  - `score` ：识别置信度，浮点数。
-- 例：`{"code":100,"data":[{"box":[24,27,234,27,234,53,24,53],"score":0.9904433488845825,"text":"飞舞的因果交流"}]}`
-
-##### 未识别到文字（101）
-
-- data为字符串：`No text found in image. Path:"{图片路径}"`
-
-##### 图片路径不存在（200）
-
-- data为字符串：`Image path not exist. Path:"{图片路径}".`
-- 此时请检查图片路径是否正确。含空格的路径，通过启动参数传入时需要加引号，通过控制台/管道直接传入时无需引号。含中文的路径，只能通过管道编码为`gbk`后输入。
-
-##### 无法读取图片（201）
-
-- data为字符串：`Image read failed. Path"{图片路径}".`
-- 此时请检查图片格式是否符合opencv支持；图片本身是否已损坏。
-
-
 
 ## python调用
 
 
-#### 简单示例1（通过管道传路径）
-
-- 通过管道与识别器程序交互。
-- 支持中文路径：将含中文字符串编码为`gbk`输入管道，即可被正确识别。
-- 输入内容必须以换行符结尾。
-
-```python
-import subprocess
-import json
-import os
-
-imgPath = "E:\\test2.jpg\n"  # 待检测图片路径，支持中文和空格，结尾必须有换行符。
-exePath = r"E:\MyCode\CppCode\PaddleOCR\cpp_infer\build\Release\PaddleOCR_json.exe"
-
-# 打开管道，启动识别器程序
-ret = subprocess.Popen(
-    exePath,
-    cwd=os.path.abspath(os.path.join(exePath, os.pardir)),
-    stdout=subprocess.PIPE,
-    stdin=subprocess.PIPE,
-)
-# 过滤初始化语句
-while(1):
-    r = str(ret.stdout.readline())
-    print(r)
-    if "OCR initialization completed." in r:
-        break
-
-# 发送图片路径，获取识别结果
-ret.stdin.write(imgPath.encode("gbk"))  # 编码gbk
-ret.stdin.flush()  # 发送
-getStr = ret.stdout.readline().decode(
-    'utf-8', errors='ignore')  # 获取结果，解码utf-8
-getObj = json.loads(getStr)  # 反序列化json
-print("识别结果为：", getObj)
-ret.kill()  # 结束进程
-```
 
 #### 简单示例2（通过启动参数传路径）
 
