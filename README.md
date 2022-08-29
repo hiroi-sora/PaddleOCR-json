@@ -8,7 +8,7 @@
 
 `v1.2.0` 重构了整个项目，增加了亿些新功能和潜在的新BUG。遇到问题请提issue，或者使用功能稳定的 [v1.1.1版本](backups_previous_version/PaddleOCR-json_v1.1.1) 。
 
-`v1.2.0` 基于[PaddleOCR 2.6（2022.8.24）](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6)构建，默认采用PPOCR-v3识别库。性能和识别正确率均优于之前的版本。`v1.2.0` 的平均识别耗时仅为 `v1.1.1` 的80%，对非常规字形（手写、艺术字、杂乱背景等）具有高得多的识别率。
+`v1.2.0` 基于[PaddleOCR 2.6（2022.8.24）](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6)构建，默认采用PPOCR-v3识别库。性能和识别正确率均优于之前的版本。`v1.2.0` 的平均识别耗时仅为 `v1.1.1` 的80%，对非常规字形（手写、艺术字、杂乱背景等）具有更佳的识别率。
 
 **本程序的GUI形式：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
 
