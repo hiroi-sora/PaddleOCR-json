@@ -32,6 +32,7 @@
 #include <include/ocr_cls.h>
 #include <include/preprocess_op.h>
 #include <include/utility.h>
+#include <include/tools.h>
 
 using namespace paddle_infer;
 
@@ -60,7 +61,14 @@ public:
     std::vector<int> rec_image_shape = {3, rec_img_h, rec_img_w};
     this->rec_image_shape_ = rec_image_shape;
 
-    this->label_list_ = Utility::ReadDict(label_path);
+
+    try {
+      this->label_list_ = Utility::ReadDict(label_path);
+    }
+    catch (string e) {
+      cerr << e << endl;
+      exit_pause(1);
+    }
     this->label_list_.insert(this->label_list_.begin(),
                              "#"); // blank char for ctc
     this->label_list_.push_back(" ");
