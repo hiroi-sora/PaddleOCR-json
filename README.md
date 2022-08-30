@@ -26,7 +26,7 @@
 
 ### 1. [Python API](api/python)
 
-将 [PPOCR_api.py](api/pythonPPOCR_api.py) 引入你的项目。
+将 [PPOCR_api.py](api/python/PPOCR_api.py) 引入你的项目。
 
 <details>
 <summary>使用示例：</summary>
@@ -42,12 +42,43 @@ while True:
     imgPath = input('请输入图片路径，退出直接回车：')
     if imgPath:
         getObj = ocr.run(imgPath)
-        print(f'图片识别完毕，结果：\n{getObj}')
+        print(f'图片识别完毕，状态码：{getObj["code"]} 结果：\n{getObj["data"]}\n')
     else:
         break
 
 del ocr  # 销毁识别器对象，结束子进程。
 print('程序结束。')
+```
+
+</details>
+
+### 2. [PowerShell API](api/powershell)
+
+将 [PPOCR_api.ps1](api/powershell/PPOCR_api.ps1) 引入你的项目。
+
+<details>
+<summary>使用示例：</summary>
+
+```PowerShell
+Import-Module -Force D:\…………\PPOCR_api.ps1
+
+# 初始化识别器对象，传入 PaddleOCR_json.exe 的路径
+$ocr = [PPOCR]::new("D:\…………\PaddleOCR-json\PaddleOCR_json.exe")
+
+# 识别图片，传入图片路径
+while (1) {
+    $imgPath = read-host "请输入图片路径，退出直接回车" 
+    if ($imgPath) {
+        $getObj = $ocr.run($imgPath)
+        Write-Host "图片识别完毕，状态码：$($getObj.'code') 结果：`n"($getObj.'data')"`n"
+    }
+    else {
+        break
+    }
+}
+
+$ocr.del()  # 结束子进程。
+Write-Host "程序结束。"
 ```
 
 </details>
