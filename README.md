@@ -20,26 +20,37 @@
 
 ## 通过API调用
 
-#### [Python API](api/python)
+### 1. [Python API](api/python)
 
-使用示例：
+将 [PPOCR_api.py](api/pythonPPOCR_api.py) 导入你的项目。
+
+<details>
+<summary>使用示例：</summary>
 
 ```python
 from PPOCR_api import PPOCR
 
-# 初始化，传入 PaddleOCR_json.exe 的路径
-ocr = PPOCR('D:\…………\PaddleOCR_json.exe')
+# 初始化识别器对象，传入 PaddleOCR_json.exe 的路径
+ocr = PPOCR('D:\…………\PaddleOCR-json\PaddleOCR_json.exe')
 
 # 识别图片，传入图片路径
-getObj = ocr.run('D:\图片\测试图片1.png')
-print(f"图片识别完毕，结果：\n{getObj}")
+while True:
+    imgPath = input('请输入图片路径，退出直接回车：')
+    if imgPath:
+        getObj = ocr.run(imgPath)
+        print(f'图片识别完毕，结果：\n{getObj}')
+    else:
+        break
 
-# 识图完毕，PPOCR对象析构时自动关闭OCR exe进程
+del ocr  # 销毁识别器对象，结束子进程。
+print('程序结束。')
 ```
 
-#### 更多语言API
+</details>
 
-编写中
+#### 2. 更多语言API
+
+待补充……
 
 ## 命令行调用方式简介
 
@@ -145,15 +156,15 @@ print(f"图片识别完毕，结果：\n{getObj}")
         stdout=subprocess.PIPE, stdin=subprocess.PIPE,  )
     ```
 
-### 2. 过滤启动日志
+### 2. 监测启动完成
 
-- 本程序启动时，第三方链接库会打印大量日志信息；因此在输入第一条路径前需要过滤掉日志。
-- 大部分日志输出在 `stderr` 流。
-- 程序在 `stdout` 输出 `OCR init completed.` 标志着初始化完成。调用方应该先循环读取过滤掉启动日志，直到读到完成标志，再进入正式工作。以python为例：
+- 本程序启动时，第三方链接库会打印大量日志信息。不过绝大多数日志输出在 `stderr` 流，可以不去管它。
+- 程序在 `stdout` 输出 `OCR init completed.` 标志着初始化完成。调用方应该先循环读取直到读到完成标志，再进入正式工作。以python为例：
 
     ```python
     while "OCR init completed." not in str(ret.stdout.readline()):
-        pass
+        if not self.ret.poll() == None:  # 子进程不在运行
+            raise Exception(f'子进程已结束，OCR初始化失败')
     ```
 
 ### 3. 传入图片路径 & 获取输出信息
@@ -187,11 +198,9 @@ ret = subprocess.Popen(
     stdin=subprocess.PIPE,
 )
 # 过滤初始化语句
-while(1):
-    r = str(ret.stdout.readline())
-    print(r)
-    if "OCR init completed." in r:
-        break
+while "OCR init completed." not in str(ret.stdout.readline()):
+    if not self.ret.poll() == None:  # 子进程不在运行
+        raise Exception(f'子进程已结束，OCR初始化失败')
 
 # ↓↓ 发送图片路径，获取识别结果
 ret.stdin.write(imgPath.encode("gbk"))  # 编码gbk
@@ -233,7 +242,8 @@ ret = subprocess.Popen(
 )
 # 过滤初始化语句
 while "OCR init completed." not in str(ret.stdout.readline()):
-    pass
+    if not self.ret.poll() == None:  # 子进程不在运行
+        raise Exception(f'子进程已结束，OCR初始化失败')
 # ↓↓ 发送图片路径，获取识别结果
 imgObj = {"image_dir": imgPath}
 #                    开启ascii转义，关闭缩进。最后加个换行符。
