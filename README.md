@@ -1,14 +1,16 @@
 # PaddleOCR-json 图片转文字程序 v1.2.0
 
-图片批量离线OCR文字识别程序。支持多种方式传入图片路径，输出识别结果json字符串，方便别的程序调用。
+图片批量离线OCR文字识别程序。通过管道等多种方式输入图片路径，输出识别结果json字符串，方便别的程序调用。
 
 示例：
 
 ![img-1.jpg](https://tupian.li/images/2022/08/26/img-1.jpg)
 
-`v1.2.0` 重构了整个项目，增加了亿些新功能和潜在的新BUG。遇到问题请提issue，或者使用功能稳定的 [v1.1.1版本](backups_previous_version/PaddleOCR-json_v1.1.1) 。
+`v1.2.0` 重构了整个项目，同步 [PaddleOCR 2.6 (2022.8.24) cpu_avx_mkl](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) ，提升性能、增加了亿些新功能和潜在的新BUG。遇到问题请提issue，或者使用功能稳定的 [v1.1.1版本](backups_previous_version/PaddleOCR-json_v1.1.1) 。
 
-`v1.2.0` 基于[PaddleOCR 2.6（2022.8.24）](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6)构建，默认采用PPOCR-v3识别库。性能和识别正确率均优于之前的版本。`v1.2.0` 的平均识别耗时仅为 `v1.1.1` 的80%，对非常规字形（手写、艺术字、杂乱背景等）具有更佳的识别率。
+- **方便** ：解压即用，无需安装和配置环境，无需联网。引入api，两行代码调用OCR。（未提供api的语言，可参考本文档通过管道调用OCR）
+- **高速** ：`v1.2.0` 比前代提速20%。默认启用mkldnn加速，字少的图片耗时在400ms以内，比在线OCR服务更快。
+- **精准** ：`v1.2.0` 附带PPOCR-v3识别库，比前代对非常规字形（手写、艺术字、小字、杂乱背景等）具有更佳的识别率。
 
 **本程序的GUI形式：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
 
@@ -20,9 +22,11 @@
 
 ## 通过API调用
 
+通过api调用时，已处理好gbk/utf-8转码和json反序列化等工作。调用方只管传入图片路径、接收返回字典。
+
 ### 1. [Python API](api/python)
 
-将 [PPOCR_api.py](api/pythonPPOCR_api.py) 导入你的项目。
+将 [PPOCR_api.py](api/pythonPPOCR_api.py) 引入你的项目。
 
 <details>
 <summary>使用示例：</summary>
@@ -48,9 +52,58 @@ print('程序结束。')
 
 </details>
 
-#### 2. 更多语言API
+### 2. 更多语言API
 
 待补充……
+
+## 输出JSON说明
+
+`PaddleOcr_json.exe` 将把图片转文字识别信息以json格式字符串的形式打印到控制台。根含两个元素：状态码`code`和内容`data`。在设置了热更新的回合，还会含有额外元素：参数更新日志`hotUpdate`。
+
+状态码`code`为整数，每种状态码对应一种情况：
+
+##### 识别到文字（100）
+
+- data内容为数组。数组每一项为字典，含三个元素：
+  - `text` ：文本内容，字符串。
+  - `box` ：文本包围盒，长度为8的数组，分别为左上角xy、右上角xy、右下角xy、左下角xy。整数。
+  - `score` ：识别置信度，浮点数。
+- 例：
+  ```
+    {"code":100,"data":[{"box":[24,27,234,27,234,53,24,53],"score":0.9904433488845825,"text":"飞舞的因果交流"}]}
+    ```
+
+##### 未识别到文字（101）
+
+- data为字符串：`No text found in image. Path:"{图片路径}"`
+- 这是正常现象，识别没有文字的空白图片时会出现这种结果。
+- 例：
+    ```
+    {"code":101,"data":"No text found in image. Path:\"D:\\blank.png\""}
+    ```
+
+##### 图片路径不存在（200）
+
+- data为字符串：`Image path not exist. Path:"{图片路径}".`
+- 此时请检查图片路径是否正确。通过控制台或管道传入中文路径时，务必编码为`gbk`或使用ascii转义的json字符串。程序无法识别直接输入的utf-8字符。
+
+##### 无法读取图片（201）
+
+- data为字符串：`Image read failed. Path:"{图片路径}".`
+- 此时请检查图片格式是否符合opencv支持；或图片本身是否已损坏。
+
+##### JSON格式化失败（300）
+
+- data为字符串：`JSON dump failed. Coding error.`
+- 此问题基本上是由于管道输入了utf-8字符引起。
+
+##### hotUpdate元素
+
+- `hotUpdate` 元素仅在设置了热更新的回合出现，与识别码`code`没有关联。其内容为记录热更新日志的字符串。
+- 例：
+    ```
+    {"code":200,"data":"Image path not exist. Path:\"\"","hotUpdate":"det_model_dir set to ch_PP-OCRv2_det_infer. limit_side_len set to 961. rec_img_h set to 32. "}
+    ```
 
 ## 命令行调用方式简介
 
@@ -93,55 +146,6 @@ print('程序结束。')
     {"image_dir": "\u6D4B\u8BD5\u56FE\u7247\\test 1.jpg"}
     ```
 3. 一段时间后显示识别json内容。同方式2，可以继续识别下一张。
-
-## 输出JSON说明
-
-`PaddleOcr_json.exe` 将把图片转文字识别信息以json格式字符串的形式打印到控制台。根含两个元素：状态码`code`和内容`data`。在设置了热更新的回合，还会含有额外元素：参数更新日志`hotUpdate`。
-
-状态码`code`为整数，每种状态码对应一种情况：
-
-##### 识别到文字（100）
-
-- data内容为数组。数组每一项为字典，含三个元素：
-  - `text` ：文本内容，字符串。
-  - `box` ：文本包围盒，长度为8的数组，分别为左上角xy、右上角xy、右下角xy、左下角xy。整数。
-  - `score` ：识别置信度，浮点数。
-- 例：
-  ```
-    {"code":100,"data":[{"box":[24,27,234,27,234,53,24,53],"score":0.9904433488845825,"text":"飞舞的因果交流"}]}
-    ```
-
-##### 未识别到文字（101）
-
-- data为字符串：`No text found in image. Path:"{图片路径}"`
-- 这是正常现象，识别没有文字的空白图片时会出现这种结果。
-- 例：
-    ```
-    {"code":101,"data":"No text found in image. Path:\"D:\\blank.png\""}
-    ```
-
-##### 图片路径不存在（200）
-
-- data为字符串：`Image path not exist. Path:"{图片路径}".`
-- 此时请检查图片路径是否正确。通过控制台或管道传入中文路径时，务必编码为`gbk`或使用ascii转义的json字符串。程序无法识别直接输入的utf-8字符。
-
-##### 无法读取图片（201）
-
-- data为字符串：`Image read failed. Path:"{图片路径}".`
-- 此时请检查图片格式是否符合opencv支持；或图片本身是否已损坏。
-
-##### JSON格式化失败（300）
-
-- data为字符串：`JSON dump failed. Coding error.`
-- 此问题基本上是由于输入了utf-8字符引起。
-
-##### hotUpdate元素
-
-- `hotUpdate` 元素仅在设置了热更新的回合出现，与识别码`code`没有关联。其内容为记录热更新日志的字符串。
-- 例：
-    ```
-    {"code":200,"data":"Image path not exist. Path:\"\"","hotUpdate":"det_model_dir set to ch_PP-OCRv2_det_infer. limit_side_len set to 961. rec_img_h set to 32. "}
-    ```
 
 ## 详细使用说明
 
