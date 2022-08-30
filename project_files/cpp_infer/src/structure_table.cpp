@@ -153,11 +153,6 @@ void StructureTableRecognizer::LoadModel(const std::string &model_dir) {
   config.EnableMemoryOptim();
   config.DisableGlogInfo();
 
-  // 调用库创建预测器时，关闭标准输出，屏蔽日志输出到控制台。之后重新打开标准输出。
-  fclose(stdout);
-  fclose(stderr);
   this->predictor_ = CreatePredictor(config);
-  freopen("CON", "w", stdout);
-  freopen("CON", "w", stderr);
 }
 } // namespace PaddleOCR

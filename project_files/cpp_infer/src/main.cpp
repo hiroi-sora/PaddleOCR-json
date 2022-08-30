@@ -31,7 +31,7 @@ using namespace PaddleOCR;
 void check_params() {
   if (FLAGS_det) {
     if (FLAGS_det_model_dir.empty()) {
-      cout << "[ERROR] Use det, need {--det_model_dir}." << std::endl;
+      cerr << "[ERROR] Use det, need {--det_model_dir}." << endl;
       exit_pause(1);
     }
   }
@@ -43,27 +43,27 @@ void check_params() {
     //       "please set --rec_image_shape='3,32,320"
     //    << std::endl;
     if (FLAGS_rec_model_dir.empty()) {
-      cout << "[ERROR] Use rec, need {--rec_model_dir}." << std::endl;
+      cerr << "[ERROR] Use rec, need {--rec_model_dir}." << endl;
       exit_pause(1);
     }
   }
   if (FLAGS_cls && FLAGS_use_angle_cls) {
     if (FLAGS_cls_model_dir.empty()) {
-      cout << "[ERROR] Use cls, need {--cls_model_dir}." << std::endl;
+      cerr << "[ERROR] Use cls, need {--cls_model_dir}." << endl;
       exit_pause(1);
     }
   }
   if (FLAGS_table) { // 不支持表格识别 
-    cout << "[ERROR] Table structure is not supported. {--table} only 'false' is allow." << std::endl;
+    cerr << "[ERROR] Table structure is not supported. {--table} only 'false' is allow." << endl;
     exit_pause(1);
   }
   if (FLAGS_type != "ocr") { // 不支持表格识别 
-    std::cerr << "[ERROR] Table structure is not supported. {--type} only 'ocr' is allow." << endl;
+    cerr << "[ERROR] Table structure is not supported. {--type} only 'ocr' is allow." << endl;
     exit_pause(1);
   }
   if (FLAGS_precision != "fp32" && FLAGS_precision != "fp16" &&
     FLAGS_precision != "int8") {
-    cout << "[ERROR] {--precison} should be 'fp32'(default), 'fp16' or 'int8'. " << endl;
+    cerr << "[ERROR] {--precison} should be 'fp32'(default), 'fp16' or 'int8'. " << endl;
     exit_pause(1);
   }
 }
@@ -154,7 +154,7 @@ void run_ocr(PPOCR& ocr, string img_path) {
     if (FLAGS_visualize && FLAGS_det) { 
       cv::Mat srcimg = cv::imread(img_path, cv::IMREAD_COLOR);
       if (!srcimg.data) {
-        std::cerr << "[ERROR] Image read failed! image path: "
+        std::cerr << "[ERROR] Image read failed. Path: "
           << gbk_2_utf8(img_path) << endl;
         return;
       }
