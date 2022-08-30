@@ -18,6 +18,7 @@
 #include <ostream>
 
 #include <vector>
+#include <include/args.h>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -36,9 +37,9 @@ std::vector<std::string> Utility::ReadDict(const std::string &path) {
       m_vec.push_back(line);
     }
   } else {
-    std::cout << "no such label file: " << path << ", exit the program..."
-              << std::endl;
-    exit(1);
+    std::string errmsg = "[Error] {--rec_char_dict_path} not exist. Path:\"" + path + "\"";
+    //std::cerr << errmsg << std::endl;
+    throw errmsg;
   }
   return m_vec;
 }
