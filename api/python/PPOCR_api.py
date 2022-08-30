@@ -2,7 +2,6 @@
 from ast import Num
 import os
 import subprocess  # 进程，管道
-from typing import Union
 from json import loads as jsonLoads
 from sys import platform as sysPlatform  # popen静默模式
 
@@ -10,22 +9,20 @@ from sys import platform as sysPlatform  # popen静默模式
 class PPOCR:
     """调用OCR"""
 
-    def __init__(self, exePath: str, argument: Union[str, dict] = None):
+    def __init__(self, exePath: str, argument: dict = None):
         """初始化识别器。\n
         :exePath: 识别器`PaddleOCR_json.exe`的路径。\n
-        :argument: 启动参数，可为字符串`" --键=值"`或字典`{"键":值}`。\n
+        :argument: 启动参数，字典`{"键":值}`。参数说明见\n
+        `https://github.com/hiroi-sora/PaddleOCR-json#5-%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%E8%AF%B4%E6%98%8E`\n
         """
         cwd = os.path.abspath(os.path.join(exePath, os.pardir))  # 获取exe父文件夹
         # 处理启动参数
-        if argument == None or argument == '':  # 默认
-            if isinstance(argument, str):
-                exePath += ' ' + argument  # 防止调用方忘加空格
-            elif isinstance(argument, dict):
-                for key, value in argument.items():
-                    if isinstance(value, str):  # 字符串类型的值加双引号
-                        exePath += f' --{key}:"{value}"'
-                    else:
-                        exePath += f' --{key}:{value}'
+        if not argument == None:
+            for key, value in argument.items():
+                if isinstance(value, str):  # 字符串类型的值加双引号
+                    exePath += f' --{key}:"{value}"'
+                else:
+                    exePath += f' --{key}:{value}'
         if 'use_system_pause' not in exePath:  # 强制禁用暂停
             exePath += ' --use_system_pause=0'
         # 设置子进程启用静默模式，不显示控制台窗口
