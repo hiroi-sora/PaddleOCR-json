@@ -8,7 +8,7 @@ while True:
     imgPath = input('请输入图片路径，退出直接回车：')
     if imgPath:
         getObj = ocr.run(imgPath)
-        print(f'图片识别完毕，结果：\n{getObj}')
+        print(f'图片识别完毕，状态码：{getObj["code"]} 结果：\n{getObj["data"]}\n')
     else:
         break
 

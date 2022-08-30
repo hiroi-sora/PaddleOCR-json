@@ -1,5 +1,7 @@
-# from asyncio.windows_events import NULL
-from ast import Num
+# 调用 PaddleOCR-json.exe 的 Python Api
+# 项目主页：
+# https://github.com/hiroi-sora/PaddleOCR-json
+
 import os
 import subprocess  # 进程，管道
 from json import loads as jsonLoads
@@ -50,8 +52,7 @@ class PPOCR:
     def run(self, imgPath: str):
         """对一张图片文字识别。\n
         :exePath: 图片路径。\n
-        识别成功时，返回列表，每项是一组文字的信息。\n
-        识别失败时，返回字典 {error:异常信息，text:(若存在)原始识别字符串} 。"""
+        :return:  {'code': 识别码, 'data': 内容列表或错误信息字符串}\n"""
         if not self.ret.poll() == None:
             return {'code': 400, 'data': f'子进程已崩溃。'}
         wirteStr = imgPath if imgPath[-1] == '\n' else imgPath + '\n'
