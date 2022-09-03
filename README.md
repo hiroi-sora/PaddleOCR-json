@@ -6,13 +6,25 @@ Windows端图片批量离线OCR文字识别程序。通过管道等多种方式�
 
 ![img-1.jpg](https://tupian.li/images/2022/08/26/img-1.jpg)
 
-`v1.2.0` 重构了整个项目，同步 [PaddleOCR 2.6 (2022.8.24) cpu_avx_mkl](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) ，提升性能、增加了亿些新功能和潜在的新BUG。遇到问题请提issue，或者使用功能稳定的 [v1.1.1版本](backups_previous_version/PaddleOCR-json_v1.1.1) 。
+`v1.2.0` 重构了整个项目，同步 [PaddleOCR 2.6 (2022.8.24) cpu_avx_mkl](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) ，提升性能、增加了亿些新功能和潜在的新BUG。遇到问题请提issue。
 
 - **方便** ：解压即用，无需安装和配置环境，无需联网。引入api，两行代码调用OCR。（未提供api的语言，可参考本文档通过管道调用OCR）
 - **高速** ：`v1.2.0` 比前代提速20%。默认启用mkldnn加速，字少的图片耗时在400ms以内，比在线OCR服务更快。
 - **精准** ：`v1.2.0` 附带PPOCR-v3识别库，比前代对非常规字形（手写、艺术字、小字、杂乱背景等）具有更佳的识别率。
 
 **本程序的GUI形式：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
+
+
+## 兼容性
+
+- 系统支持 Win10 x64 。
+- 不建议使用 Win7 ，识别引擎很可能无法运行。如果想尝试，win7 x64 sp1 打满系统升级补丁+安装vc运行库后有**小概率**能跑起来。
+- CPU必须具有AVX指令集。常见的家用CPU一般都满足该条件。
+
+    | AVX   | 支持的产品系列                                         | 不支持                | 存疑                     |
+    | ----- | ------------------------------------------------------ | --------------------- | ------------------------ |
+    | Intel | 酷睿Core，至强Xeon                                     | 凌动Atom，安腾Itanium | 赛扬Celeron，奔腾Pentium |
+    | AMD   | 推土机架构及之后的产品，如锐龙Ryzen、速龙Athlon、FX 等 | K10架构及之前的产品   |                          |
 
 
 ## 准备工作
@@ -421,7 +433,22 @@ DEFINE_bool(use_system_pause, true, "Whether system(\"pause\") before exit");
 
 ### 载入多国语言语言&切换模型库
 
-新版本README还未写好，可先参考[旧版](backups_previous_version/PaddleOCR-json_v1.1.1/README.md#载入多国语言语言)。
+<details>
+<summary>展开详情</summary>
+
+0. 模型分为三种：det检测，cls方向分类，rec识别。其中det和cls是多语言通用的，只需下载新语言的rec识别模型即可。
+1. 前往 PP-OCR系列 [V3多语言识别模型列表](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/models_list.md#23-%E5%A4%9A%E8%AF%AD%E8%A8%80%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B%E6%9B%B4%E5%A4%9A%E8%AF%AD%E8%A8%80%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%E4%B8%AD) ，下载一组**rec识别**模型。
+   - 若V3模型列表里没有找到目标语言，可以去[支持语言列表](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/multi_languages.md#5-%E6%94%AF%E6%8C%81%E8%AF%AD%E7%A7%8D%E5%8F%8A%E7%BC%A9%E5%86%99)查看PPOCR有没有提供这种语言。若有，则可能它暂未推出V3模型，可以先使用旧版V2模型。（V3模型网址中的2.x一路换成更小的数字可以查看旧版页面）
+2. 前往 PP-OCR系列 [字典列表](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6/ppocr/utils/dict) ，下载对应语言的字典文件。
+3. 将下载好的文件解压放进 `PaddleOCR-json` 文件夹中。（当然也可以放在任意路径）
+4. 启动 `PaddleOCR-json.exe` 时，将模型库路径参数注入。
+
+通过默认配置文件注入参数：
+
+1. 打开复制好的 `PaddleOCR_json_config.txt` ，将 rec路径 `rec_model_dir` 和 字典路径 `rec_char_dict_path` 改成目标语言的文件(夹)的名称。若模型库是v2版本，还必须加上一行 `rec_img_h 32` 。
+2. 打开 `PaddleOCR-json.exe` ，检查是否已经切换到该识别语言。
+
+</details>
 
 ### [项目构建指南](project_files/README.md)
 
@@ -431,6 +458,9 @@ DEFINE_bool(use_system_pause, true, "Whether system(\"pause\") before exit");
 
 本项目中使用了 [nlohmann/json](https://github.com/nlohmann/json) ：
 > “JSON for Modern C++”
+
+感谢 [PaddlePaddle/PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) ，没有它就没有本项目：
+> “Awesome multilingual OCR toolkits based on PaddlePaddle”
 
 
 ## 更新日志
@@ -447,7 +477,7 @@ DEFINE_bool(use_system_pause, true, "Whether system(\"pause\") before exit");
 - 新功能：启动参数。
 - 新功能：ascii转义。（感谢 @AutumnSun1996 的提议 [issue #4](https://github.com/hiroi-sora/PaddleOCR-json/issues/4) ）
 
-#### [v1.1.1]((backups_previous_version/PaddleOCR-json_v1.1.1)) `2022.4.16` 
+#### [v1.1.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.1.1) `2022.4.16` 
 - 修正了漏洞：当`文本检测`识别到区域但`文本识别`未在区域中检测到文字时，可能输出不相符的包围盒。
 
 #### v1.1.0 `2022.4.2` 
