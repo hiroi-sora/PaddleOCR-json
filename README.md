@@ -466,7 +466,7 @@ DEFINE_bool(use_system_pause, true, "Whether system(\"pause\") before exit");
 ## 更新日志
 
 #### v1.2.0 `2022.8.29` 
-- 修复了一些BUG，~~新添了亿些BUG~~。
+- 修复了一些BUG。
 - 增强了面对不合法编码时的健壮性。
 - 默认开启mkldnn加速。
 - 新功能：json输入及热更新。
