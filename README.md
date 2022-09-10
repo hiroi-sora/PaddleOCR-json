@@ -95,9 +95,38 @@ Write-Host "程序结束。"
 
 </details>
 
+
+### 3. [Node.js API](api/node.js)
+
+> 由[PunchlY/PaddleOCR-json-node-api](https://github.com/PunchlY/PaddleOCR-json-node-api)贡献
+
+将 [OCR.js](api/node.js/OCR.js) 引入你的项目。
+
+<details>
+<summary>使用示例：</summary>
+
+```js
+const OCR = require('./OCR');
+const ocr = new OCR();
+
+ocr.postMessage({ image_dir: 'path/to/test/img' })
+    .then((data) => console.log(data));
+    .then(() => ocr.terminate());
+```
+
+</details>
+
 ### 更多语言API
 
-待补充……
+
+<details>
+<summary>欢迎补充！PR建议：</summary>
+
+1. 将新API的主要文件放在[api](api)目录中的新文件夹下。
+2. 至少应该含有接口 `PPOCR_api.xx` 和调用示例 `demo.xx`，可再包含详细使用说明 `README.md` 。请不要在项目中添加无关的文件。
+3. 将API名称、目录链接、简短调用示例代码块写进根目录的`README.md`，参考上面任一语言API的格式即可。
+
+</details>
 
 ## 输出JSON说明
 
