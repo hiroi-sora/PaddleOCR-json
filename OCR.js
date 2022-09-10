@@ -25,8 +25,8 @@ if (isMainThread) {
         #queue
         constructor(config = null) {
             super(__filename);
-            if (!config) this.postMessage(config);
             this.#queue = new Queue();
+            if (!config) this.postMessage(config);
             super.once('message', (code) => {
                 console.log(code);
                 this.#queue.start();
