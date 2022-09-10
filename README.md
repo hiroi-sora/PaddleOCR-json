@@ -7,6 +7,10 @@
 
 将本项目(或此项目中的`PaddleOCR-json`与`OCR.js`)引入至你的项目中, 引用OCR.
 
+```
+npm i iconv-lite # 本项目使用了iconv-lite包
+```
+
 ```js
 const OCR = require('./OCR');
 const ocr = new OCR();
