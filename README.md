@@ -62,7 +62,7 @@ ocr.postMessage({
 
 #### OCR.length
 
-`ocr.length`是当前未处理消息队列数量.
+`ocr.length`值为当前未处理消息队列数量.
 
 #### 其他
 
