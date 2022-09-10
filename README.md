@@ -56,7 +56,7 @@ ocr.postMessage({
 
 `ocr.flush`是`ocr.postMessage`的别名.
 
-### 其他
+#### 其他
 
 你可以用`worker_threads.Worker`的api来监听或操作`OCR`实例.
 
