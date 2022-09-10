@@ -22,6 +22,7 @@ ocr.postMessage({ image_dir: 'path/to/test/img' })
 npm i
 npm start
 ```
+打开 http://127.0.0.1:3000 测试
 
 ## api
 
