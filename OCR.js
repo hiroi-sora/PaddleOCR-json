@@ -23,8 +23,9 @@ if (isMainThread) {
     }
     class OCR extends Worker {
         #queue
-        constructor() {
+        constructor(config = null) {
             super(__filename);
+            if (!config) this.postMessage(config);
             this.#queue = new Queue();
             super.once('message', (code) => {
                 console.log(code);
