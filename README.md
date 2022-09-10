@@ -60,6 +60,10 @@ ocr.postMessage({
 
 `ocr.flush`是`ocr.postMessage`的别名.
 
+#### OCR.length
+
+`ocr.length`是当前未处理消息队列数量.
+
 #### 其他
 
 你可以用`worker_threads.Worker`的api来监听或操作`OCR`实例.
