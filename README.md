@@ -116,6 +116,44 @@ ocr.postMessage({ image_dir: 'path/to/test/img' })
 
 </details>
 
+### 4. [Java API](api/java)
+
+> 由[jerrylususu/PaddleOCR-json-java-api](https://github.com/jerrylususu/PaddleOCR-json-java-api)贡献
+
+将 [Ocr.java](api/java/Ocr.java) 引入你的项目。（需要 GSON 依赖）
+
+<details>
+<summary>使用示例：</summary>
+
+```java
+// paddleocr_json 的可执行文件所在路径
+String exePath = "path/to/executable";
+
+// 可选的配置项
+Map<String, Object> arguments = new HashMap<>();
+// arguments.put("use_angle_cls", true);
+
+// 初始化 OCR
+try (Ocr ocr = new Ocr(new File(exePath), arguments)) {
+
+    // 对一张图片进行 OCR
+    OcrResponse resp = ocr.runOcr(new File("path/to/img"));
+
+    // 读取结果
+    if (resp.code == OcrCode.OK) {
+        for (OcrEntry entry : resp.data) {
+            System.out.println(entry.text);
+        }
+    } else {
+        System.out.println("error: code=" + resp.code + " msg=" + resp.msg);
+    }
+} catch (IOException e) {
+    e.printStackTrace();
+}
+```
+
+</details>
+
 ### 更多语言API
 
 
@@ -143,7 +181,7 @@ ocr.postMessage({ image_dir: 'path/to/test/img' })
 - 例：
   ```
     {"code":100,"data":[{"box":[24,27,234,27,234,53,24,53],"score":0.9904433488845825,"text":"飞舞的因果交流"}]}
-    ```
+  ```
 
 ##### 未识别到文字（101）
 
