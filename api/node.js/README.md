@@ -1,5 +1,6 @@
 # PaddleOCR-json-node-api
-基于[hiroi-sora/PaddleOCR-json](https://github.com/hiroi-sora/PaddleOCR-json)的node.js api.
+
+源仓库：[PunchlY/PaddleOCR-json-node-api](https://github.com/PunchlY/PaddleOCR-json-node-api)
 
 ## 快速开始
 
