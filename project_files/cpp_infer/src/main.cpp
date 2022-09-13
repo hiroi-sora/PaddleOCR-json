@@ -11,6 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+// 版本信息
+#define PROJECT_VER "v1.2.1 Alpha 1"
+#define PROJECT_NAME "PaddleOCR-json"
+
+
 #include "opencv2/core.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
@@ -29,6 +35,11 @@ using namespace nlohmann;
 using namespace PaddleOCR;
 
 void check_params() {
+  if (FLAGS_ensure_production) {
+    FLAGS_ensure_ascii = true;
+    FLAGS_use_system_pause = false;
+    FLAGS_ensure_chcp = false;
+  }
   if (FLAGS_det) {
     if (FLAGS_det_model_dir.empty()) {
       cerr << "[ERROR] Use det, need {--det_model_dir}." << endl;
@@ -91,40 +102,41 @@ void print_ocr_fail(int code, const string& msg,const string& key2="", const str
 }
 
 void run_ocr(PPOCR& ocr, string img_path) {
-  // 若为json字符串，则解析 
+  // img_path可以为以下编码：任意nlohmann_json能识别的json编码 、  UTF-8 纯地址
+
+  // 1.1. 若为json字符串，则解析 
   int imgstrlen = img_path.length();
-  string logstr = "";
+  string logstr = ""; // 日志
   bool is_image = false, is_hotupdate = false;
   if (imgstrlen > 2 && img_path[0] == '{' && img_path[imgstrlen - 1] == '}') {
     logstr = load_json_str(img_path, is_image, is_hotupdate);
+    // 经过json转换的 img_path ，不管原来是什么，现在是 u8 string
     if (is_hotupdate) { // 热更新
       ocr.HotUpdate();
     }
   }
-  // 执行一次识别，FLAGS_image_dir只能是单个文件路径。
-  if (!Utility::PathExists(img_path)) {
-    string msg = "Image path not exist. Path:\"" + gbk_2_utf8(img_path) + "\"";
-    if(is_hotupdate) print_ocr_fail(200, msg,"hotUpdate", logstr);
-    else print_ocr_fail(200, msg);
-    return;
-  }
 
+  // 到这一步，img_path为 utf-8 纯路径字符串
+ 
+  // 1.x. 不再检查路径是否存在 : 错误码200跟201已合并。
+
+  // 2.1. 转任务列表
   std::vector<cv::String> cv_all_img_names({ img_path }); // 一次处理一个文件 
-
-  std::vector<std::vector<OCRPredictResult>> ocr_results = // 执行，获取结果
+  // 2.2. 执行OCR，获取结果
+  std::vector<std::vector<OCRPredictResult>> ocr_results = 
     ocr.ocr(cv_all_img_names, FLAGS_det, FLAGS_rec, FLAGS_cls);
+  std::vector<OCRPredictResult> ocr_result = ocr_results[0]; // 提取第一个结果（也只有一个）
 
-  std::vector<OCRPredictResult> ocr_result = ocr_results[0];
-
+  // 3.1. 输出异常情况
   if (ocr_result.empty()) { // 图中无文字
-    print_ocr_fail(101, "No text found in image. Path:\"" + gbk_2_utf8(img_path) + "\"");
+    print_ocr_fail(101, "No text found in image. Path:\"" + img_path + "\"");
     return;
   }
   else if (ocr_result[0].cls_label == -201) { // 无法读取图片
-    print_ocr_fail(201, "Image read failed. Path:\"" + gbk_2_utf8(img_path) + "\"");
+    print_ocr_fail(201, "Image read failed. Path:\"" + img_path + "\"");
     return;
   }
-
+  // 3.2. 整理数据
   json outJ;
   outJ["code"] = 100;
   outJ["data"] = json::array();
@@ -137,7 +149,11 @@ void run_ocr(PPOCR& ocr, string img_path) {
     j["text"] = ocr_result[i].text;
     j["score"] = ocr_result[i].score;
     std::vector<std::vector<int>> b = ocr_result[i].box;
-    if (b.empty() || j["text"] == "") // 没有文字，跳过本组 
+    // 无包围盒，跳过本组
+    if(b.empty())
+      continue;
+    // 启用了rec仍没有文字，跳过本组 
+    if (FLAGS_rec && (j["score"] == -1.0 || j["text"] == ""))
       continue;
     else
       j["box"] = { b[0][0], b[0][1], b[1][0], b[1][1],
@@ -145,14 +161,18 @@ void run_ocr(PPOCR& ocr, string img_path) {
     outJ["data"].push_back(j);
     isEmpty = false;
   }
-  if (isEmpty)
-    print_ocr_fail(101, "No text found in image. Path:\"" + gbk_2_utf8(img_path) + "\"");
+  // 3.3. 输出无文字的情况
+  if (isEmpty) {
+    print_ocr_fail(101, "No text found in image. Path:\"" + img_path + "\"");
+  }
+  // 3.4. 输出正常情况
   else {
     // 所有非ascii字符转义为ascii，规避中文编码问题
     print_json(outJ);
-    // 结果可视化，输出绘图，用于调试 
+    // 3.4.2. 结果可视化，输出绘图，用于调试 
     if (FLAGS_visualize && FLAGS_det) { 
-      cv::Mat srcimg = cv::imread(img_path, cv::IMREAD_COLOR);
+      //cv::Mat srcimg = cv::imread(img_path, cv::IMREAD_COLOR);
+      cv::Mat srcimg = imreadU8(img_path);
       if (!srcimg.data) {
         std::cerr << "[ERROR] Image read failed. Path: "
           << gbk_2_utf8(img_path) << endl;
@@ -161,19 +181,21 @@ void run_ocr(PPOCR& ocr, string img_path) {
       std::string file_name = Utility::basename(img_path);
 
       Utility::VisualizeBboxes(srcimg, ocr_result,
-        FLAGS_output + "/" + file_name); // 这个函数里带一句cout 
+        FLAGS_output + "/" + file_name);
     }
   }
 }
 
 int main(int argc, char** argv) {
-
   google::ParseCommandLineFlags(&argc, &argv, true); // 解析命令参数
   load_congif_file(); // 加载配置文件 
   check_params(); // 检测参数合法性 
   PPOCR ocr = PPOCR(); // 初始化识别器 
 
   system("chcp 65001"); // 控制台设utf-8 
+  if (FLAGS_ensure_production)
+    cout << "production environment" << endl; // 生产环境提示
+  cout << PROJECT_NAME " " PROJECT_VER << endl; // 版本提示
   cout << "OCR init completed." << endl; // 完成提示
   // 启动参数传入图片，则执行一次性识别 
   if (FLAGS_image_dir != "")
@@ -182,11 +204,6 @@ int main(int argc, char** argv) {
     while (1) {
       string img_path;
       getline(cin, img_path);
-      // 去除控制台拖入文件遇到空格路径自动加的双引号 
-      int imgstrlen = img_path.length();
-      if (imgstrlen > 2 && img_path[0] == '\"' && img_path[imgstrlen - 1] == '\"') {
-        img_path = img_path.substr(1, imgstrlen - 2);
-      }
       run_ocr(ocr, img_path);
     }
 
