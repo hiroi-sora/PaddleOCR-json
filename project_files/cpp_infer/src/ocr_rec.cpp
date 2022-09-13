@@ -184,7 +184,7 @@ void CRNNRecognizer::LoadModel(const std::string &model_dir) {
   config.SwitchIrOptim(true);
 
   config.EnableMemoryOptim();
-  //   config.DisableGlogInfo();
+     config.DisableGlogInfo();
 
   try {
     this->predictor_ = CreatePredictor(config);
