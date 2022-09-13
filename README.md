@@ -14,6 +14,10 @@ Windows端图片批量离线OCR文字识别程序。通过管道等多种方式�
 
 **本程序的GUI形式：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
 
+### 新版本开发进展：
+
+- [x] 解决非中文windows难以读取中文路径的问题，拥抱utf-8，彻底摆脱对gbk编码的依赖！[过渡版本下载：v1.2.1_alpha_1](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.2.1_alpha_1)
+- [ ] 直接读取并识别剪贴板内存中的图片
 
 ## 兼容性
 
@@ -120,8 +124,9 @@ ocr.postMessage({ image_dir: 'path/to/test/img' })
 
 
 <details>
-<summary>欢迎补充！PR建议：</summary>
+<summary>欢迎补充！</summary>
 
+为保证PR合并顺利及格式统一，建议：
 1. 将新API的主要文件放在[api](api)目录中的新文件夹下。
 2. 至少应该含有接口 `PPOCR_api.xx` 和调用示例 `demo.xx`，可再包含详细使用说明 `README.md` 。请不要在项目中添加无关的文件。
 3. 将API名称、目录链接、简短调用示例代码块写进根目录的`README.md`，参考上面任一语言API的格式即可。
@@ -181,6 +186,8 @@ ocr.postMessage({ image_dir: 'path/to/test/img' })
 
 简单介绍一下调用程序识别图片的三种方式。
 
+注：`v1.2.1 将拥有的新特性` 在实际使用环境中建议只用方式3 输入json，这种方式可以兼容非中文windows系统读取中文路径！
+
 #### 方式1：启动参数
 
 1. 打开命令提示符cmd，跳转到本程序目录下。
@@ -209,7 +216,7 @@ ocr.postMessage({ image_dir: 'path/to/test/img' })
    - 支持带空格的路径，无需引号。
    - 此时仅支持手动输入纯英文(ascii字符)的路径。不过，调用方将含中文路径编码为gbk字符串再输入管道也可以让本程序识别。
 
-#### 方式3：直接输入json（经过ascii转义）
+#### 【建议】方式3：直接输入json（经过ascii转义）
 
 1. 同方式2，打开 `PaddleOCR_json.exe` ，等待初始化完成。
 2. 在控制台输入json字符串 `{"image_dir":"图片路径"}`。
@@ -248,6 +255,7 @@ ocr.postMessage({ image_dir: 'path/to/test/img' })
 - 程序有四种方式输入图片路径，分别是 ①管道直接输入路径；②管道输入json；③启动参数；④写在配置文件中。
 
 - 其中③和④并不实用，关注①和②即可。因为③和④是一次性的手段，程序识别完第一张图片后自动退出。每次启动程序会消耗初始化和暖机的时间。批量识别多张图片时，重复启动，将造成极大的浪费开销。
+- `v1.2.1 将拥有的新特性` 方式②最安全，可以保证在非中文codepage的windows下读取中文路径！
 
 <details>
 <summary>①管道输入路径</summary>
@@ -491,6 +499,7 @@ DEFINE_bool(use_system_pause, true, "Whether system(\"pause\") before exit");
 感谢 [PaddlePaddle/PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) ，没有它就没有本项目：
 > “Awesome multilingual OCR toolkits based on PaddlePaddle”
 
+感谢各位为本项目开发API的朋友！
 
 ## 更新日志
 
