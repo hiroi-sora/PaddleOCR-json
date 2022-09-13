@@ -5,6 +5,12 @@
 #include <filesystem>
 #include <include/args.h>
 #include <include/nlohmann_json.hpp>
+// 读图相关
+#include "opencv2/core.hpp"
+#include "opencv2/imgcodecs.hpp"
+// 编码转换
+#include<codecvt>
+std::wstring_convert<std::codecvt_utf8<wchar_t>> convU8toWstr; // string u8"" 到wstring的转换器
 
 using namespace std;
 using namespace nlohmann;
@@ -99,24 +105,25 @@ bool is_gbk(const string& str)
 // 字符串gbk转utf-8 
 string gbk_2_utf8(const string& str_gbk)
 {
-	if (str_gbk==""||is_utf8(str_gbk) || !is_gbk(str_gbk))
-		return str_gbk; // 已经是utf-8或者非gbk，不转
-	string str_utf8 = "";
-	WCHAR* str1;
-	int n = MultiByteToWideChar(CP_ACP, 0, str_gbk.c_str(), -1, NULL, 0);
-	str1 = new WCHAR[n];
-	MultiByteToWideChar(CP_ACP, 0, str_gbk.c_str(), -1, str1, n);
-	n = WideCharToMultiByte(CP_UTF8, 0, str1, -1, NULL, 0, NULL, NULL);
-	char* str2 = new char[n];
-	WideCharToMultiByte(CP_UTF8, 0, str1, -1, str2, n, NULL, NULL);
-	str_utf8 = str2;
-	delete[]str1;
-	str1 = NULL;
-	delete[]str2;
-	str2 = NULL;
-	return str_utf8;
+  if (str_gbk == "" || is_utf8(str_gbk) || !is_gbk(str_gbk)) {
+	return str_gbk; // 已经是utf-8或者非gbk，不转
+  }
+  string str_utf8 = "";
+  WCHAR* str1;
+  int n = MultiByteToWideChar(CP_ACP, 0, str_gbk.c_str(), -1, NULL, 0);
+  str1 = new WCHAR[n];
+  MultiByteToWideChar(CP_ACP, 0, str_gbk.c_str(), -1, str1, n);
+  n = WideCharToMultiByte(CP_UTF8, 0, str1, -1, NULL, 0, NULL, NULL);
+  char* str2 = new char[n];
+  WideCharToMultiByte(CP_UTF8, 0, str1, -1, str2, n, NULL, NULL);
+  str_utf8 = str2;
+  delete[]str1;
+  str1 = NULL;
+  delete[]str2;
+  str2 = NULL;
+  return str_utf8;
 }
-//
+
 // 字符串utf-8转gbk 
 string utf8_2_gbk(const string& str_utf8){
   if (str_utf8 == "")
@@ -135,6 +142,7 @@ string utf8_2_gbk(const string& str_utf8){
   if (szGBK) delete[] szGBK;
   return strTemp;
 }
+
 // 加载一条json
 string load_json_str(string& str_in, bool& is_image, bool& is_hotupdate) {
   is_image = false;
@@ -148,12 +156,13 @@ string load_json_str(string& str_in, bool& is_image, bool& is_hotupdate) {
 	  if (vallen > 2 && value[0] == '\"' && value[vallen-1] == '\"') {
 		value = value.substr(1, vallen - 2); // 删去nlohmann字符串的两端引号
 	  }
-	  if (el.key() == "image_dir") { // 图片路径
-		str_in = utf8_2_gbk(value);
+	  if (el.key() == "image_dir" || el.key() == "image_path") { // 图片路径
+		//str_in = utf8_2_gbk(value);
+		str_in = value; // 直接返回utf-8
 		is_image = true;
 	  }
 	  else { // 其它参数
-		// 设置一组配置。自动检验是否存在和合法性。优先级低于启动参数。
+		// 设置一组配置。自动检验是否存在和合法性。优先级高于启动参数。
 		string getlog = google::SetCommandLineOption(el.key().c_str(), value.c_str());
 		int getlen = getlog.length();
 		if (getlen > 0 && (getlog[getlen - 1] == '\n'|| getlog[getlen - 1] == '\r\n')) {
@@ -168,7 +177,7 @@ string load_json_str(string& str_in, bool& is_image, bool& is_hotupdate) {
 	}
   }
   catch (...){
-	logstr = "[Error] Load_json fail.";
+	logstr = "[Error] Load json fail.";
 	is_hotupdate = true;
     //cout << "json parse fail" << endl;
   }
@@ -224,9 +233,57 @@ void load_congif_file() {
   inConf.close();
 }
 
+// 代替 cv::imread ，从路径path读入一张图片。path必须为utf-8的string
+cv::Mat imreadU8(string pathU8, int flags = cv::IMREAD_COLOR) {
+  // string u8 转 wchar_t
+  std::wstring wpath;
+  try {
+	wpath = convU8toWstr.from_bytes(pathU8); // 利用转换器转换
+  }catch (...) {
+	return cv::Mat();
+  }
+  // 打开文件
+  FILE* fp = _wfopen((wchar_t*)wpath.c_str(), L"rb"); // wpath强制类型转换到whar_t
+  if (!fp) { // 打开失败
+	return cv::Mat();
+  }
+  // 将文件读到内存
+  fseek(fp, 0, SEEK_END); // 设置流 fp 的文件位置为 SEEK_END 文件的末尾
+  long sz = ftell(fp); // 获取流 fp 的当前文件位置，即总大小（字节）
+  char* buf = new char[sz]; // 存放文件字节内容
+  fseek(fp, 0, SEEK_SET); // 设置流 fp 的文件位置为 SEEK_SET 文件的开头
+  long n = fread(buf, 1, sz, fp); // 从给定流 fp 读取数据到 buf 所指向的数组中，返回成功读取的元素总数
+  cv::_InputArray arr(buf, sz); // 将只读输入数组传递到OpenCV函数
+  cv::Mat img = cv::imdecode(arr, flags); // 解码内存数据，变成cv::Mat数据
+  delete[] buf; // 释放buf空间
+  fclose(fp); // 关闭文件
+  return img;
+}
+
 // 退出程序前暂停
 void exit_pause(int x=1) {
 	cout << "OCR exit." << endl; // 退出提示 
 	if (FLAGS_use_system_pause) system("pause");
 	exit(x);
 }
+
+
+//cv::Mat readByImread(string path) {
+//  return cv::imread(path, cv::IMREAD_COLOR);
+//}
+
+//cv::Mat readByImdecode(string path) {
+//  std::ifstream imgStream(path.c_str(), std::ios::binary);
+//  imgStream.seekg(0, std::ios::end);
+//  size_t fileSize = imgStream.tellg();
+//  imgStream.seekg(0, std::ios::beg);
+//  if (fileSize == 0) {
+//	return cv::Mat();
+//  }
+//  std::vector<unsigned char> data(fileSize);
+//  imgStream.read(reinterpret_cast<char*>(&data[0]), sizeof(unsigned char) * fileSize);
+//  if (!imgStream) {
+//	return cv::Mat();
+//  }
+//  return cv::imdecode(cv::Mat(data), cv::IMREAD_COLOR);
+//}

@@ -17,6 +17,9 @@
 
 #include "auto_log/autolog.h"
 #include <numeric>
+
+#include <include/tools.h>
+
 namespace PaddleOCR {
 
 PPOCR::PPOCR() {
@@ -136,7 +139,8 @@ PPOCR::ocr(std::vector<cv::String> cv_all_img_names, bool det, bool rec,
     // read image
     std::vector<cv::Mat> img_list;
     for (int i = 0; i < cv_all_img_names.size(); ++i) {
-      cv::Mat srcimg = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
+      //cv::Mat srcimg = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
+      cv::Mat srcimg = imreadU8(cv_all_img_names[i]);
       if (!srcimg.data) {
         //std::cerr << "[ERROR] image read failed! image path: "
         //          << cv_all_img_names[i] << endl;
@@ -181,7 +185,8 @@ PPOCR::ocr(std::vector<cv::String> cv_all_img_names, bool det, bool rec,
       if (!FLAGS_benchmark) {
         //cout << "predict img: " << cv_all_img_names[i] << endl;
       }
-      cv::Mat srcimg = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
+      //cv::Mat srcimg = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
+      cv::Mat srcimg = imreadU8(cv_all_img_names[i]);
       if (!srcimg.data) { // ¶ÁÈ¡Í¼Æ¬Ê§°Ü
         //std::cerr << "[ERROR] image read failed! image path: "
         //          << cv_all_img_names[i] << endl;

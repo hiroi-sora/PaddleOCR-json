@@ -18,6 +18,8 @@
 #include "auto_log/autolog.h"
 #include <numeric>
 
+#include <include/tools.h>
+
 namespace PaddleOCR {
 
 PaddleStructure::PaddleStructure() {
@@ -45,7 +47,9 @@ PaddleStructure::structure(std::vector<cv::String> cv_all_img_names,
   }
   for (int i = 0; i < cv_all_img_names.size(); ++i) {
     std::vector<StructurePredictResult> structure_result;
-    cv::Mat srcimg = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
+    // 虽然本项目暂时用不到表格识别，不过先把万恶的imread替换了
+    //cv::Mat srcimg = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
+    cv::Mat srcimg = imreadU8(cv_all_img_names[i]);
     if (!srcimg.data) {
       std::cerr << "[ERROR] image read failed! image path: "
                 << cv_all_img_names[i] << endl;
