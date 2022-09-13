@@ -52,7 +52,7 @@ class Utility {
 public:
   static std::vector<std::string> ReadDict(const std::string &path);
 
-  static void VisualizeBboxes(const cv::Mat &srcimg,
+  static std::string VisualizeBboxes(const cv::Mat &srcimg,
                               const std::vector<OCRPredictResult> &ocr_result,
                               const std::string &save_path);
 

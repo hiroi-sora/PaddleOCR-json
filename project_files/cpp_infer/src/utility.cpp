@@ -44,7 +44,7 @@ std::vector<std::string> Utility::ReadDict(const std::string &path) {
   return m_vec;
 }
 
-void Utility::VisualizeBboxes(const cv::Mat &srcimg,
+std::string Utility::VisualizeBboxes(const cv::Mat &srcimg,
                               const std::vector<OCRPredictResult> &ocr_result,
                               const std::string &save_path) {
   cv::Mat img_vis;
@@ -62,8 +62,7 @@ void Utility::VisualizeBboxes(const cv::Mat &srcimg,
   }
 
   cv::imwrite(save_path, img_vis);
-  std::cout << "The detection visualized image saved in " + save_path
-            << std::endl;
+  return "The detection visualized image saved in " + save_path;
 }
 
 // list all files under a directory

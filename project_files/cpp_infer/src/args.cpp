@@ -69,4 +69,10 @@ DEFINE_string(config_path,"","Path of config txt.");
 DEFINE_bool(ensure_ascii, false, "Whether characters in the output are escaped with sequences to ASCII.");
 
 // 退出前暂停程序 
-DEFINE_bool(use_system_pause, true, "Whether system(\"pause\") before exit");
+DEFINE_bool(use_system_pause, true, "Whether system(\"pause\") before exit.");
+
+// 将控制台设为chcp65001
+DEFINE_bool(ensure_chcp, true, "Whether system(\"chcp 65001\") before start.");
+
+// 生产环境，干掉不必要的输出
+DEFINE_bool(ensure_production, false, "Whether production environment. Close pause, chcp and open ascii.");

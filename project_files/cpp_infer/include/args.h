@@ -61,7 +61,11 @@ DECLARE_bool(cls);
 DECLARE_bool(table);
 // 读取配置文件 
 DECLARE_string(config_path);
-// 输出json字符串转ascii编码 
+// ture时输出json字符串转ascii编码 
 DECLARE_bool(ensure_ascii);
-// 退出前暂停程序 
+// ture时退出前暂停程序 
 DECLARE_bool(use_system_pause);
+// ture时将控制台设为chcp65001
+DECLARE_bool(ensure_chcp);
+// 生产环境
+DECLARE_bool(ensure_production);
