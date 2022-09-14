@@ -20,7 +20,7 @@ if (isMainThread) {
             path = 'PaddleOCR_json.exe',
             cwd = './PaddleOCR-json',
             debug = false,
-        }) {
+        } = {}) {
             super(__filename, {
                 workerData: {
                     path,
@@ -70,7 +70,8 @@ if (isMainThread) {
     }
     const { spawn } = require('child_process');
     new Promise((res) => {
-        const { path = 'PaddleOCR_json.exe',
+        const {
+            path = 'PaddleOCR_json.exe',
             cwd = './PaddleOCR-json',
             debug = false,
         } = workerData;
