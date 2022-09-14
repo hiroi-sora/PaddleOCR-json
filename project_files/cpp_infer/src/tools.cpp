@@ -8,6 +8,7 @@
 // 读图相关
 #include "opencv2/core.hpp"
 #include "opencv2/imgcodecs.hpp"
+#include "opencv2/opencv.hpp" // TODO 调试显示图片用，正式时不必要
 // 编码转换
 #include<codecvt>
 std::wstring_convert<std::codecvt_utf8<wchar_t>> convU8toWstr; // string u8"" 到wstring的转换器
@@ -123,7 +124,6 @@ string gbk_2_utf8(const string& str_gbk)
   str2 = NULL;
   return str_utf8;
 }
-
 // 字符串utf-8转gbk 
 string utf8_2_gbk(const string& str_utf8){
   if (str_utf8 == "")
@@ -141,6 +141,15 @@ string utf8_2_gbk(const string& str_utf8){
   if (wszGBK) delete[] wszGBK;
   if (szGBK) delete[] szGBK;
   return strTemp;
+}
+// 多字节字符数组转宽字符数组
+wchar_t* char_2_wchar(char* c){
+  setlocale(LC_ALL, ""); // 程序的区域设置为windows系统当前区域
+  size_t lenWchar = mbstowcs(NULL, c, 0); // 得到转为宽字符串的长度
+  wchar_t* wc = new wchar_t[lenWchar + 1]; // 存放文件名的宽字符串
+  int n = mbstowcs(wc, c, lenWchar + 1); // 多字节转宽字符
+  setlocale(LC_ALL, "C"); // 还原区域设置为默认
+  return wc;
 }
 
 // 加载一条json
@@ -233,17 +242,50 @@ void load_congif_file() {
   inConf.close();
 }
 
-// 代替 cv::imread ，从路径path读入一张图片。path必须为utf-8的string
-cv::Mat imreadU8(string pathU8, int flags = cv::IMREAD_COLOR) {
-  // string u8 转 wchar_t
-  std::wstring wpath;
-  try {
-	wpath = convU8toWstr.from_bytes(pathU8); // 利用转换器转换
-  }catch (...) {
+// 检查路径pathW是否为文件，是返回true
+bool is_exists_wstr(wstring pathW) {
+  struct _stat buf;
+  int result = _wstat((wchar_t*)pathW.c_str(), &buf);
+  if (result != 0) { // 发生错误
+	return false;
+  }
+  if (S_IFREG & buf.st_mode) { // 是文件
+	return true;
+  }
+ // else if (S_IFDIR & buf.st_mode) { // 是目录
+	//return false;
+ // }
+  return false;
+}
+
+// 检查路径pathU8，若存在，返回true
+bool is_exists(string pathU8) {
+
+  cout << u8"开始检查： " << pathU8 << endl;
+  struct _stat buf;
+  int result = _stat(pathU8.c_str(), &buf);
+  if (result == 0) {
+	cout << u8"检查0： " << pathU8 << endl;
+	return false;
+  }
+  if (S_IFREG & buf.st_mode) {
+	cout << u8"检查为文件： " << pathU8 << endl;
+	return true;
+  }
+  else if (S_IFDIR & buf.st_mode) {
+	cout << u8"检查为目录： " << pathU8 << endl;
+	return false;
+  }
+  cout << u8"检查失败： " << pathU8 << endl;
+}
+// TODO：设定一个枚举，表示读取错误的原因。
+// 代替 cv::imread ，从路径path读入一张图片。pathW必须为unicode的wstring
+cv::Mat imread_wstr(wstring pathW, int flags = cv::IMREAD_COLOR) {
+  // 打开文件 TODO: L"rb" ?
+  if (!is_exists_wstr(pathW)) { // 路径不存在
 	return cv::Mat();
   }
-  // 打开文件
-  FILE* fp = _wfopen((wchar_t*)wpath.c_str(), L"rb"); // wpath强制类型转换到whar_t
+  FILE* fp = _wfopen((wchar_t*)pathW.c_str(), L"rb"); // wpath强制类型转换到whar_t
   if (!fp) { // 打开失败
 	return cv::Mat();
   }
@@ -258,6 +300,104 @@ cv::Mat imreadU8(string pathU8, int flags = cv::IMREAD_COLOR) {
   delete[] buf; // 释放buf空间
   fclose(fp); // 关闭文件
   return img;
+}
+
+// 从剪贴板读入一张图片。
+cv::Mat imread_clipboard(int flags = cv::IMREAD_COLOR) {
+  cout << u8"进入剪贴板！" << endl;
+  // 参考文档： https://docs.microsoft.com/zh-cn/windows/win32/dataxchg/using-the-clipboard
+  string input;
+  // 尝试打开剪贴板，锁定，防止其他应用程序修改剪贴板内容
+  if (OpenClipboard(NULL)) {// 打开剪贴板
+    cout << u8"剪贴板打开成功！" << endl;
+	// 允许读入的剪贴板格式：
+    static UINT auPriorityList[] = {
+	  CF_UNICODETEXT, // unicode字符串
+	  CF_HDROP, // 文件列表句柄（文件管理器选中文件复制）
+	  CF_BITMAP, // 位图
+    };
+	int auPriorityLen = sizeof(auPriorityList) / sizeof(auPriorityList[0]); // 列表长度
+	int uFormat = GetPriorityClipboardFormat(auPriorityList, auPriorityLen); // 获取当前剪贴板内容的格式
+    
+	// 根据格式分配不同任务
+	//   每一个return前，必须保证： CloseClipboard 关闭剪贴板
+	//     有 GlobalLock 就要 GlobalUnlock 释放内存对象
+	switch (uFormat) 
+    {
+    // 1. unicode字符串 ==========================================================
+    case CF_UNICODETEXT: {
+      cout << "Clipboard is CF_UNICODETEXT!" << endl;
+      HANDLE hClip = GetClipboardData(uFormat); // 1.1. 以指定格式从剪贴板中检索数据，返回指定格式的剪贴板对象的句柄
+      if (hClip) { // 获取成功
+        wchar_t* pBuf = (wchar_t*)GlobalLock(hClip); // 1.2. 锁定全局内存对象，并返回指向该对象的内存块的第一个字节的指针
+        wstring wpath = pBuf;
+        GlobalUnlock(hClip); // 1.x.1. 释放内存对象，递减与GMEM_MOVEABLE一起分配的内存对象关联的锁定计数
+        CloseClipboard(); // 1.x.2. 关闭剪贴板，使其他窗口能够继续访问剪贴板
+        return imread_wstr(wpath); // 尝试根据这个字符串读取文件
+      }
+    }
+
+    // 2. 文件列表句柄 =========================================================== 
+    case CF_HDROP: {
+      cout << "Clipboard is CF_HDROP!" << endl;
+      HDROP hClip = (HDROP)GetClipboardData(uFormat); // 2.1. 得到文件列表的句柄
+      // https://docs.microsoft.com/zh-CN/windows/win32/api/shellapi/nf-shellapi-dragqueryfilea
+      int iFiles = DragQueryFile(hClip, 0xFFFFFFFF, NULL, 0); // 2.2. 0xFFFFFFFF表示返回文件列表的计数
+      if (iFiles != 1) { // 只允许1个文件
+        GlobalUnlock(hClip);
+        CloseClipboard();
+        return cv::Mat();
+      }
+      //for (int i = 0; i < iFiles; i++) {
+      int i = 0; // 只取第1个文件
+      UINT lenChar = DragQueryFile(hClip, i, NULL, 0); // 2.3. 得到第i个文件名读入所需缓冲区的大小（字节）
+      char* nameC = new char[lenChar + 1]; // 存放文件名的字节内容
+      DragQueryFile(hClip, i, nameC, lenChar + 1); // 2.4. 读入第i个文件名
+      wchar_t* nameW = char_2_wchar(nameC); // 2.5. 文件名转为宽字节数组
+      cv::Mat mat = imread_wstr(nameW); // 尝试读取文件
+      // 释放字符串
+      delete[] nameC;
+      delete[] nameW;
+      GlobalUnlock(hClip); // 2.x.2 释放文件列表句柄
+      CloseClipboard(); // 2.x.3 关闭剪贴板
+      return mat;
+    }
+    
+	// 3. 位图 ===================================================================
+    case CF_BITMAP: { // 位图
+	  cout << "Clipboard is CF_BITMAP!" << endl;
+	  // TODO：读取位图
+      break;
+    }
+
+	// 失败
+	case NULL: // 空
+	  cout << "Clipboard is NULL!" << endl;
+	  break;
+	case -1: // 其它格式
+	default: // 未知
+	  cout << "Clipboard is UNKNOW:"<< uFormat << endl;
+	  break;
+    }
+	// 关闭剪贴板，使其他窗口能够继续访问剪贴板。
+    CloseClipboard();
+  }
+  return cv::Mat();
+}
+
+// 代替 cv::imread ，从路径path读入一张图片。pathU8必须为utf-8的string
+cv::Mat imread_utf8(string pathU8, int flags = cv::IMREAD_COLOR) {
+  if (pathU8 == u8"clipboard") { // 若为剪贴板任务
+	return imread_clipboard(flags);
+  }
+  // string u8 转 wchar_t
+  std::wstring wpath;
+  try {
+	wpath = convU8toWstr.from_bytes(pathU8); // 利用转换器转换
+  }catch (...) {
+	return cv::Mat();
+  }
+  return imread_wstr(wpath);
 }
 
 // 退出程序前暂停
