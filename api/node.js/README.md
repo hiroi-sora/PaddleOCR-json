@@ -1,6 +1,16 @@
 # PaddleOCR-json-node-api
+基于[hiroi-sora/PaddleOCR-json](https://github.com/hiroi-sora/PaddleOCR-json)的node.js api.
 
-源仓库：[PunchlY/PaddleOCR-json-node-api](https://github.com/PunchlY/PaddleOCR-json-node-api)
+<details>
+<summary>Log</summary>
+
+v1.0.1 2022.9.14
+修复无法识别 Alpha版 的启动完成标志的bug.
+JSON输入更改为ascii转义.
+
+v1.0.0 2022.9.10
+
+</details>
 
 ## 快速开始
 
@@ -38,8 +48,9 @@ npm start
 #### new OCR
 
 ```js
-const config = {}
-const ocr = new OCR(config)
+const config = {};
+const debug = false;
+const ocr = new OCR(config, debug);
 ```
 
 `config`详见[hiroi-sora/PaddleOCR-json#4-注入配置参数](https://github.com/hiroi-sora/PaddleOCR-json#4-%E6%B3%A8%E5%85%A5%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0)和[hiroi-sora/PaddleOCR-json#5-配置信息说明](https://github.com/hiroi-sora/PaddleOCR-json#5-%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%E8%AF%B4%E6%98%8E)的热更新配置.
@@ -60,10 +71,6 @@ ocr.postMessage({
 #### OCR.flush
 
 `ocr.flush`是`ocr.postMessage`的别名.
-
-#### OCR.length
-
-`ocr.length`值为当前未处理消息队列数量.
 
 #### 其他
 
