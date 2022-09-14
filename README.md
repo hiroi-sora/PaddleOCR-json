@@ -1,6 +1,17 @@
 # PaddleOCR-json-node-api
 基于[hiroi-sora/PaddleOCR-json](https://github.com/hiroi-sora/PaddleOCR-json)的node.js api.
 
+<details>
+<summary>Log</summary>
+
+v1.0.1 2022.9.14
+修复无法识别 Alpha版 的启动完成标志的bug.
+JSON输入更改为ascii转义.
+
+v1.0.0 2022.9.10
+
+</details>
+
 ## 快速开始
 
 ### OCR api
@@ -59,10 +70,6 @@ ocr.postMessage({
 #### OCR.flush
 
 `ocr.flush`是`ocr.postMessage`的别名.
-
-#### OCR.length
-
-`ocr.length`值为当前未处理消息队列数量.
 
 #### 其他
 
