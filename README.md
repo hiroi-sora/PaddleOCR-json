@@ -1,21 +1,6 @@
 # PaddleOCR-json 图片转文字程序 v1.2.0
 
-<<<<<<< HEAD
-<details>
-<summary>Log</summary>
-
-v1.0.1 2022.9.14
-修复无法识别 Alpha版 的启动完成标志的bug.
-JSON输入更改为ascii转义.
-
-v1.0.0 2022.9.10
-
-</details>
-
-## 快速开始
-=======
 Windows端图片批量离线OCR文字识别程序。通过管道等多种方式输入图片路径，输出识别结果json字符串，方便别的程序调用。
->>>>>>> upstream/main
 
 示例：
 
@@ -148,12 +133,6 @@ ocr.postMessage({ image_dir: 'path/to/test/img' })
 // paddleocr_json 的可执行文件所在路径
 String exePath = "path/to/executable";
 
-<<<<<<< HEAD
-```js
-const config = {};
-const debug = false;
-const ocr = new OCR(config, debug);
-=======
 // 可选的配置项
 Map<String, Object> arguments = new HashMap<>();
 // arguments.put("use_angle_cls", true);
@@ -175,7 +154,6 @@ try (Ocr ocr = new Ocr(new File(exePath), arguments)) {
 } catch (IOException e) {
     e.printStackTrace();
 }
->>>>>>> upstream/main
 ```
 
 </details>
@@ -193,15 +171,11 @@ try (Ocr ocr = new Ocr(new File(exePath), arguments)) {
 
 </details>
 
-<<<<<<< HEAD
-#### 其他
-=======
 ## 输出JSON说明
 
 `PaddleOcr_json.exe` 将把图片转文字识别信息以json格式字符串的形式打印到控制台。根含两个元素：状态码`code`和内容`data`。在设置了热更新的回合，还会含有额外元素：参数更新日志`hotUpdate`。
 
 状态码`code`为整数，每种状态码对应一种情况：
->>>>>>> upstream/main
 
 ##### 识别到文字（100）
 
