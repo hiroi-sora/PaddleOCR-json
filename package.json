@@ -4,6 +4,7 @@
   "description": "基于 https://github.com/hiroi-sora/PaddleOCR-json 的node.js api",
   "homepage": "https://github.com/PunchlY/PaddleOCR-json-node-api",
   "license": "WTFPL",
+  "main": "./OCR.js",
   "dependencies": {
     "express": "^4.18.1",
     "iconv-lite": "^0.6.3",
