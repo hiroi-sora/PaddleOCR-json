@@ -1,7 +1,7 @@
 const { isMainThread } = require('worker_threads');
+const { resolve: path_resolve } = require('path');
 if (isMainThread) {
     const { Worker } = require('worker_threads');
-    const { resolve: path_resolve } = require('path');
     class Queue extends Array {
         constructor() {
             super();
@@ -16,9 +16,15 @@ if (isMainThread) {
     }
     class OCR extends Worker {
         #queue
-        constructor(config = null, debug = false) {
+        constructor(config = null, {
+            path = 'PaddleOCR_json.exe',
+            cwd = './PaddleOCR-json',
+            debug = false,
+        }) {
             super(__filename, {
                 workerData: {
+                    path,
+                    cwd,
                     debug,
                 },
             });
@@ -64,8 +70,12 @@ if (isMainThread) {
     }
     const { spawn } = require('child_process');
     new Promise((res) => {
-        const proc = spawn('PaddleOCR_json.exe', [], {
-            cwd: './PaddleOCR-json',
+        const { path = 'PaddleOCR_json.exe',
+            cwd = './PaddleOCR-json',
+            debug = false,
+        } = workerData;
+        const proc = spawn(path_resolve(cwd, path), [], {
+            cwd,
             encoding: 'buffer',
         });
         proc.stdout.on('data', function stdout(chunk) {
@@ -73,7 +83,7 @@ if (isMainThread) {
             proc.stdout.off('data', stdout);
             return res(proc);
         });
-        if (workerData.debug) {
+        if (debug) {
             proc.stdout.on('data', (chunk) => {
                 console.log(decode(chunk));
             });

@@ -1,5 +1,5 @@
 {
-  "name": "webui-aria2",
+  "name": "PaddleOCR-json-node-api",
   "version": "1.0.1",
   "description": "基于 https://github.com/hiroi-sora/PaddleOCR-json 的node.js api",
   "homepage": "https://github.com/PunchlY/PaddleOCR-json-node-api",

@@ -23,7 +23,10 @@ npm i iconv-lite # 本项目使用了iconv-lite包
 ```
 
 ```js
-const OCR = require('./OCR');
+const OCR = require('./OCR'
+    path: 'PaddleOCR_json.exe',
+    cwd: './PaddleOCR-json',
+);
 const ocr = new OCR();
 
 ocr.postMessage({ image_dir: 'path/to/test/img' })
@@ -49,8 +52,11 @@ npm start
 
 ```js
 const config = {};
-const debug = {};
-const ocr = new OCR(config, debug);
+const ocr = new OCR(config,
+    path: 'PaddleOCR_json.exe',
+    cwd: './PaddleOCR-json',
+    debug: false,
+);
 ```
 
 `config`详见[hiroi-sora/PaddleOCR-json#4-注入配置参数](https://github.com/hiroi-sora/PaddleOCR-json#4-%E6%B3%A8%E5%85%A5%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0)和[hiroi-sora/PaddleOCR-json#5-配置信息说明](https://github.com/hiroi-sora/PaddleOCR-json#5-%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%E8%AF%B4%E6%98%8E)的热更新配置.
