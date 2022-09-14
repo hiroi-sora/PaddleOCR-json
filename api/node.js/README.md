@@ -4,6 +4,9 @@
 <details>
 <summary>Log</summary>
 
+v1.0.2 2022.9.14
+增加环境选项.
+
 v1.0.1 2022.9.14
 修复无法识别 Alpha版 的启动完成标志的bug.
 JSON输入更改为ascii转义.
