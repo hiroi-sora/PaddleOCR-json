@@ -1,3 +1,19 @@
+// Copyright (c) 2022 hiroi-sora. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// https://github.com/hiroi-sora/PaddleOCR-json
+
 
 #include<fstream>
 #include <iostream>
@@ -331,6 +347,7 @@ cv::Mat imread_clipboard(int flags = cv::IMREAD_COLOR) {
       if (hClip) { // 获取成功
         wchar_t* pBuf = (wchar_t*)GlobalLock(hClip); // 1.2. 锁定全局内存对象，并返回指向该对象的内存块的第一个字节的指针
         wstring wpath = pBuf;
+		// 释放资源
         GlobalUnlock(hClip); // 1.x.1. 释放内存对象，递减与GMEM_MOVEABLE一起分配的内存对象关联的锁定计数
         CloseClipboard(); // 1.x.2. 关闭剪贴板，使其他窗口能够继续访问剪贴板
         return imread_wstr(wpath); // 尝试根据这个字符串读取文件
@@ -342,7 +359,8 @@ cv::Mat imread_clipboard(int flags = cv::IMREAD_COLOR) {
       cout << "Clipboard is CF_HDROP!" << endl;
       HDROP hClip = (HDROP)GetClipboardData(uFormat); // 2.1. 得到文件列表的句柄
       // https://docs.microsoft.com/zh-CN/windows/win32/api/shellapi/nf-shellapi-dragqueryfilea
-      int iFiles = DragQueryFile(hClip, 0xFFFFFFFF, NULL, 0); // 2.2. 0xFFFFFFFF表示返回文件列表的计数
+	  GlobalLock(hClip); // 2.2. 锁定全局内存对象
+      int iFiles = DragQueryFile(hClip, 0xFFFFFFFF, NULL, 0); // 2.3. 0xFFFFFFFF表示返回文件列表的计数
       if (iFiles != 1) { // 只允许1个文件
         GlobalUnlock(hClip);
         CloseClipboard();
@@ -350,24 +368,50 @@ cv::Mat imread_clipboard(int flags = cv::IMREAD_COLOR) {
       }
       //for (int i = 0; i < iFiles; i++) {
       int i = 0; // 只取第1个文件
-      UINT lenChar = DragQueryFile(hClip, i, NULL, 0); // 2.3. 得到第i个文件名读入所需缓冲区的大小（字节）
+      UINT lenChar = DragQueryFile(hClip, i, NULL, 0); // 2.4. 得到第i个文件名读入所需缓冲区的大小（字节）
       char* nameC = new char[lenChar + 1]; // 存放文件名的字节内容
-      DragQueryFile(hClip, i, nameC, lenChar + 1); // 2.4. 读入第i个文件名
-      wchar_t* nameW = char_2_wchar(nameC); // 2.5. 文件名转为宽字节数组
-      cv::Mat mat = imread_wstr(nameW); // 尝试读取文件
-      // 释放字符串
+      DragQueryFile(hClip, i, nameC, lenChar + 1); // 2.5. 读入第i个文件名
+      wchar_t* nameW = char_2_wchar(nameC); // 2.6. 文件名转为宽字节数组
+      cv::Mat mat = imread_wstr(nameW); // 2.7. 尝试读取文件
+      // 释放资源
       delete[] nameC;
       delete[] nameW;
-      GlobalUnlock(hClip); // 2.x.2 释放文件列表句柄
-      CloseClipboard(); // 2.x.3 关闭剪贴板
+      GlobalUnlock(hClip); // 2.x.1 释放文件列表句柄
+      CloseClipboard(); // 2.x.2 关闭剪贴板
+	 // if (mat.data) {
+		//cv::imshow("myimg", mat);
+		//cv::waitKey(0);
+	 // }
       return mat;
     }
     
 	// 3. 位图 ===================================================================
     case CF_BITMAP: { // 位图
-	  cout << "Clipboard is CF_BITMAP!" << endl;
-	  // TODO：读取位图
-      break;
+      cout << "Clipboard is CF_BITMAP!" << endl;
+      HBITMAP hbm = (HBITMAP)GetClipboardData(uFormat); // 3.1. 从剪贴板中录入指针，得到文件句柄
+	  // GlobalLock(hbm); // 返回值总是无效的，读位图似乎不需要锁？
+	  // https://social.msdn.microsoft.com/Forums/vstudio/en-US/d2a6aa71-68d7-4db0-8b1f-5d1920f9c4ce/globallock-and-dib-transform-into-hbitmap-issue?forum=vcgeneral
+      BITMAP bmp; // 存放指向缓冲区的指针，缓冲区接收有关指定图形对象的信息
+      GetObject(hbm, sizeof(BITMAP), &bmp); // 3.3. 获取图形对象的信息（不含图片内容本身）
+      int nChannels = bmp.bmBitsPixel == 1 ? 1 : bmp.bmBitsPixel / 8; // 根据色深计算通道数，32bit为4，24bit为3
+      // 3.4. 将句柄hbm中的位图复制到缓冲区
+	  long sz = bmp.bmHeight * bmp.bmWidth * nChannels; // 图片大小（字节）
+      cv::Mat mat(cv::Size(bmp.bmWidth, bmp.bmHeight), CV_MAKETYPE(CV_8U, nChannels));  // 创造空矩阵，传入位图大小和深度
+      GetBitmapBits(hbm, sz, mat.data); // 将句柄hbm中sz个字节复制到缓冲区img.data
+      // 释放资源
+      CloseClipboard();
+	  // 3.5. 返回合适的通道
+      if (mat.data) {
+		if (nChannels == 1 || nChannels == 3) { // 1或3通道，PPOCR可识别，直接返回
+		  return mat;
+		}
+		else if (nChannels == 4) { // 4通道，PPOCR不可识别，删去alpha转3通道再返回
+		  cv::Mat mat_c3;
+		  cv::cvtColor(mat, mat_c3, cv::COLOR_BGRA2BGR); // 色彩空间转换
+          return mat_c3;
+        }
+      }
+	  return cv::Mat();
     }
 
 	// 失败
