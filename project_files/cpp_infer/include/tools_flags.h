@@ -26,16 +26,16 @@
 // 识别成功
 #define CODE_OK                 100 // 成功，且识别出文字
 #define CODE_OK_NONE            101 // 成功，且未识别到文字
-#define MSG_OK_NONE(p)          "No text found in image. Path:\""+p+"\""
+#define MSG_OK_NONE(p)          "No text found in image. Path: \""+p+"\""
 // 按路径读图，失败
 #define CODE_ERR_PATH_EXIST     200 // 图片路径不存在
-#define MSG_ERR_PATH_EXIST(p)   "Image path dose not exist. Path:\""+p+"\""
+#define MSG_ERR_PATH_EXIST(p)   "Image path dose not exist. Path: \""+p+"\""
 #define CODE_ERR_PATH_CONV      201 // 图片路径string无法转换到wstring
-#define MSG_ERR_PATH_CONV(p)    "Image path failed to convert to utf-16 wstring. Path:\""+p+"\""
+#define MSG_ERR_PATH_CONV(p)    "Image path failed to convert to utf-16 wstring. Path: \""+p+"\""
 #define CODE_ERR_PATH_READ      202 // 图片路径存在，但无法打开文件
-#define MSG_ERR_PATH_READ(p)    "Image open failed. Path:\""+p+"\""
+#define MSG_ERR_PATH_READ(p)    "Image open failed. Path: \""+p+"\""
 #define CODE_ERR_PATH_DECODE    203 // 图片打开成功，但读取到的内容无法被opencv解码
-#define MSG_ERR_PATH_DECODE(p)  "Image decode failed. Path:\""+p+"\""
+#define MSG_ERR_PATH_DECODE(p)  "Image decode failed. Path: \""+p+"\""
 // 剪贴板读图，失败
 #define CODE_ERR_CLIP_OPEN      210 // 剪贴板打开失败 ( OpenClipboard )
 #define MSG_ERR_CLIP_OPEN       "Clipboard open failed."
@@ -46,13 +46,13 @@
 #define CODE_ERR_CLIP_DATA      213 // 剪贴板获取内容句柄失败，通常由别的程序占用剪贴板引起 ( GetClipboardData NULL )
 #define MSG_ERR_CLIP_DATA       "Getting clipboard data handle failed."
 #define CODE_ERR_CLIP_FILES     214 // 剪贴板查询到的文件的数量不为1 ( DragQueryFile != 1 )
-#define MSG_ERR_CLIP_FILES(n)   "Clipboard number of query files is not valid. Number: "+n
+#define MSG_ERR_CLIP_FILES(n)   "Clipboard number of query files is not valid. Number: "+std::to_string(n)
 #define CODE_ERR_CLIP_GETOBJ    215 // 剪贴板检索图形对象信息失败 ( GetObject NULL )
 #define MSG_ERR_CLIP_GETOBJ     "Clipboard get bitmap object failed."
 #define CODE_ERR_CLIP_BITMAP    216 // 剪贴板获取位图数据失败 ( GetBitmapBits 复制字节为空 )
 #define MSG_ERR_CLIP_BITMAP     "Getting clipboard bitmap bits failed."
 #define CODE_ERR_CLIP_CHANNEL   217 // 剪贴板中位图的通道数不支持 ( nChannels 不为1，3，4 )
-#define MSG_ERR_CLIP_CHANNEL(n) "Clipboard number of image channels is not valid. Number: "+n
+#define MSG_ERR_CLIP_CHANNEL(n) "Clipboard number of image channels is not valid. Number: "+std::to_string(n)
 // 未知
 #define CODE_ERR_UNKNOW        299 // 未知异常
 #define MSG_ERR_UNKNOW         "An unknown error has occurred."
