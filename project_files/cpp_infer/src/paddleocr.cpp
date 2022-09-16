@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <include/tools_flags.h> // 标志
 #include <include/args.h>
 #include <include/paddleocr.h>
 
@@ -140,7 +141,7 @@ PPOCR::ocr(std::vector<cv::String> cv_all_img_names, bool det, bool rec,
     std::vector<cv::Mat> img_list;
     for (int i = 0; i < cv_all_img_names.size(); ++i) {
       //cv::Mat srcimg = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
-      cv::Mat srcimg = imreadU8(cv_all_img_names[i]);
+      cv::Mat srcimg = tool::imread_utf8(cv_all_img_names[i]);
       if (!srcimg.data) {
         //std::cerr << "[ERROR] image read failed! image path: "
         //          << cv_all_img_names[i] << endl;
@@ -148,7 +149,7 @@ PPOCR::ocr(std::vector<cv::String> cv_all_img_names, bool det, bool rec,
         //exit(1);
         OCRPredictResult res;
         ocr_result.push_back(res);
-        ocr_result[0].cls_label = -201; // 设标志 
+        ocr_result[0].cls_label = CODE_ERR_MAT_NULL;
         ocr_results.push_back(ocr_result);
         return ocr_results;
       }
@@ -186,7 +187,7 @@ PPOCR::ocr(std::vector<cv::String> cv_all_img_names, bool det, bool rec,
         //cout << "predict img: " << cv_all_img_names[i] << endl;
       }
       //cv::Mat srcimg = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
-      cv::Mat srcimg = imreadU8(cv_all_img_names[i]);
+      cv::Mat srcimg = tool::imread_utf8(cv_all_img_names[i]);
       if (!srcimg.data) { // 读取图片失败
         //std::cerr << "[ERROR] image read failed! image path: "
         //          << cv_all_img_names[i] << endl;
@@ -194,7 +195,7 @@ PPOCR::ocr(std::vector<cv::String> cv_all_img_names, bool det, bool rec,
         //exit(1);
         OCRPredictResult res;
         ocr_result.push_back(res);
-        ocr_result[0].cls_label = -201; // 设标志 
+        ocr_result[0].cls_label = CODE_ERR_MAT_NULL; // 设标志 
         ocr_results.push_back(ocr_result);
         return ocr_results;
       }

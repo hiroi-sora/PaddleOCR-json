@@ -101,7 +101,7 @@ void DBDetector::LoadModel(const std::string &model_dir) {
     this->predictor_ = CreatePredictor(config);
   }
   catch (...) {
-    exit_pause(1);
+    tool::exit_pause(1);
   }
 
   // 调用库创建预测器时，关闭标准输出，屏蔽日志输出到控制台。之后重新打开标准输出。
