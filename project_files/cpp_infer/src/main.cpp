@@ -17,10 +17,9 @@
 
 
 // 版本信息
-#define PROJECT_VER "v1.2.1 Alpha 2"
+#define PROJECT_VER "v1.2.1 Alpha 3"
 #define PROJECT_NAME "PaddleOCR-json " PROJECT_VER
 
-#include <include/tools_flags.h> // 标志位
 
 #include "opencv2/core.hpp"
 #include "opencv2/imgcodecs.hpp"
@@ -33,6 +32,7 @@
 #include <include/paddlestructure.h>
 
 #include <include/tools.h>
+#include <include/tools_flags.h> // 标志位
 
 #include <include/nlohmann_json.hpp>
 using namespace nlohmann;
@@ -131,8 +131,13 @@ void run_ocr(PPOCR& ocr, string img_path) {
   std::vector<OCRPredictResult> ocr_result = ocr_results[0]; // 提取第一个结果（也只有一个）
 
   // 3. 输出
-  // 3.1. 输出错误
-  if (ocr_result[0].cls_label == CODE_ERR_MAT_NULL) { // OCR得到空矩阵
+  // 3.1. 输出：识别成功，无文字（det未检出）
+  if (ocr_result.empty()) {
+    print_ocr_fail(CODE_OK_NONE, MSG_OK_NONE(img_path));
+    return;
+  }
+  // 3.2. 输出：识别失败
+  if (ocr_result[0].cls_label == CODE_ERR_MAT_NULL) { // 错误标签
     // 调查读图过程的受管控区域 是否有报告异常情况
     int code;
     string msg;
@@ -144,12 +149,7 @@ void run_ocr(PPOCR& ocr, string img_path) {
     print_ocr_fail(CODE_ERR_UNKNOW, MSG_ERR_UNKNOW); // 未知错误
     return;
   }
-  // 3.2. 输出异常情况
-  if (ocr_result.empty()) { // 图中无文字
-    print_ocr_fail(CODE_OK_NONE, MSG_OK_NONE(img_path));
-    return;
-  }
-  // 3.2. 整理数据
+  // 3.3. 整理数据
   json outJ;
   outJ["code"] = 100;
   outJ["data"] = json::array();
@@ -162,11 +162,16 @@ void run_ocr(PPOCR& ocr, string img_path) {
     j["text"] = ocr_result[i].text;
     j["score"] = ocr_result[i].score;
     std::vector<std::vector<int>> b = ocr_result[i].box;
-    // 无包围盒，跳过本组
-    if (b.empty())
-      continue;
+    // 无包围盒
+    if (b.empty()) {
+      if (FLAGS_det) // 开了det仍无包围盒，跳过本组
+        continue;
+      else // 未开det，填充空包围盒
+        for (int bi = 0; bi < 4; bi++)
+          b.push_back(std::vector<int> {-1, -1});
+    }
     // 启用了rec仍没有文字，跳过本组 
-    if (FLAGS_rec && (j["score"] == -1.0 || j["text"] == "")) {
+    if (FLAGS_rec && (j["score"] <= 0 || j["text"] == "")) {
       continue;
     }
     else {
@@ -176,12 +181,12 @@ void run_ocr(PPOCR& ocr, string img_path) {
     outJ["data"].push_back(j);
     isEmpty = false;
   }
-  // 3.3. 输出无文字的情况
+  // 3.4. 输出：识别成功，无文字（rec未检出）
   if (isEmpty) {
     print_ocr_fail(CODE_OK_NONE, MSG_OK_NONE(img_path));
     return;
   }
-  // 3.4. 输出正常情况
+  // 3.5. 输出：输出正常情况
   else {
     // 所有非ascii字符转义为ascii，规避中文编码问题
     print_json(outJ);

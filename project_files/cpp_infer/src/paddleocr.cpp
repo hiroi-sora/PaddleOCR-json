@@ -200,7 +200,7 @@ PPOCR::ocr(std::vector<cv::String> cv_all_img_names, bool det, bool rec,
         return ocr_results;
       }
       // det
-      this->det(srcimg, ocr_result, time_info_det); // todo
+      this->det(srcimg, ocr_result, time_info_det);
       if (ocr_result.empty()) { // 没有文字，填充空向量，跳过循环 
         ocr_results.push_back(ocr_result);
         continue;
