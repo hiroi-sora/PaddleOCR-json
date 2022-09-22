@@ -17,7 +17,7 @@
 
 
 // 版本信息
-#define PROJECT_VER "v1.2.1 Alpha 3"
+#define PROJECT_VER "v1.2.1"
 #define PROJECT_NAME "PaddleOCR-json " PROJECT_VER
 
 
@@ -40,10 +40,10 @@ using namespace nlohmann;
 using namespace PaddleOCR;
 
 void check_params() {
-  if (FLAGS_ensure_production) {
-    FLAGS_ensure_ascii = true;
-    FLAGS_use_system_pause = false;
-    FLAGS_ensure_chcp = false;
+  if (FLAGS_use_debug) {
+    FLAGS_ensure_ascii = false;
+    FLAGS_use_system_pause = true;
+    FLAGS_ensure_chcp = true;
   }
   if (FLAGS_det) {
     if (FLAGS_det_model_dir.empty()) {
@@ -96,12 +96,12 @@ void print_json(const json &j) {
   }
 }
 
-void print_ocr_fail(int code, const string& msg,const string& key2="", const string& msg2="") {
+void print_ocr_fail(int code, const string& msg, const string& hotUpdate ="") {
   json j;
   j["code"] = code;
   j["data"] = msg;
-  if (key2 != "") {
-    j[key2] = msg2;
+  if (hotUpdate != "") {
+    j["hotUpdate"] = hotUpdate;
   }
   print_json(j);
 }
@@ -111,11 +111,11 @@ void run_ocr(PPOCR& ocr, string img_path) {
 
   // 1. 前处理
   int imgstrlen = img_path.length();
-  string logstr = ""; // 缓存json解析得到的日志
+  string hotupdateLog = ""; // 缓存json解析得到的日志
   bool is_image = false, is_hotupdate = false;
   // 1.1. 若为json字符串，则解析 
   if (imgstrlen > 2 && img_path[0] == '{' && img_path[imgstrlen - 1] == '}') {
-    logstr = tool::load_json_str(img_path, is_image, is_hotupdate);
+    hotupdateLog = tool::load_json_str(img_path, is_image, is_hotupdate);
     // 经过json转换的 img_path ，不管原来是什么，现在是 u8 string
     if (is_hotupdate) { // 热更新
       ocr.HotUpdate();
@@ -133,7 +133,7 @@ void run_ocr(PPOCR& ocr, string img_path) {
   // 3. 输出
   // 3.1. 输出：识别成功，无文字（det未检出）
   if (ocr_result.empty()) {
-    print_ocr_fail(CODE_OK_NONE, MSG_OK_NONE(img_path));
+    print_ocr_fail(CODE_OK_NONE, MSG_OK_NONE(img_path), hotupdateLog);
     return;
   }
   // 3.2. 输出：识别失败
@@ -143,10 +143,10 @@ void run_ocr(PPOCR& ocr, string img_path) {
     string msg;
     tool::get_state(code, msg);
     if (code != CODE_INIT) { // 有报告异常
-      print_ocr_fail(code, msg); // 输出json
+      print_ocr_fail(code, msg, hotupdateLog); // 输出json
       return;
     }
-    print_ocr_fail(CODE_ERR_UNKNOW, MSG_ERR_UNKNOW); // 未知错误
+    print_ocr_fail(CODE_ERR_UNKNOW, MSG_ERR_UNKNOW, hotupdateLog); // 未知错误
     return;
   }
   // 3.3. 整理数据
@@ -154,7 +154,7 @@ void run_ocr(PPOCR& ocr, string img_path) {
   outJ["code"] = 100;
   outJ["data"] = json::array();
   if (is_hotupdate) {
-    outJ["hotUpdate"] = logstr;
+    outJ["hotUpdate"] = hotupdateLog;
   }
   bool isEmpty = true;
   for (int i = 0; i < ocr_result.size(); i++) {
@@ -175,15 +175,15 @@ void run_ocr(PPOCR& ocr, string img_path) {
       continue;
     }
     else {
-      j["box"] = { b[0][0], b[0][1], b[1][0], b[1][1],
-                   b[2][0], b[2][1], b[3][0], b[3][1], };
+      j["box"] = { {b[0][0], b[0][1]}, {b[1][0], b[1][1]},
+        {b[2][0], b[2][1] }, { b[3][0], b[3][1] } };
     }
     outJ["data"].push_back(j);
     isEmpty = false;
   }
   // 3.4. 输出：识别成功，无文字（rec未检出）
   if (isEmpty) {
-    print_ocr_fail(CODE_OK_NONE, MSG_OK_NONE(img_path));
+    print_ocr_fail(CODE_OK_NONE, MSG_OK_NONE(img_path), hotupdateLog);
     return;
   }
   // 3.5. 输出：输出正常情况
@@ -208,12 +208,6 @@ void run_ocr(PPOCR& ocr, string img_path) {
 }
 
 int main(int argc, char** argv) {
-  //system("chcp 65001"); // 控制台设utf-8 
-  //tool::imread_clipboard();
-  //tool::exit_pause(0);
-  //return 0;
-
-
   google::ParseCommandLineFlags(&argc, &argv, true); // 解析命令参数
   tool::load_congif_file(); // 加载配置文件 
   check_params(); // 检测参数合法性 
@@ -221,8 +215,8 @@ int main(int argc, char** argv) {
   if (FLAGS_ensure_chcp) {
     system("chcp 65001"); // 控制台设utf-8 
   }
-  if (FLAGS_ensure_production) {
-    cout << "production environment" << endl; // 生产环境提示
+  if (FLAGS_use_debug) {
+    cout << "Debug Mode" << endl; // debug环境提示
   }
   cout << PROJECT_NAME << endl; // 版本提示
   cout << "OCR init completed." << endl; // 完成提示
@@ -239,24 +233,3 @@ int main(int argc, char** argv) {
   tool::exit_pause(0);
   //return 0;
 }
-
-
-/* if (!Utility::PathExists(FLAGS_image_dir)) {
-   std::cerr << "[ERROR] image path not exist! image_dir: " << FLAGS_image_dir
-             << endl;
-   system("pause");
-   exit(1);
- }
-
- std::vector<cv::String> cv_all_img_names;
- cv::glob(FLAGS_image_dir, cv_all_img_names);
- std::cout << "total images num: " << cv_all_img_names.size() << endl;
-
-
- if (FLAGS_type == "ocr") {
-   ocr(cv_all_img_names);
- } else if (FLAGS_type == "structure") {
-   structure(cv_all_img_names);
- } else {
-   std::cout << "only value in ['ocr','structure'] is supported" << endl;
- }*/

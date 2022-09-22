@@ -66,13 +66,13 @@ DEFINE_bool(table, false, "Whether use table structure in forward.");
 DEFINE_string(config_path,"","Path of config txt.");
 
 // 输出json字符串转ascii编码 
-DEFINE_bool(ensure_ascii, false, "Whether characters in the output are escaped with sequences to ASCII.");
+DEFINE_bool(ensure_ascii, true, "Whether characters in the output are escaped with sequences to ASCII.");
 
 // 退出前暂停程序 
-DEFINE_bool(use_system_pause, true, "Whether system(\"pause\") before exit.");
+DEFINE_bool(use_system_pause, false, "Whether system(\"pause\") before exit.");
 
 // 将控制台设为chcp65001
-DEFINE_bool(ensure_chcp, true, "Whether system(\"chcp 65001\") before start.");
+DEFINE_bool(ensure_chcp, false, "Whether system(\"chcp 65001\") before start.");
 
-// 生产环境，干掉不必要的输出
-DEFINE_bool(ensure_production, false, "Whether production environment. Close pause, chcp and open ascii.");
+// 启用debug
+DEFINE_bool(use_debug, true, "Whether use debug. Open pause, chcp and close ascii.");

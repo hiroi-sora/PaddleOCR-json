@@ -227,9 +227,8 @@ namespace tool {
     }
     else {
       static UINT auPriorityList[] = {  // 允许读入的剪贴板格式：
-        CF_UNICODETEXT,                 // unicode字符串
-        CF_HDROP,                       // 文件列表句柄（文件管理器选中文件复制）
         CF_BITMAP,                      // 位图
+        CF_HDROP,                       // 文件列表句柄（文件管理器选中文件复制）
       };
       int auPriorityLen = sizeof(auPriorityList) / sizeof(auPriorityList[0]); // 列表长度
       int uFormat = GetPriorityClipboardFormat(auPriorityList, auPriorityLen); // 获取当前剪贴板内容的格式
@@ -238,15 +237,44 @@ namespace tool {
       //     若任务失败，释放已打开的资源和锁，报告状态，跳出switch，统一关闭剪贴板和返回空mat
       switch (uFormat)
       {
-      case CF_UNICODETEXT: { // 1. unicode字符串 ==========================================================
-        HANDLE hClip = GetClipboardData(uFormat); // 1.1. 以指定格式从剪贴板中检索数据，返回指定格式的剪贴板对象的句柄
-        if (hClip) { // 获取成功
-          wchar_t* pBuf = (wchar_t*)GlobalLock(hClip); // 1.2. 锁定全局内存对象，并返回指向该对象的内存块的第一个字节的指针
-          wstring wpath = pBuf;
-          // 释放资源
-          GlobalUnlock(hClip); // 1.x.1. 释放内存对象，递减与GMEM_MOVEABLE一起分配的内存对象关联的锁定计数
-          CloseClipboard(); // 1.x.2. 关闭剪贴板，使其他窗口能够继续访问剪贴板
-          return imread_wstr(wpath); // 1.成功：尝试根据这个字符串读取文件
+
+      case CF_BITMAP: { // 1. 位图 ===================================================================
+        HBITMAP hbm = (HBITMAP)GetClipboardData(uFormat); // 1.1. 从剪贴板中录入指针，得到文件句柄
+        if (hbm) {
+          // GlobalLock(hbm); // 返回值总是无效的，读位图似乎不需要锁？
+        // https://social.msdn.microsoft.com/Forums/vstudio/en-US/d2a6aa71-68d7-4db0-8b1f-5d1920f9c4ce/globallock-and-dib-transform-into-hbitmap-issue?forum=vcgeneral
+          BITMAP bmp; // 存放指向缓冲区的指针，缓冲区接收有关指定图形对象的信息
+          GetObject(hbm, sizeof(BITMAP), &bmp); // 1.2. 获取图形对象的信息（不含图片内容本身）
+          if (!hbm) {
+            set_state(CODE_ERR_CLIP_GETOBJ, MSG_ERR_CLIP_GETOBJ); // 报告状态：检索图形对象信息失败
+            break;
+          }
+          int nChannels = bmp.bmBitsPixel == 1 ? 1 : bmp.bmBitsPixel / 8; // 根据色深计算通道数，32bit为4，24bit为3
+          // 1.3. 将句柄hbm中的位图复制到缓冲区
+          long sz = bmp.bmHeight * bmp.bmWidth * nChannels; // 图片大小（字节）
+          cv::Mat mat(cv::Size(bmp.bmWidth, bmp.bmHeight), CV_MAKETYPE(CV_8U, nChannels));  // 创造空矩阵，传入位图大小和深度
+          long getsz = GetBitmapBits(hbm, sz, mat.data); // 将句柄hbm中sz个字节复制到缓冲区img.data
+          if (!getsz) {
+            set_state(CODE_ERR_CLIP_BITMAP, MSG_ERR_CLIP_BITMAP); // 报告状态：获取位图数据失败
+            break;
+          }
+          CloseClipboard();  // 释放资源
+          // 1.4. 返回合适的通道
+          if (mat.data) {
+            if (nChannels == 1 || nChannels == 3) { // 1或3通道，PPOCR可识别，直接返回
+              return mat;
+            }
+            else if (nChannels == 4) { // 4通道，PPOCR不可识别，删去alpha转3通道再返回
+              cv::Mat mat_c3;
+              cv::cvtColor(mat, mat_c3, cv::COLOR_BGRA2BGR); // 色彩空间转换
+              return mat_c3;
+            }
+            set_state(CODE_ERR_CLIP_CHANNEL, MSG_ERR_CLIP_CHANNEL(nChannels)); // 报告状态：通道数异常
+            break;
+          }
+          // 理论上上面 !getsz 已经 break 了，不会走到这里。保险起见再报告一次
+          set_state(CODE_ERR_CLIP_BITMAP, MSG_ERR_CLIP_BITMAP); // 报告状态：获取位图数据失败
+          break;
         }
         set_state(CODE_ERR_CLIP_DATA, MSG_ERR_CLIP_DATA); // 报告状态：获取剪贴板数据失败
         break;
@@ -276,48 +304,6 @@ namespace tool {
           GlobalUnlock(hClip); // 2.x.1 释放文件列表句柄
           CloseClipboard(); // 2.x.2 关闭剪贴板
           return mat;
-        }
-        set_state(CODE_ERR_CLIP_DATA, MSG_ERR_CLIP_DATA); // 报告状态：获取剪贴板数据失败
-        break;
-      }
-
-      case CF_BITMAP: { // 3. 位图 ===================================================================
-        HBITMAP hbm = (HBITMAP)GetClipboardData(uFormat); // 3.1. 从剪贴板中录入指针，得到文件句柄
-        if (hbm) {
-          // GlobalLock(hbm); // 返回值总是无效的，读位图似乎不需要锁？
-        // https://social.msdn.microsoft.com/Forums/vstudio/en-US/d2a6aa71-68d7-4db0-8b1f-5d1920f9c4ce/globallock-and-dib-transform-into-hbitmap-issue?forum=vcgeneral
-          BITMAP bmp; // 存放指向缓冲区的指针，缓冲区接收有关指定图形对象的信息
-          GetObject(hbm, sizeof(BITMAP), &bmp); // 3.3. 获取图形对象的信息（不含图片内容本身）
-          if (!hbm) {
-            set_state(CODE_ERR_CLIP_GETOBJ, MSG_ERR_CLIP_GETOBJ); // 报告状态：检索图形对象信息失败
-            break;
-          }
-          int nChannels = bmp.bmBitsPixel == 1 ? 1 : bmp.bmBitsPixel / 8; // 根据色深计算通道数，32bit为4，24bit为3
-          // 3.4. 将句柄hbm中的位图复制到缓冲区
-          long sz = bmp.bmHeight * bmp.bmWidth * nChannels; // 图片大小（字节）
-          cv::Mat mat(cv::Size(bmp.bmWidth, bmp.bmHeight), CV_MAKETYPE(CV_8U, nChannels));  // 创造空矩阵，传入位图大小和深度
-          long getsz = GetBitmapBits(hbm, sz, mat.data); // 将句柄hbm中sz个字节复制到缓冲区img.data
-          if (!getsz) {
-            set_state(CODE_ERR_CLIP_BITMAP, MSG_ERR_CLIP_BITMAP); // 报告状态：获取位图数据失败
-            break;
-          }
-          CloseClipboard();  // 释放资源
-          // 3.5. 返回合适的通道
-          if (mat.data) {
-            if (nChannels == 1 || nChannels == 3) { // 1或3通道，PPOCR可识别，直接返回
-              return mat;
-            }
-            else if (nChannels == 4) { // 4通道，PPOCR不可识别，删去alpha转3通道再返回
-              cv::Mat mat_c3;
-              cv::cvtColor(mat, mat_c3, cv::COLOR_BGRA2BGR); // 色彩空间转换
-              return mat_c3;
-            }
-            set_state(CODE_ERR_CLIP_CHANNEL, MSG_ERR_CLIP_CHANNEL(nChannels)); // 报告状态：通道数异常
-            break;
-          }
-          // 理论上上面 !getsz 已经 break 了，不会走到这里。保险起见再报告一次
-          set_state(CODE_ERR_CLIP_BITMAP, MSG_ERR_CLIP_BITMAP); // 报告状态：获取位图数据失败
-          break;
         }
         set_state(CODE_ERR_CLIP_DATA, MSG_ERR_CLIP_DATA); // 报告状态：获取剪贴板数据失败
         break;
@@ -356,180 +342,21 @@ namespace tool {
   }
 }
 
-
-/* 备份
-* 
-
-D:\图片\Screenshots\t1.png
-
---image_dir=clipboard
-
-  // 检查路径pathU8，若存在，返回true
-  bool is_exists(string pathU8) {
-	cout << u8"开始检查： " << pathU8 << endl;
-	struct _stat buf;
-	int result = _stat(pathU8.c_str(), &buf);
-	if (result == 0) {
-	  cout << u8"检查0： " << pathU8 << endl;
-	  return false;
-	}
-	if (S_IFREG & buf.st_mode) {
-	  cout << u8"检查为文件： " << pathU8 << endl;
-	  return true;
-	}
-	else if (S_IFDIR & buf.st_mode) {
-	  cout << u8"检查为目录： " << pathU8 << endl;
-	  return false;
-	}
-	cout << u8"检查失败： " << pathU8 << endl;
-  }
-
-
-cv::Mat readByImread(string path) {
-  return cv::imread(path, cv::IMREAD_COLOR);
-}
-
-cv::Mat readByImdecode(string path) {
-  std::ifstream imgStream(path.c_str(), std::ios::binary);
-  imgStream.seekg(0, std::ios::end);
-  size_t fileSize = imgStream.tellg();
-  imgStream.seekg(0, std::ios::beg);
-  if (fileSize == 0) {
-	return cv::Mat();
-  }
-  std::vector<unsigned char> data(fileSize);
-  imgStream.read(reinterpret_cast<char*>(&data[0]), sizeof(unsigned char) * fileSize);
-  if (!imgStream) {
-	return cv::Mat();
-  }
-  return cv::imdecode(cv::Mat(data), cv::IMREAD_COLOR);
-}
-
-  // 判断字符串是否utf-8
-  bool is_utf8(const string& str)
-  {
-	char nBytes = 0; // UFT8可用1-6个字节编码,ASCII用一个字节
-	unsigned char chr;
-	bool bAllAscii = true; // 如果全部都是ASCII, 说明不是UTF-8
-	for (int i = 0; i < str.length(); i++)
-	{
-	  chr = str[i];
-	  // 判断是否ASCII编码,如果不是,说明有可能是UTF-8,ASCII用7位编码,
-	  // 但用一个字节存,最高位标记为0,o0xxxxxxx
-	  if ((chr & 0x80) != 0)
-		bAllAscii = false;
-	  // 如果不是ASCII码,应该是多字节符,计算字节数
-	  if (nBytes == 0)
-	  {
-		if (chr >= 0x80)
-		{
-		  if (chr >= 0xFC && chr <= 0xFD)   nBytes = 6;
-		  else if (chr >= 0xF8)         nBytes = 5;
-		  else if (chr >= 0xF0)         nBytes = 4;
-		  else if (chr >= 0xE0)         nBytes = 3;
-		  else if (chr >= 0xC0)         nBytes = 2;
-		  else {
-			return false;
-		  }
-		  nBytes--;
-		}
-	  }
-	  else //多字节符的非首字节,应为 10xxxxxx
-	  {
-		if ((chr & 0xC0) != 0x80)
-		  return false;
-		nBytes--;
-	  }
-	}
-
-	if (nBytes > 0) //违返规则
-	  return false;
-
-	if (bAllAscii) //如果全部都是ASCII, 说明不是UTF-8
-	  return false;
-
-	return true;
-  }
-  // 判断字符串是否bgk
-  bool is_gbk(const string& str)
-  {
-	unsigned int nBytes = 0;//GBK可用1-2个字节编码,中文两个 ,英文一个
-	unsigned char chr = str.at(0);
-	bool bAllAscii = true; //如果全部都是ASCII,
-
-	for (unsigned int i = 0; str[i] != '\0'; ++i) {
-	  chr = str.at(i);
-	  if ((chr & 0x80) != 0 && nBytes == 0) {// 判断是否ASCII编码,如果不是,说明有可能是GBK
-		bAllAscii = false;
-	  }
-
-	  if (nBytes == 0) {
-		if (chr >= 0x80) {
-		  if (chr >= 0x81 && chr <= 0xFE) {
-			nBytes = +2;
-		  }
-		  else {
-			return false;
-		  }
-		  nBytes--;
-		}
-	  }
-	  else {
-		if (chr < 0x40 || chr>0xFE) {
-		  return false;
-		}
-		nBytes--;
-	  }//else end
-	}
-
-	if (nBytes != 0) { // 违反规则
-	  return false;
-	}
-
-	if (bAllAscii) { // 如果全部都是ASCII, 也是GBK
-	  return true;
-	}
-
-	return true;
-  }
-  // 字符串gbk转utf-8
-  string gbk_2_utf8(const string& str_gbk)
-  {
-	if (str_gbk == "" || is_utf8(str_gbk) || !is_gbk(str_gbk)) {
-	  return str_gbk; // 已经是utf-8或者非gbk，不转
-	}
-	string str_utf8 = "";
-	WCHAR* str1;
-	int n = MultiByteToWideChar(CP_ACP, 0, str_gbk.c_str(), -1, NULL, 0);
-	str1 = new WCHAR[n];
-	MultiByteToWideChar(CP_ACP, 0, str_gbk.c_str(), -1, str1, n);
-	n = WideCharToMultiByte(CP_UTF8, 0, str1, -1, NULL, 0, NULL, NULL);
-	char* str2 = new char[n];
-	WideCharToMultiByte(CP_UTF8, 0, str1, -1, str2, n, NULL, NULL);
-	str_utf8 = str2;
-	delete[]str1;
-	str1 = NULL;
-	delete[]str2;
-	str2 = NULL;
-	return str_utf8;
-  }
-  // 字符串utf-8转gbk
-  string utf8_2_gbk(const string& str_utf8) {
-	if (str_utf8 == "")
-	  return str_utf8;
-	const char* strUTF8 = str_utf8.c_str();
-	int len = MultiByteToWideChar(CP_UTF8, 0, strUTF8, -1, NULL, 0);
-	wchar_t* wszGBK = new wchar_t[len + 1];
-	memset(wszGBK, 0, len * 2 + 2);
-	MultiByteToWideChar(CP_UTF8, 0, strUTF8, -1, wszGBK, len);
-	len = WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, NULL, 0, NULL, NULL);
-	char* szGBK = new char[len + 1];
-	memset(szGBK, 0, len + 1);
-	WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, szGBK, len, NULL, NULL);
-	std::string strTemp(szGBK);
-	if (wszGBK) delete[] wszGBK;
-	if (szGBK) delete[] szGBK;
-	return strTemp;
-  }
+/*
+      // CF_UNICODETEXT,               // unicode字符串
+      // 备份：剪贴板读路径字符串
+      case CF_UNICODETEXT: { // 1. unicode字符串 ==========================================================
+        HANDLE hClip = GetClipboardData(uFormat); // 1.1. 以指定格式从剪贴板中检索数据，返回指定格式的剪贴板对象的句柄
+        if (hClip) { // 获取成功
+          wchar_t* pBuf = (wchar_t*)GlobalLock(hClip); // 1.2. 锁定全局内存对象，并返回指向该对象的内存块的第一个字节的指针
+          wstring wpath = pBuf;
+          // 释放资源
+          GlobalUnlock(hClip); // 1.x.1. 释放内存对象，递减与GMEM_MOVEABLE一起分配的内存对象关联的锁定计数
+          CloseClipboard(); // 1.x.2. 关闭剪贴板，使其他窗口能够继续访问剪贴板
+          return imread_wstr(wpath); // 1.成功：尝试根据这个字符串读取文件
+        }
+        set_state(CODE_ERR_CLIP_DATA, MSG_ERR_CLIP_DATA); // 报告状态：获取剪贴板数据失败
+        break;
+      }
 
 */
