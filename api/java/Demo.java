@@ -20,6 +20,9 @@ public class Demo {
             // 对一张图片进行 OCR
             String imgPath = "path/to/img";
             OcrResponse resp = ocr.runOcr(new File(imgPath));
+            
+            // 或者直接识别剪贴板中的图片
+            // OcrResponse resp = ocr.runOcrOnClipboard();
 
             // 读取结果
             if (resp.code == OcrCode.OK) {
