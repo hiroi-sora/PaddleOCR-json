@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,41 +85,14 @@ class EscapedWriter extends FilterWriter {
     }
 }
 
-enum OcrCode {
-    @SerializedName("100")
-    OK(100),
-    @SerializedName("101")
-    NO_TEXT(101),
-    @SerializedName("200")
-    ERR_IMG_PATH(200),
-    @SerializedName("201")
-    ERR_IMG_READ(201),
-    @SerializedName("300")
-    ERR_JSON_DUMP(300);
-
-    private final int code;
-
-    OcrCode(int code) {
-        this.code = code;
-    }
-
-    public int getValue() {
-        return code;
-    }
-
-    public static OcrCode fromValue(int value) {
-        for (OcrCode code : OcrCode.values()) {
-            if(value == code.getValue()) {
-                return code;
-            }
-        }
-        return null;
-    }
+class OcrCode {
+    public static final int OK = 100;
+    public static final int NO_TEXT = 101;
 }
 
 class OcrEntry {
     String text;
-    int[] box;
+    int[][] box;
     double score;
 
     @Override
@@ -133,7 +106,7 @@ class OcrEntry {
 }
 
 class OcrResponse {
-    OcrCode code;
+    int code;
     OcrEntry[] data;
     String msg;
     String hotUpdate;
@@ -151,7 +124,7 @@ class OcrResponse {
     public OcrResponse() {
     }
 
-    public OcrResponse(OcrCode code, String msg) {
+    public OcrResponse(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }
@@ -181,8 +154,12 @@ public class Ocr implements AutoCloseable {
             }
         }
 
-        if (!commands.contains("use_system_pause")) {
-            commands += ' ' + "--use_system_pause=0";
+        if (!commands.contains("use_debug")) {
+            commands += ' ' + "--use_debug=0";
+        }
+
+        if (!StandardCharsets.US_ASCII.newEncoder().canEncode(commands)) {
+            throw new IllegalArgumentException("参数不能含有非 ASCII 字符");
         }
 
         System.out.println("当前参数：" + commands);
@@ -195,8 +172,8 @@ public class Ocr implements AutoCloseable {
 
         InputStream stdout = p.getInputStream();
         OutputStream stdin = p.getOutputStream();
-        reader = new BufferedReader(new InputStreamReader(stdout, Charset.forName("UTF-8")));
-        writer = new BufferedWriter(new OutputStreamWriter(stdin, Charset.forName("UTF-8")));
+        reader = new BufferedReader(new InputStreamReader(stdout, StandardCharsets.UTF_8));
+        writer = new BufferedWriter(new OutputStreamWriter(stdin, StandardCharsets.UTF_8));
 
         String line = "";
         ocrReady = false;
@@ -212,11 +189,19 @@ public class Ocr implements AutoCloseable {
     }
 
     public OcrResponse runOcr(File imgFile) throws IOException {
+        return this.runOcrOnPath(imgFile.toString());
+    }
+
+    public OcrResponse runOcrOnClipboard() throws IOException {
+        return this.runOcrOnPath("clipboard");
+    }
+
+    private OcrResponse runOcrOnPath(String path) throws IOException {
         if (!p.isAlive()) {
             throw new RuntimeException("OCR进程已经退出");
         }
         Map<String, String> reqJson = new HashMap<>();
-        reqJson.put("image_dir", imgFile.toString());
+        reqJson.put("image_dir", path);
         StringWriter sw = new StringWriter();
         EscapedWriter ew = new EscapedWriter(sw);
         gson.toJson(reqJson, ew);
@@ -228,11 +213,13 @@ public class Ocr implements AutoCloseable {
 
         Map rawJsonObj = gson.fromJson(resp, Map.class);
         if (rawJsonObj.get("data") instanceof String) {
-            return new OcrResponse(OcrCode.fromValue((int)Double.parseDouble(rawJsonObj.get("code").toString())), rawJsonObj.get("data").toString());
+            return new OcrResponse((int)Double.parseDouble(rawJsonObj.get("code").toString()), rawJsonObj.get("data").toString());
         }
 
         return gson.fromJson(resp, OcrResponse.class);
     }
+
+
 
     @Override
     public void close() {
