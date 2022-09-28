@@ -90,7 +90,7 @@ class PPOCR {
     }
 
     # 结束子进程
-    [void] del() {
+    [void] stop() {
         $this.process.Kill()  # 关闭子进程
         # Remove-Variable $this
         Write-Host "识别器进程结束。"
