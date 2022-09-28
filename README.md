@@ -126,6 +126,8 @@ Write-Host "程序结束。"
 
 > 由[PunchlY/PaddleOCR-json-node-api](https://github.com/PunchlY/PaddleOCR-json-node-api)贡献
 
+> 可能暂未适配 v1.2.1
+
 将 [OCR.js](api/node.js/OCR.js) 引入你的项目。
 
 <details>
