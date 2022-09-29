@@ -67,7 +67,7 @@ public:
     }
     catch (string e) {
       cerr << e << endl;
-      exit_pause(1);
+      tool::exit_pause(1);
     }
     this->label_list_.insert(this->label_list_.begin(),
                              "#"); // blank char for ctc

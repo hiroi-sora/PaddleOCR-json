@@ -67,5 +67,5 @@ DECLARE_bool(ensure_ascii);
 DECLARE_bool(use_system_pause);
 // ture时将控制台设为chcp65001
 DECLARE_bool(ensure_chcp);
-// 生产环境
-DECLARE_bool(ensure_production);
+// 启用debug
+DECLARE_bool(use_debug);

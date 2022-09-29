@@ -49,7 +49,7 @@ PaddleStructure::structure(std::vector<cv::String> cv_all_img_names,
     std::vector<StructurePredictResult> structure_result;
     // 虽然本项目暂时用不到表格识别，不过先把万恶的imread替换了
     //cv::Mat srcimg = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
-    cv::Mat srcimg = imreadU8(cv_all_img_names[i]);
+    cv::Mat srcimg = tool::imread_utf8(cv_all_img_names[i]);
     if (!srcimg.data) {
       std::cerr << "[ERROR] image read failed! image path: "
                 << cv_all_img_names[i] << endl;

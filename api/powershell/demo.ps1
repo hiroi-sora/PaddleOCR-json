@@ -15,5 +15,5 @@ while (1) {
     }
 }
 
-$ocr.del()  # 结束子进程。
+$ocr.stop()  # 结束子进程。
 Write-Host "程序结束。"
