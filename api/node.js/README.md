@@ -4,7 +4,7 @@
 <details>
 <summary>Log</summary>
 
-v1.0.3 2022.9.14
+v1.0.3 2022.10.1
 适配[hiroi-sora/PaddleOCR-json v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.2.1).
 
 v1.0.2 2022.9.14
