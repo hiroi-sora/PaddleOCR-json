@@ -55,7 +55,7 @@ npm start
 
 `OCR`是`worker_threads.Worker`的派生类.
 
-#### new OCR
+#### new OCR(config, init)
 
 ```js
 const config = {};
@@ -68,7 +68,7 @@ const ocr = new OCR(config, {
 
 `config`详见[hiroi-sora/PaddleOCR-json#配置参数说明](https://github.com/hiroi-sora/PaddleOCR-json#%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E).
 
-#### OCR.prototype.postMessage
+#### OCR.prototype.postMessage(obj)
 
 ```js
 ocr.postMessage(obj);
@@ -81,7 +81,7 @@ ocr.postMessage({
 
 `obj`详见[hiroi-sora/PaddleOCR-json#动态参数](https://github.com/hiroi-sora/PaddleOCR-json#%E5%8A%A8%E6%80%81%E5%8F%82%E6%95%B0)
 
-#### OCR.prototype.flush
+#### OCR.prototype.flush(obj)
 
 `ocr.flush`是`ocr.postMessage`的别名.
 
