@@ -43,7 +43,8 @@ if (isMainThread) {
             return new Promise((res) => {
                 const queue = this.#queue;
                 obj = Object.assign({}, obj);
-                obj.image_dir &&= path_resolve('./', obj.image_dir);
+                if (obj.image_dir !== 'clipboard')
+                    obj.image_dir &&= path_resolve('./', obj.image_dir);
                 queue.push(() => new Promise((res_) => {
                     super.once('message', (data) => (res({
                         code: data.code,
