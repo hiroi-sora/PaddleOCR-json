@@ -132,14 +132,14 @@ Write-Host "程序结束。"
 <summary>使用示例：</summary>
 
 ```js
-const OCR = require('./OCR', {
+const OCR = require('./OCR');
+const ocr = new OCR(null, {
     // PaddleOCR_json.exe 的可执行文件所在路径
     path: 'PaddleOCR_json.exe',
     // 配置文件所在文件夹路径
     cwd: './PaddleOCR-json',
     debug: false,
 });
-const ocr = new OCR();
 
 ocr.postMessage({ image_dir: 'path/to/test/img' })
     .then((data) => console.log(data));

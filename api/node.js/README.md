@@ -26,11 +26,12 @@ npm i iconv-lite # 本项目使用了iconv-lite包
 ```
 
 ```js
-const OCR = require('./OCR'
+const OCR = require('./OCR');
+const ocr = new OCR(null, {
     path: 'PaddleOCR_json.exe',
     cwd: './PaddleOCR-json',
-);
-const ocr = new OCR();
+    debug: false,
+});
 
 ocr.postMessage({ image_dir: 'path/to/test/img' })
     .then((data) => console.log(data));
