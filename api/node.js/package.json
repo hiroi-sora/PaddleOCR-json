@@ -1,6 +1,6 @@
 {
   "name": "PaddleOCR-json-node-api",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "基于 https://github.com/hiroi-sora/PaddleOCR-json 的node.js api",
   "homepage": "https://github.com/PunchlY/PaddleOCR-json-node-api",
   "license": "WTFPL",
