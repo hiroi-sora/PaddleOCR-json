@@ -102,10 +102,6 @@ ocr.on('message', (data) => {
 
 ## License
 
->本项目的`js`代码均以WTFPL条款开源.
->`PaddleOCR-json`部分详见[hiroi-sora/PaddleOCR-json](https://github.com/hiroi-sora/PaddleOCR-json).
-
-For js code part:
 ```
         DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
                     Version 2, December 2004
@@ -119,5 +115,5 @@ For js code part:
             DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
-  0. You just DO WHAT THE FUCK YOU WANT TO.
+  1. You just DO WHAT THE FUCK YOU WANT TO.
 ```
