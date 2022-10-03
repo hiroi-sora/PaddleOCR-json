@@ -85,6 +85,8 @@ ocr.postMessage({
 
 `obj`详见[hiroi-sora/PaddleOCR-json#动态参数](https://github.com/hiroi-sora/PaddleOCR-json#%E5%8A%A8%E6%80%81%E5%8F%82%E6%95%B0)与[hiroi-sora/PaddleOCR-json/blob/main/docs/详细使用指南.md#-通过管道传json建议](https://github.com/hiroi-sora/PaddleOCR-json/blob/main/docs/%E8%AF%A6%E7%BB%86%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97.md#-%E9%80%9A%E8%BF%87%E7%AE%A1%E9%81%93%E4%BC%A0json%E5%BB%BA%E8%AE%AE)
 
+与[hiroi-sora/PaddleOCR-json/blob/main/docs/详细使用指南.md#方式ex剪贴板识图](https://github.com/hiroi-sora/PaddleOCR-json/blob/main/docs/%E8%AF%A6%E7%BB%86%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97.md#%E6%96%B9%E5%BC%8Fex%E5%89%AA%E8%B4%B4%E6%9D%BF%E8%AF%86%E5%9B%BE)不同, 若`obj.image_dir`为`null`, 则获取剪贴板.
+
 #### OCR.flush(obj)
 
 `ocr.flush`是`ocr.postMessage`的别名.
