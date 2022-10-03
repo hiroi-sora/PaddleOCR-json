@@ -16,20 +16,13 @@ if (isMainThread) {
     }
     class OCR extends Worker {
         #queue
-        constructor(config = null, {
-            path = 'PaddleOCR_json.exe',
-            cwd = './PaddleOCR-json',
-            debug = false,
-        } = {}) {
+        constructor(path, args, options, debug) {
+            path ||= 'PaddleOCR_json.exe';
+            debug = !!debug;
             super(__filename, {
-                workerData: {
-                    path,
-                    cwd,
-                    debug,
-                },
+                workerData: { path, args, options, debug },
             });
             this.#queue = new Queue();
-            if (config) this.postMessage(config);
             super.once('message', (code) => {
                 console.log(code);
                 this.#queue.status = true;
@@ -43,8 +36,8 @@ if (isMainThread) {
             return new Promise((res) => {
                 const queue = this.#queue;
                 obj = Object.assign({}, obj);
-                if (obj.image_dir !== 'clipboard')
-                    obj.image_dir &&= path_resolve('./', obj.image_dir);
+                if (obj.image_dir === null) obj.image_dir = 'clipboard'
+                else obj.image_dir &&= path_resolve(obj.image_dir);
                 queue.push(() => new Promise((res_) => {
                     super.once('message', (data) => (res({
                         code: data.code,
@@ -62,35 +55,26 @@ if (isMainThread) {
     module.exports = OCR;
 } else {
     const { parentPort, workerData } = require('worker_threads');
-    const iconv = require('iconv-lite');
-    function decode(data, encoding = 'cp936') {
-        return iconv.decode(Buffer.from(data, 'binary'), encoding);
-    }
-    function encode(str, encoding = 'ascii') {
-        return iconv.encode(str, encoding);
-    }
     const { spawn } = require('child_process');
     new Promise((res) => {
         const {
-            path = 'PaddleOCR_json.exe',
-            cwd = './PaddleOCR-json',
-            debug = false,
+            path,
+            args,
+            options,
+            debug,
         } = workerData;
-        const proc = spawn(path_resolve(cwd, path), [], {
-            cwd,
-            encoding: 'buffer',
-        });
+        const proc = spawn(path, [].concat(args, '--use_debug=0'), options);
         proc.stdout.on('data', function stdout(chunk) {
-            if (!decode(chunk).match('OCR init completed.')) return;
+            if (!chunk.toString().match('OCR init completed.')) return;
             proc.stdout.off('data', stdout);
             return res(proc);
         });
         if (debug) {
             proc.stdout.on('data', (chunk) => {
-                console.log(decode(chunk));
+                console.log(chunk.toString());
             });
             proc.stderr.on('data', (data) => {
-                console.log(decode(data));
+                console.log(data.toString());
             });
             proc.on('close', (code) => {
                 console.log('close code: ', code);
@@ -106,10 +90,10 @@ if (isMainThread) {
             pid: proc.pid,
         });
         parentPort.on('message', (data) => {
-            proc.stdin.write(encode(`${JSON.stringify(data)}\n`))
+            proc.stdin.write(`${JSON.stringify(data)}\n`)
         });
         proc.stdout.on('data', (chunk) => {
-            parentPort.postMessage(JSON.parse(decode(chunk, 'utf-8')));
+            parentPort.postMessage(JSON.parse(chunk));
         });
     });
 }

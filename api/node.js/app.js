@@ -1,9 +1,7 @@
 const OCR = require('./OCR');
-const ocr = new OCR(null, {
-    path: 'PaddleOCR_json.exe',
-    cwd: './PaddleOCR-json',
-    debug: false,
-});
+const ocr = new OCR('PaddleOCR_json.exe', [], {
+    cwd: './PaddleOCR-json'
+}, false);
 
 const fs = require('fs/promises');
 

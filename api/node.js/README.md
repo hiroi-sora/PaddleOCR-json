@@ -4,13 +4,24 @@
 <details>
 <summary>Log</summary>
 
+v1.0.4 2022.10.1
+
+适配[hiroi-sora/PaddleOCR-json v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.2.1).
+
+不适用`iconv-lite`包.
+
+更改启动参数输入方式.
+
 v1.0.3 2022.10.1
+
 适配[hiroi-sora/PaddleOCR-json v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.2.1).
 
 v1.0.2 2022.9.14
+
 增加环境选项.
 
 v1.0.1 2022.9.14
+
 修复无法识别 Alpha版 的启动完成标志的bug.
 JSON输入更改为ascii转义.
 
@@ -22,19 +33,13 @@ v1.0.0 2022.9.10
 
 ### OCR api
 
-将本项目(或此项目中的`PaddleOCR-json`与`OCR.js`)引入至你的项目中, 引用OCR.
-
-```
-npm i iconv-lite # 本项目使用了iconv-lite包
-```
+将本项目引入(或单独引入`OCR.js`)至你的项目中, 引用OCR.
 
 ```js
 const OCR = require('./OCR');
-const ocr = new OCR(null, {
-    path: 'PaddleOCR_json.exe',
+const ocr = new OCR('PaddleOCR_json.exe', [], {
     cwd: './PaddleOCR-json',
-    debug: false,
-});
+}, false);
 
 ocr.postMessage({ image_dir: 'path/to/test/img' })
     .then((data) => console.log(data));
@@ -55,23 +60,22 @@ npm start
 
 `OCR`是`worker_threads.Worker`的派生类.
 
-#### new OCR(config, init)
+#### new OCR(path, args, options, debug)
 
 ```js
-const config = {};
-const ocr = new OCR(config, {
-    path: 'PaddleOCR_json.exe',
+const OCR = require('./OCR');
+const ocr = new OCR('PaddleOCR_json.exe', [], {
     cwd: './PaddleOCR-json',
-    debug: false,
-});
+}, false);
 ```
 
-`config`详见[hiroi-sora/PaddleOCR-json#配置参数说明](https://github.com/hiroi-sora/PaddleOCR-json#%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E).
+`args`详见[Node.js child_process.spawn](https://nodejs.org/api/child_process.html#child_processspawncommand-args-options)与[hiroi-sora/PaddleOCR-json#配置参数说明](https://github.com/hiroi-sora/PaddleOCR-json#%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E).
 
-#### OCR.prototype.postMessage(obj)
+`options`详见[Node.js child_process.spawn](https://nodejs.org/api/child_process.html#child_processspawncommand-args-options).
+
+#### OCR.postMessage(obj)
 
 ```js
-ocr.postMessage(obj);
 ocr.postMessage({
     limit_side_len: 960,
     image_dir: 'path/to/test/img',
@@ -79,9 +83,9 @@ ocr.postMessage({
 ```
 `ocr.postMessage`返回的是`Promise`对象.
 
-`obj`详见[hiroi-sora/PaddleOCR-json#动态参数](https://github.com/hiroi-sora/PaddleOCR-json#%E5%8A%A8%E6%80%81%E5%8F%82%E6%95%B0)
+`obj`详见[hiroi-sora/PaddleOCR-json#动态参数](https://github.com/hiroi-sora/PaddleOCR-json#%E5%8A%A8%E6%80%81%E5%8F%82%E6%95%B0)与[hiroi-sora/PaddleOCR-json/blob/main/docs/详细使用指南.md#-通过管道传json建议](https://github.com/hiroi-sora/PaddleOCR-json/blob/main/docs/%E8%AF%A6%E7%BB%86%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97.md#-%E9%80%9A%E8%BF%87%E7%AE%A1%E9%81%93%E4%BC%A0json%E5%BB%BA%E8%AE%AE)
 
-#### OCR.prototype.flush(obj)
+#### OCR.flush(obj)
 
 `ocr.flush`是`ocr.postMessage`的别名.
 
