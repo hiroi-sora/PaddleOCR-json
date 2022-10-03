@@ -8,7 +8,7 @@ v1.0.4 2022.10.1
 
 适配[hiroi-sora/PaddleOCR-json v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.2.1).
 
-不适用`iconv-lite`包.
+不使用`iconv-lite`包.
 
 更改启动参数输入方式.
 
