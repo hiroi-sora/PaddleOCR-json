@@ -3,7 +3,7 @@ const ocr = new OCR('PaddleOCR_json.exe', [], {
     cwd: './PaddleOCR-json'
 }, false);
 
-const fs = require('fs/promises');
+const fs = require('fs').promises;
 
 const mime = require('mime');
 const imgMime = new Set(['bmp', 'jpeg', 'png', 'pbm', 'pgm', 'ppm', 'ras', 'tiff', 'exr', 'jp2'].map((v) => mime.getType(v)));

@@ -17,7 +17,9 @@ if (isMainThread) {
     class OCR extends Worker {
         #queue
         constructor(path, args, options, debug) {
-            path ||= 'PaddleOCR_json.exe';
+            if (!path) {
+                path = 'PaddleOCR_json.exe';
+            }
             debug = !!debug;
             super(__filename, {
                 workerData: { path, args, options, debug },
@@ -37,7 +39,7 @@ if (isMainThread) {
                 const queue = this.#queue;
                 obj = Object.assign({}, obj);
                 if (obj.image_dir === null) obj.image_dir = 'clipboard'
-                else obj.image_dir &&= path_resolve(obj.image_dir);
+                else obj.image_dir = path_resolve(obj.image_dir);
                 queue.push(() => new Promise((res_) => {
                     super.once('message', (data) => (res({
                         code: data.code,
