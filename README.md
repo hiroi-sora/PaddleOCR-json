@@ -182,6 +182,43 @@ try (Ocr ocr = new Ocr(new File(exePath), arguments)) {
 
 </details>
 
+### 5. [Rust API](api/rust)
+
+> 由[OverflowCat/paddleocr](https://github.com/OverflowCat/paddleocr)贡献
+
+将 crate [`addleocr`](https://crates.io/crates/paddleocr) 引入你的项目。
+
+<details>
+<summary>使用示例：</summary>
+
+```rust
+fn main() {
+    let mut p = paddleocr::Ppocr::new(std::path::PathBuf::from(
+        "C:/.../PaddleOCR_json.exe", // PaddleOCR_json.exe 的路径
+    ))
+    .unwrap(); // 会检测是否出现 `OCR init completed.`，`Ok(x)` 说明初始化成功
+
+    let now = std::time::Instant::now(); // 开始计算所需时间
+    {
+        // OCR 文件
+        println!("{}", p.ocr("C:/.../test1.png").unwrap());
+        println!("{}", p.ocr("C:/.../test2.png").unwrap());
+        println!("{}", p.ocr("C:/.../test3.png").unwrap());
+        println!("{}", p.ocr("C:/.../test4.png").unwrap());
+        println!("{}", p.ocr("C:/.../test5.png").unwrap());
+
+        // OCR 当前剪贴板
+        println!("{}", p.ocr_clipboard().unwrap());
+    }
+    println!("Elapsed: {:.2?}", now.elapsed());
+
+    // `struct Ppocr` 会自动在 `Drop` 时结束进程
+}
+```
+
+</details>
+
+
 ### 更多语言API
 
 欢迎补充！请参考 [详细使用指南](docs/详细使用指南.md) 。
