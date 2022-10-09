@@ -186,7 +186,7 @@ try (Ocr ocr = new Ocr(new File(exePath), arguments)) {
 
 > 由[OverflowCat/paddleocr](https://github.com/OverflowCat/paddleocr)贡献
 
-将 crate [`addleocr`](https://crates.io/crates/paddleocr) 引入你的项目。
+将 crate [`paddleocr`](https://crates.io/crates/paddleocr) 引入你的项目。
 
 <details>
 <summary>使用示例：</summary>
