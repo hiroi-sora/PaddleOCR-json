@@ -28,7 +28,7 @@ declare class OCR extends Worker {
             box: [[number, number], [number, number], [number, number], [number, number]],
             score: number,
             text: string,
-        }[],
+        }[] | null,
     }>;
     flush: typeof this.postMessage;
 }
