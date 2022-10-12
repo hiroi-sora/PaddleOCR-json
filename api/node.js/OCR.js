@@ -1,5 +1,33 @@
 const { isMainThread } = require('worker_threads');
 const { resolve: path_resolve } = require('path');
+
+const __default = {
+    path: 'PaddleOCR_json.exe',
+    args: ['--use_debug=0'],
+    options: {
+        argv0: undefined,
+        stdio: 'pipe',
+        detached: false,
+        shell: false,
+        windowsVerbatimArguments: undefined,
+        windowsHide: true,
+    },
+    initTag: 'OCR init completed.',
+}
+function cargs(obj) {
+    obj = Object.assign({}, obj);
+    if (obj.image_dir === null) obj.image_dir = 'clipboard';
+    else if (obj.image_dir) obj.image_dir = path_resolve(obj.image_dir);
+    return obj;
+}
+function out(data) {
+    return {
+        code: data.code,
+        message: data.code - 100 ? data.data : '',
+        data: data.code - 100 ? null : data.data,
+    };
+}
+
 if (isMainThread) {
     const { Worker } = require('worker_threads');
     class Queue extends Array {
@@ -19,10 +47,6 @@ if (isMainThread) {
     class OCR extends Worker {
         #queue
         constructor(path, args, options, debug) {
-            if (!path) {
-                path = 'PaddleOCR_json.exe';
-            }
-            debug = !!debug;
             super(__filename, {
                 workerData: { path, args, options, debug },
             });
@@ -38,16 +62,8 @@ if (isMainThread) {
         }
         postMessage(obj) {
             return new Promise((res) => {
-                const queue = this.#queue;
-                obj = Object.assign({}, obj);
-                if (obj.image_dir === null) obj.image_dir = 'clipboard';
-                else if (obj.image_dir) obj.image_dir = path_resolve(obj.image_dir);
-                queue.push(() => new Promise((res_) => {
-                    super.once('message', (data) => (res({
-                        code: data.code,
-                        message: data.code - 100 ? data.data : '',
-                        data: data.code - 100 ? null : data.data,
-                    }), res_()));
+                this.#queue.push(() => new Promise((res_) => {
+                    super.once('message', (data) => (res(out(data)), res_()));
                     super.postMessage(obj);
                 }));
             });
@@ -62,22 +78,17 @@ if (isMainThread) {
     const { spawn } = require('child_process');
     new Promise((res) => {
         const {
-            path,
-            args,
+            path = __default.path,
+            args = [],
             options = {},
-            debug,
+            debug = false,
         } = workerData;
-        const proc = spawn(path, [].concat(args, '--use_debug=0'), {
+        const proc = spawn(path, [].concat(args, __default.args), {
             ...options,
-            argv0: undefined,
-            stdio: 'pipe',
-            detached: false,
-            shell: false,
-            windowsVerbatimArguments: undefined,
-            windowsHide: true,
+            ...__default.options,
         });
         proc.stdout.on('data', function stdout(chunk) {
-            if (!chunk.toString().match('OCR init completed.')) return;
+            if (!chunk.toString().match(__default.initTag)) return;
             proc.stdout.off('data', stdout);
             return res(proc);
         });
@@ -102,7 +113,7 @@ if (isMainThread) {
             pid: proc.pid,
         });
         parentPort.on('message', (data) => {
-            proc.stdin.write(`${JSON.stringify(data)}\n`)
+            proc.stdin.write(`${JSON.stringify(cargs(data))}\n`)
         });
         proc.stdout.on('data', (chunk) => {
             parentPort.postMessage(JSON.parse(chunk));
