@@ -8,10 +8,12 @@ if (isMainThread) {
             this.status = false
         }
         shift() {
-            this.length && Promise.resolve(this[0]()).then(() => (super.shift(), this.status && this.shift()));
+            if (!this.length) return;
+            Promise.resolve(this[0]()).then(() => (super.shift(), this.status && this.shift()));
         }
         push(cb) {
-            super.push(cb) - 1 || this.status && this.shift();
+            if (super.push(cb) - 1) return;
+            this.status && this.shift();
         }
     }
     class OCR extends Worker {
@@ -38,8 +40,8 @@ if (isMainThread) {
             return new Promise((res) => {
                 const queue = this.#queue;
                 obj = Object.assign({}, obj);
-                if (obj.image_dir === null) obj.image_dir = 'clipboard'
-                else obj.image_dir = path_resolve(obj.image_dir);
+                if (obj.image_dir === null) obj.image_dir = 'clipboard';
+                else if (obj.image_dir) obj.image_dir = path_resolve(obj.image_dir);
                 queue.push(() => new Promise((res_) => {
                     super.once('message', (data) => (res({
                         code: data.code,

@@ -4,6 +4,10 @@
 <details>
 <summary>Log</summary>
 
+v1.0.5 2022.10.12
+
+-
+
 v1.0.4 2022.10.1
 
 适配[hiroi-sora/PaddleOCR-json v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.2.1).
@@ -26,6 +30,8 @@ v1.0.1 2022.9.14
 JSON输入更改为ascii转义.
 
 v1.0.0 2022.9.10
+
+-
 
 </details>
 
