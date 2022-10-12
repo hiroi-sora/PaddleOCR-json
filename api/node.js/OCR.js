@@ -64,7 +64,7 @@ if (isMainThread) {
         const {
             path,
             args,
-            options,
+            options = {},
             debug,
         } = workerData;
         const proc = spawn(path, [].concat(args, '--use_debug=0'), {
