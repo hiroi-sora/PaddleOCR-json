@@ -11,7 +11,7 @@ const imgMime = new Set(['bmp', 'jpeg', 'png', 'pbm', 'pgm', 'ppm', 'ras', 'tiff
 const app = require('express')();
 const upload = require('multer')({
     dest: 'tmp',
-    fileFilter(_, file, cb) {
+    fileFilter(req, file, cb) {
         if (imgMime.has(file.mimetype))
             return cb(null, true);
         return cb('This format is not accepted');
@@ -22,7 +22,7 @@ const upload = require('multer')({
     },
 }).single('img');
 
-app.route('/').get((_, res, next) => {
+app.route('/').get((req, res, next) => {
     res.send(`
 <form action="/" method="POST" enctype="multipart/form-data">
     <input type="file" name="img">
@@ -49,13 +49,13 @@ app.route('/').get((_, res, next) => {
         });
     return;
 });
-app.use((_, res, next) => {
+app.use((req, res, next) => {
     if (res.data === null)
         return next(404);
     if (typeof res.data === 'undefined')
         return next(405);
     return res.jsonp(res.data);
-}).use((err, _, res, _) => {
+}).use((err, req, res, next) => {
     return res.status(404).jsonp({
         code: -1,
         message: err,
