@@ -55,7 +55,8 @@ app.use((req, res, next) => {
     if (typeof res.data === 'undefined')
         return next(405);
     return res.jsonp(res.data);
-}).use((err, req, res, next) => {
+})
+app.use((err, req, res, next) => {
     return res.status(404).jsonp({
         code: -1,
         message: err,
