@@ -67,7 +67,15 @@ if (isMainThread) {
             options,
             debug,
         } = workerData;
-        const proc = spawn(path, [].concat(args, '--use_debug=0'), options);
+        const proc = spawn(path, [].concat(args, '--use_debug=0'), {
+            ...options,
+            argv0: undefined,
+            stdio: 'pipe',
+            detached: false,
+            shell: false,
+            windowsVerbatimArguments: undefined,
+            windowsHide: true,
+        });
         proc.stdout.on('data', function stdout(chunk) {
             if (!chunk.toString().match('OCR init completed.')) return;
             proc.stdout.off('data', stdout);
