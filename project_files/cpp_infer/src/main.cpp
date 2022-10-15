@@ -34,7 +34,7 @@
 #include <include/tools.h>
 #include <include/tools_flags.h> // ±êÖ¾Î»
 
-#include <include/nlohmann_json.hpp>
+#include <nlohmann/json.hpp>
 using namespace nlohmann;
 
 using namespace PaddleOCR;
