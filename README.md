@@ -73,12 +73,14 @@
 
 ## API列表
 
-### 1. [Python API](api/python)
+`资源目录`下有更详细的使用说明及demo。
 
-将 [PPOCR_api.py](api/python/PPOCR_api.py) 引入你的项目。
+### 1. Python API
+
+[资源目录](api/python)
 
 <details>
-<summary>使用示例：</summary>
+<summary>使用示例</summary>
 
 ```python
 from PPOCR_api import PPOCR
@@ -97,12 +99,14 @@ ocr.stop()  # 结束引擎子进程
 
 </details>
 
-### 2. [PowerShell API](api/powershell)
+### 2. PowerShell API
 
-将 [PPOCR_api.ps1](api/powershell/PPOCR_api.ps1) 引入你的项目。
+[资源目录](api/powershell)
 
 <details>
-<summary>使用示例：</summary>
+<summary>使用示例</summary>
+
+Powershell API 比较旧，搭配 `v1.2.1` 引擎时可能存在中文路径兼容性问题，请搭配 `v1.2.0` 及之前版本的引擎使用。我暂时没有精力维护这个API，欢迎有能力的大佬修改贡献。
 
 ```PowerShell
 Import-Module -Force D:\…………\PPOCR_api.ps1
@@ -122,14 +126,14 @@ Write-Host "程序结束。"
 </details>
 
 
-### 3. [Node.js API](api/node.js)
+### 3. Node.js API
 
 > 由[PunchlY/PaddleOCR-json-node-api](https://github.com/PunchlY/PaddleOCR-json-node-api)贡献
 
-将 [OCR.js](api/node.js/OCR.js) 引入你的项目。
+[资源目录](api/node.js)
 
 <details>
-<summary>使用示例：</summary>
+<summary>使用示例</summary>
 
 ```js
 const OCR = require('./OCR');
@@ -144,14 +148,14 @@ ocr.postMessage({ image_dir: 'path/to/test/img' })
 
 </details>
 
-### 4. [Java API](api/java)
+### 4. Java API
 
 > 由[jerrylususu/PaddleOCR-json-java-api](https://github.com/jerrylususu/PaddleOCR-json-java-api)贡献
 
-将 [Ocr.java](api/java/Ocr.java) 引入你的项目。（需要 GSON 依赖）
+[资源目录](api/java)
 
 <details>
-<summary>使用示例：</summary>
+<summary>使用示例</summary>
 
 ```java
 // paddleocr_json 的可执行文件所在路径
@@ -182,14 +186,14 @@ try (Ocr ocr = new Ocr(new File(exePath), arguments)) {
 
 </details>
 
-### 5. [Rust API](api/rust)
+### 5. Rust API
 
 > 由[OverflowCat/paddleocr](https://github.com/OverflowCat/paddleocr)贡献
 
-将 crate [`paddleocr`](https://crates.io/crates/paddleocr) 引入你的项目。
+[资源目录](api/rust)
 
 <details>
-<summary>使用示例：</summary>
+<summary>使用示例</summary>
 
 ```rust
 fn main() {
@@ -387,7 +391,7 @@ fn main() {
 感谢 [PaddlePaddle/PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) ，没有它就没有本项目：
 > “Awesome multilingual OCR toolkits based on PaddlePaddle”
 
-感谢各位为本项目开发API的朋友！
+感谢各位为本项目开发API及贡献代码的朋友！
 
 ## 更新日志
 
