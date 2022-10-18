@@ -211,7 +211,6 @@ int main(int argc, char** argv) {
   google::ParseCommandLineFlags(&argc, &argv, true); // 解析命令参数
   tool::load_congif_file(); // 加载配置文件 
   check_params(); // 检测参数合法性 
-  FLAGS_cpu_threads = std::thread::hardware_concurrency();
   PPOCR ocr = PPOCR(); // 初始化识别器 
   if (FLAGS_ensure_chcp) {
     system("chcp 65001"); // 控制台设utf-8 
