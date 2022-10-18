@@ -27,20 +27,6 @@ target_include_directories(paddle_inference INTERFACE ${paddle_SOURCE_DIR}/paddl
 install(IMPORTED_RUNTIME_ARTIFACTS paddle_inference)
 add_library(paddle::inference ALIAS paddle_inference)
 
-add_library(gflags STATIC IMPORTED GLOBAL)
-set_target_properties(gflags PROPERTIES
-    IMPORTED_LOCATION ${paddle_SOURCE_DIR}/third_party/install/gflags/lib/gflags_static.lib
-)
-target_include_directories(gflags INTERFACE ${paddle_SOURCE_DIR}/third_party/install/gflags/include)
-add_library(gflags::gflags ALIAS gflags)
-
-add_library(glog STATIC IMPORTED GLOBAL)
-set_target_properties(glog PROPERTIES
-    IMPORTED_LOCATION ${paddle_SOURCE_DIR}/third_party/install/glog/lib/glog.lib
-)
-target_include_directories(glog INTERFACE ${paddle_SOURCE_DIR}/third_party/install/glog/include)
-add_library(glog::glog ALIAS glog)
-
 install(FILES ${paddle_SOURCE_DIR}/third_party/install/mkldnn/lib/mkldnn.dll DESTINATION bin)
 install(FILES ${paddle_SOURCE_DIR}/third_party/install/mklml/lib/mklml.dll DESTINATION bin)
 install(FILES ${paddle_SOURCE_DIR}/third_party/install/mklml/lib/libiomp5md.dll DESTINATION bin)
