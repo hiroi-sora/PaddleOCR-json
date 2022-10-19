@@ -138,7 +138,7 @@ void Classifier::LoadModel(const std::string &model_dir) {
   catch (...) {
     tool::exit_pause(1);
   }
-  // µ÷ÓÃ¿â´´½¨Ô¤²âÆ÷Ê±£¬¹Ø±Õ±ê×¼Êä³ö£¬ÆÁ±ÎÈÕÖ¾Êä³öµ½¿ØÖÆÌ¨¡£Ö®ºóÖØÐÂ´ò¿ª±ê×¼Êä³ö¡£
+  // è°ƒç”¨åº“åˆ›å»ºé¢„æµ‹å™¨æ—¶ï¼Œå…³é—­æ ‡å‡†è¾“å‡ºï¼Œå±è”½æ—¥å¿—è¾“å‡ºåˆ°æŽ§åˆ¶å°ã€‚ä¹‹åŽé‡æ–°æ‰“å¼€æ ‡å‡†è¾“å‡ºã€‚
   //fclose(stdout);
   //fclose(stderr);
   //this->predictor_ = CreatePredictor(config);

@@ -46,7 +46,7 @@ public:
   std::vector<std::vector<OCRPredictResult>>
   ocr(std::vector<cv::String> cv_all_img_names, bool det = true,
       bool rec = true, bool cls = true);
-  void HotUpdate(); // ÈÈ¸üÐÂ
+  void HotUpdate(); // çƒ­æ›´æ–°
 
 protected:
   void det(cv::Mat img, std::vector<OCRPredictResult> &ocr_results,

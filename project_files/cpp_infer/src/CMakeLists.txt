@@ -10,7 +10,7 @@ file(GLOB PPOCR_SOURCES "*.cpp")
 add_executable(${PROJECT_NAME} ${PPOCR_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR} ${DIRENT_INCLUDE_DIRS})
 target_compile_definitions(${PROJECT_NAME} PRIVATE GOOGLE_GLOG_IS_A_DLL)
-target_compile_options(${PROJECT_NAME} PRIVATE /bigobj /openmp)
+target_compile_options(${PROJECT_NAME} PRIVATE /utf-8 /openmp)
 
 target_link_libraries(${PROJECT_NAME}
 PRIVATE
