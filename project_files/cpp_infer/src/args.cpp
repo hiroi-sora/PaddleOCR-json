@@ -63,17 +63,17 @@ DEFINE_bool(rec, true, "Whether use rec in forward.");
 DEFINE_bool(cls, false, "Whether use cls in forward.");
 DEFINE_bool(table, false, "Whether use table structure in forward.");
 
-// 读取配置文件 
+// 璇诲彇閰嶇疆鏂囦欢 
 DEFINE_string(config_path,"","Path of config txt.");
 
-// 输出json字符串转ascii编码 
+// 杈撳嚭json瀛楃涓茶浆ascii缂栫爜 
 DEFINE_bool(ensure_ascii, true, "Whether characters in the output are escaped with sequences to ASCII.");
 
-// 退出前暂停程序 
+// 閫�鍑哄墠鏆傚仠绋嬪簭 
 DEFINE_bool(use_system_pause, false, "Whether system(\"pause\") before exit.");
 
-// 将控制台设为chcp65001
+// 灏嗘帶鍒跺彴璁句负chcp65001
 DEFINE_bool(ensure_chcp, false, "Whether system(\"chcp 65001\") before start.");
 
-// 启用debug
+// 鍚敤debug
 DEFINE_bool(use_debug, true, "Whether use debug. Open pause, chcp and close ascii.");

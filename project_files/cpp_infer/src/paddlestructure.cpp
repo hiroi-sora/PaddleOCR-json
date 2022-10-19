@@ -43,11 +43,11 @@ PaddleStructure::structure(std::vector<cv::String> cv_all_img_names,
   std::vector<std::vector<StructurePredictResult>> structure_results;
 
   if (!Utility::PathExists(FLAGS_output) && FLAGS_det && FLAGS_visualize) {
-      Utility::CreateDir(FLAGS_output); // ´´½¨Êä³öÄ¿Â¼
+      Utility::CreateDir(FLAGS_output); // åˆ›å»ºè¾“å‡ºç›®å½•
   }
   for (int i = 0; i < cv_all_img_names.size(); ++i) {
     std::vector<StructurePredictResult> structure_result;
-    // ËäÈ»±¾ÏîÄ¿ÔİÊ±ÓÃ²»µ½±í¸ñÊ¶±ğ£¬²»¹ıÏÈ°ÑÍò¶ñµÄimreadÌæ»»ÁË
+    // è™½ç„¶æœ¬é¡¹ç›®æš‚æ—¶ç”¨ä¸åˆ°è¡¨æ ¼è¯†åˆ«ï¼Œä¸è¿‡å…ˆæŠŠä¸‡æ¶çš„imreadæ›¿æ¢äº†
     //cv::Mat srcimg = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
     cv::Mat srcimg = tool::imread_utf8(cv_all_img_names[i]);
     if (!srcimg.data) {

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// ±¾´úÂë»ùÓÚ https://github.com/PaddlePaddle/PaddleOCR
-// ¶ş´Î¿ª·¢ by https://github.com/hiroi-sora/PaddleOCR-json
+// æœ¬ä»£ç åŸºäº https://github.com/PaddlePaddle/PaddleOCR
+// äºŒæ¬¡å¼€å‘ by https://github.com/hiroi-sora/PaddleOCR-json
 
 
-// °æ±¾ĞÅÏ¢
+// ç‰ˆæœ¬ä¿¡æ¯
 #define PROJECT_VER "v1.2.1"
 #define PROJECT_NAME "PaddleOCR-json " PROJECT_VER
 
@@ -32,7 +32,7 @@
 #include <include/paddlestructure.h>
 
 #include <include/tools.h>
-#include <include/tools_flags.h> // ±êÖ¾Î»
+#include <include/tools_flags.h> // æ ‡å¿—ä½
 
 #include <nlohmann/json.hpp>
 using namespace nlohmann;
@@ -69,11 +69,11 @@ void check_params() {
       tool::exit_pause(1);
     }
   }
-  if (FLAGS_table) { // ²»Ö§³Ö±í¸ñÊ¶±ğ 
+  if (FLAGS_table) { // ä¸æ”¯æŒè¡¨æ ¼è¯†åˆ« 
     cerr << "[ERROR] Table structure is not supported. {--table} only 'false' is allow." << endl;
     tool::exit_pause(1);
   }
-  if (FLAGS_type != "ocr") { // ²»Ö§³Ö±í¸ñÊ¶±ğ 
+  if (FLAGS_type != "ocr") { // ä¸æ”¯æŒè¡¨æ ¼è¯†åˆ« 
     cerr << "[ERROR] Table structure is not supported. {--type} only 'ocr' is allow." << endl;
     tool::exit_pause(1);
   }
@@ -107,49 +107,49 @@ void print_ocr_fail(int code, const string& msg, const string& hotUpdate ="") {
 }
 
 void run_ocr(PPOCR& ocr, string img_path) {
-  // img_path¿ÉÒÔÎªÒÔÏÂ±àÂë£ºÈÎÒânlohmann_jsonÄÜÊ¶±ğµÄjson±àÂë ¡¢  UTF-8 ´¿µØÖ·
+  // img_pathå¯ä»¥ä¸ºä»¥ä¸‹ç¼–ç ï¼šä»»æ„nlohmann_jsonèƒ½è¯†åˆ«çš„jsonç¼–ç  ã€  UTF-8 çº¯åœ°å€
 
-  // 1. Ç°´¦Àí
+  // 1. å‰å¤„ç†
   int imgstrlen = img_path.length();
-  string hotupdateLog = ""; // »º´æjson½âÎöµÃµ½µÄÈÕÖ¾
+  string hotupdateLog = ""; // ç¼“å­˜jsonè§£æå¾—åˆ°çš„æ—¥å¿—
   bool is_image = false, is_hotupdate = false;
-  // 1.1. ÈôÎªjson×Ö·û´®£¬Ôò½âÎö 
+  // 1.1. è‹¥ä¸ºjsonå­—ç¬¦ä¸²ï¼Œåˆ™è§£æ 
   if (imgstrlen > 2 && img_path[0] == '{' && img_path[imgstrlen - 1] == '}') {
     hotupdateLog = tool::load_json_str(img_path, is_image, is_hotupdate);
-    // ¾­¹ıjson×ª»»µÄ img_path £¬²»¹ÜÔ­À´ÊÇÊ²Ã´£¬ÏÖÔÚÊÇ u8 string
-    if (is_hotupdate) { // ÈÈ¸üĞÂ
+    // ç»è¿‡jsonè½¬æ¢çš„ img_path ï¼Œä¸ç®¡åŸæ¥æ˜¯ä»€ä¹ˆï¼Œç°åœ¨æ˜¯ u8 string
+    if (is_hotupdate) { // çƒ­æ›´æ–°
       ocr.HotUpdate();
     }
-  } // µ½ÕâÒ»²½£¬img_pathÎª utf-8 ´¿Â·¾¶×Ö·û´®
+  } // åˆ°è¿™ä¸€æ­¥ï¼Œimg_pathä¸º utf-8 çº¯è·¯å¾„å­—ç¬¦ä¸²
  
-  // 2. Ö´ĞĞOCR
-  // 2.1. ×ªÈÎÎñÁĞ±í
-  std::vector<cv::String> cv_all_img_names({ img_path }); // Ò»´Î´¦ÀíÒ»¸öÎÄ¼ş 
-  // 2.2. Ö´ĞĞOCR£¬»ñÈ¡½á¹û
+  // 2. æ‰§è¡ŒOCR
+  // 2.1. è½¬ä»»åŠ¡åˆ—è¡¨
+  std::vector<cv::String> cv_all_img_names({ img_path }); // ä¸€æ¬¡å¤„ç†ä¸€ä¸ªæ–‡ä»¶ 
+  // 2.2. æ‰§è¡ŒOCRï¼Œè·å–ç»“æœ
   std::vector<std::vector<OCRPredictResult>> ocr_results = 
     ocr.ocr(cv_all_img_names, FLAGS_det, FLAGS_rec, FLAGS_cls);
-  std::vector<OCRPredictResult> ocr_result = ocr_results[0]; // ÌáÈ¡µÚÒ»¸ö½á¹û£¨Ò²Ö»ÓĞÒ»¸ö£©
+  std::vector<OCRPredictResult> ocr_result = ocr_results[0]; // æå–ç¬¬ä¸€ä¸ªç»“æœï¼ˆä¹Ÿåªæœ‰ä¸€ä¸ªï¼‰
 
-  // 3. Êä³ö
-  // 3.1. Êä³ö£ºÊ¶±ğ³É¹¦£¬ÎŞÎÄ×Ö£¨detÎ´¼ì³ö£©
+  // 3. è¾“å‡º
+  // 3.1. è¾“å‡ºï¼šè¯†åˆ«æˆåŠŸï¼Œæ— æ–‡å­—ï¼ˆdetæœªæ£€å‡ºï¼‰
   if (ocr_result.empty()) {
     print_ocr_fail(CODE_OK_NONE, MSG_OK_NONE(img_path), hotupdateLog);
     return;
   }
-  // 3.2. Êä³ö£ºÊ¶±ğÊ§°Ü
-  if (ocr_result[0].cls_label == CODE_ERR_MAT_NULL) { // ´íÎó±êÇ©
-    // µ÷²é¶ÁÍ¼¹ı³ÌµÄÊÜ¹Ü¿ØÇøÓò ÊÇ·ñÓĞ±¨¸æÒì³£Çé¿ö
+  // 3.2. è¾“å‡ºï¼šè¯†åˆ«å¤±è´¥
+  if (ocr_result[0].cls_label == CODE_ERR_MAT_NULL) { // é”™è¯¯æ ‡ç­¾
+    // è°ƒæŸ¥è¯»å›¾è¿‡ç¨‹çš„å—ç®¡æ§åŒºåŸŸ æ˜¯å¦æœ‰æŠ¥å‘Šå¼‚å¸¸æƒ…å†µ
     int code;
     string msg;
     tool::get_state(code, msg);
-    if (code != CODE_INIT) { // ÓĞ±¨¸æÒì³£
-      print_ocr_fail(code, msg, hotupdateLog); // Êä³öjson
+    if (code != CODE_INIT) { // æœ‰æŠ¥å‘Šå¼‚å¸¸
+      print_ocr_fail(code, msg, hotupdateLog); // è¾“å‡ºjson
       return;
     }
-    print_ocr_fail(CODE_ERR_UNKNOW, MSG_ERR_UNKNOW, hotupdateLog); // Î´Öª´íÎó
+    print_ocr_fail(CODE_ERR_UNKNOW, MSG_ERR_UNKNOW, hotupdateLog); // æœªçŸ¥é”™è¯¯
     return;
   }
-  // 3.3. ÕûÀíÊı¾İ
+  // 3.3. æ•´ç†æ•°æ®
   json outJ;
   outJ["code"] = 100;
   outJ["data"] = json::array();
@@ -162,15 +162,15 @@ void run_ocr(PPOCR& ocr, string img_path) {
     j["text"] = ocr_result[i].text;
     j["score"] = ocr_result[i].score;
     std::vector<std::vector<int>> b = ocr_result[i].box;
-    // ÎŞ°üÎ§ºĞ
+    // æ— åŒ…å›´ç›’
     if (b.empty()) {
-      if (FLAGS_det) // ¿ªÁËdetÈÔÎŞ°üÎ§ºĞ£¬Ìø¹ı±¾×é
+      if (FLAGS_det) // å¼€äº†detä»æ— åŒ…å›´ç›’ï¼Œè·³è¿‡æœ¬ç»„
         continue;
-      else // Î´¿ªdet£¬Ìî³ä¿Õ°üÎ§ºĞ
+      else // æœªå¼€detï¼Œå¡«å……ç©ºåŒ…å›´ç›’
         for (int bi = 0; bi < 4; bi++)
           b.push_back(std::vector<int> {-1, -1});
     }
-    // ÆôÓÃÁËrecÈÔÃ»ÓĞÎÄ×Ö£¬Ìø¹ı±¾×é 
+    // å¯ç”¨äº†recä»æ²¡æœ‰æ–‡å­—ï¼Œè·³è¿‡æœ¬ç»„ 
     if (FLAGS_rec && (j["score"] <= 0 || j["text"] == "")) {
       continue;
     }
@@ -181,16 +181,16 @@ void run_ocr(PPOCR& ocr, string img_path) {
     outJ["data"].push_back(j);
     isEmpty = false;
   }
-  // 3.4. Êä³ö£ºÊ¶±ğ³É¹¦£¬ÎŞÎÄ×Ö£¨recÎ´¼ì³ö£©
+  // 3.4. è¾“å‡ºï¼šè¯†åˆ«æˆåŠŸï¼Œæ— æ–‡å­—ï¼ˆrecæœªæ£€å‡ºï¼‰
   if (isEmpty) {
     print_ocr_fail(CODE_OK_NONE, MSG_OK_NONE(img_path), hotupdateLog);
     return;
   }
-  // 3.5. Êä³ö£ºÊä³öÕı³£Çé¿ö
+  // 3.5. è¾“å‡ºï¼šè¾“å‡ºæ­£å¸¸æƒ…å†µ
   else {
-    // ËùÓĞ·Çascii×Ö·û×ªÒåÎªascii£¬¹æ±ÜÖĞÎÄ±àÂëÎÊÌâ
+    // æ‰€æœ‰éasciiå­—ç¬¦è½¬ä¹‰ä¸ºasciiï¼Œè§„é¿ä¸­æ–‡ç¼–ç é—®é¢˜
     print_json(outJ);
-    // 3.4.2. ½á¹û¿ÉÊÓ»¯£¬Êä³ö»æÍ¼£¬ÓÃÓÚµ÷ÊÔ 
+    // 3.4.2. ç»“æœå¯è§†åŒ–ï¼Œè¾“å‡ºç»˜å›¾ï¼Œç”¨äºè°ƒè¯• 
     if (FLAGS_visualize && FLAGS_det) { 
       //cv::Mat srcimg = cv::imread(img_path, cv::IMREAD_COLOR);
       cv::Mat srcimg = tool::imread_utf8(img_path);
@@ -208,26 +208,26 @@ void run_ocr(PPOCR& ocr, string img_path) {
 }
 
 int main(int argc, char** argv) {
-  google::ParseCommandLineFlags(&argc, &argv, true); // ½âÎöÃüÁî²ÎÊı
-  tool::load_congif_file(); // ¼ÓÔØÅäÖÃÎÄ¼ş 
+  google::ParseCommandLineFlags(&argc, &argv, true); // è§£æå‘½ä»¤å‚æ•°
+  tool::load_congif_file(); // åŠ è½½é…ç½®æ–‡ä»¶ 
   if (FLAGS_cpu_threads <= 0) {
     std::cerr << "[ERROR] Failed to get hardware concurrency. Set cpu_threads to 10." << std::endl;
     FLAGS_cpu_threads = 10;
   }
-  check_params(); // ¼ì²â²ÎÊıºÏ·¨ĞÔ 
-  PPOCR ocr = PPOCR(); // ³õÊ¼»¯Ê¶±ğÆ÷ 
+  check_params(); // æ£€æµ‹å‚æ•°åˆæ³•æ€§ 
+  PPOCR ocr = PPOCR(); // åˆå§‹åŒ–è¯†åˆ«å™¨ 
   if (FLAGS_ensure_chcp) {
-    system("chcp 65001"); // ¿ØÖÆÌ¨Éèutf-8 
+    system("chcp 65001"); // æ§åˆ¶å°è®¾utf-8 
   }
   if (FLAGS_use_debug) {
-    cout << "Debug Mode" << endl; // debug»·¾³ÌáÊ¾
+    cout << "Debug Mode" << endl; // debugç¯å¢ƒæç¤º
   }
-  cout << PROJECT_NAME << endl; // °æ±¾ÌáÊ¾
-  cout << "OCR init completed." << endl; // Íê³ÉÌáÊ¾
-  // Æô¶¯²ÎÊı´«ÈëÍ¼Æ¬£¬ÔòÖ´ĞĞÒ»´ÎĞÔÊ¶±ğ 
+  cout << PROJECT_NAME << endl; // ç‰ˆæœ¬æç¤º
+  cout << "OCR init completed." << endl; // å®Œæˆæç¤º
+  // å¯åŠ¨å‚æ•°ä¼ å…¥å›¾ç‰‡ï¼Œåˆ™æ‰§è¡Œä¸€æ¬¡æ€§è¯†åˆ« 
   if (FLAGS_image_dir != "")
     run_ocr(ocr, FLAGS_image_dir);
-  else // ·ñÔò£¬ÎŞÏŞÑ­»·¶ÁÈ¡Í¼Æ¬ 
+  else // å¦åˆ™ï¼Œæ— é™å¾ªç¯è¯»å–å›¾ç‰‡ 
     while (1) {
       string img_path;
       getline(cin, img_path);

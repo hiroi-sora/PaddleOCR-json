@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <include/tools_flags.h> // ±êÖ¾
+#include <include/tools_flags.h> // æ ‡å¿—
 #include <include/args.h>
 #include <include/paddleocr.h>
 
@@ -47,7 +47,7 @@ PPOCR::PPOCR() {
   }
 };
 
-// ÈÈ¸üĞÂ
+// çƒ­æ›´æ–°
 void PPOCR::HotUpdate() {
   if (FLAGS_det) {
     this->detector_->HotUpdate(
@@ -79,7 +79,7 @@ void PPOCR::det(cv::Mat img, std::vector<OCRPredictResult> &ocr_results,
 
   this->detector_->Run(img, boxes, det_times);
 
-  if (boxes.empty()) // Ã»ÓĞÎÄ×Ö£¬Ö±½Ó·µ»Ø 
+  if (boxes.empty()) // æ²¡æœ‰æ–‡å­—ï¼Œç›´æ¥è¿”å› 
     return;
 
   for (int i = 0; i < boxes.size(); i++) {
@@ -178,7 +178,7 @@ PPOCR::ocr(std::vector<cv::String> cv_all_img_names, bool det, bool rec,
     }
   } else {
     if (!Utility::PathExists(FLAGS_output) && FLAGS_det && FLAGS_visualize) {
-      Utility::CreateDir(FLAGS_output); // ´´½¨Êä³öÄ¿Â¼
+      Utility::CreateDir(FLAGS_output); // åˆ›å»ºè¾“å‡ºç›®å½•
     }
 
     for (int i = 0; i < cv_all_img_names.size(); ++i) {
@@ -188,20 +188,20 @@ PPOCR::ocr(std::vector<cv::String> cv_all_img_names, bool det, bool rec,
       }
       //cv::Mat srcimg = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
       cv::Mat srcimg = tool::imread_utf8(cv_all_img_names[i]);
-      if (!srcimg.data) { // ¶ÁÈ¡Í¼Æ¬Ê§°Ü
+      if (!srcimg.data) { // è¯»å–å›¾ç‰‡å¤±è´¥
         //std::cerr << "[ERROR] image read failed! image path: "
         //          << cv_all_img_names[i] << endl;
         //system("pause");
         //exit(1);
         OCRPredictResult res;
         ocr_result.push_back(res);
-        ocr_result[0].cls_label = CODE_ERR_MAT_NULL; // Éè±êÖ¾ 
+        ocr_result[0].cls_label = CODE_ERR_MAT_NULL; // è®¾æ ‡å¿— 
         ocr_results.push_back(ocr_result);
         return ocr_results;
       }
       // det
       this->det(srcimg, ocr_result, time_info_det);
-      if (ocr_result.empty()) { // Ã»ÓĞÎÄ×Ö£¬Ìî³ä¿ÕÏòÁ¿£¬Ìø¹ıÑ­»· 
+      if (ocr_result.empty()) { // æ²¡æœ‰æ–‡å­—ï¼Œå¡«å……ç©ºå‘é‡ï¼Œè·³è¿‡å¾ªç¯ 
         ocr_results.push_back(ocr_result);
         continue;
       }
