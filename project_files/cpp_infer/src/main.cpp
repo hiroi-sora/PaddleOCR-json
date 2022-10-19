@@ -210,6 +210,10 @@ void run_ocr(PPOCR& ocr, string img_path) {
 int main(int argc, char** argv) {
   google::ParseCommandLineFlags(&argc, &argv, true); // 解析命令参数
   tool::load_congif_file(); // 加载配置文件 
+  if (FLAGS_cpu_threads <= 0) {
+    std::cerr << "[ERROR] Failed to get hardware concurrency. Set cpu_threads to 10." << std::endl;
+    FLAGS_cpu_threads = 10;
+  }
   check_params(); // 检测参数合法性 
   PPOCR ocr = PPOCR(); // 初始化识别器 
   if (FLAGS_ensure_chcp) {

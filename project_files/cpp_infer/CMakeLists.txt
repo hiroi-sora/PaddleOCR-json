@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.24)
 project(PaddleOCR_json VERSION 1.2.1)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR}/installed)
 

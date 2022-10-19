@@ -13,13 +13,14 @@
 // limitations under the License.
 
 #include <gflags/gflags.h>
+#include <thread>
 
 // common args
 DEFINE_bool(use_gpu, false, "Infering with GPU or CPU.");
 DEFINE_bool(use_tensorrt, false, "Whether use tensorrt.");
 DEFINE_int32(gpu_id, 0, "Device id of GPU to execute.");
 DEFINE_int32(gpu_mem, 4000, "GPU id when infering with GPU.");
-DEFINE_int32(cpu_threads, 10, "Num of threads with CPU.");
+DEFINE_int32(cpu_threads, std::thread::hardware_concurrency(), "Num of threads with CPU.");
 DEFINE_bool(enable_mkldnn, true, "Whether use mkldnn with CPU.");
 DEFINE_string(precision, "fp32", "Precision be one of fp32/fp16/int8");
 DEFINE_bool(benchmark, false, "Whether use benchmark.");

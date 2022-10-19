@@ -1,5 +1,7 @@
 find_package(OpenCV CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(gflags CONFIG REQUIRED)
+find_package(glog CONFIG REQUIRED)
 
 find_path(DIRENT_INCLUDE_DIRS "dirent.h")
 
@@ -7,7 +9,7 @@ file(GLOB PPOCR_SOURCES "*.cpp")
 
 add_executable(${PROJECT_NAME} ${PPOCR_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR} ${DIRENT_INCLUDE_DIRS})
-target_compile_definitions(${PROJECT_NAME} PRIVATE USE_MKL GLOG_STATIC_DEFINE GOOGLE_GLOG_DLL_DECL=)
+target_compile_definitions(${PROJECT_NAME} PRIVATE GOOGLE_GLOG_IS_A_DLL)
 target_compile_options(${PROJECT_NAME} PRIVATE /bigobj /openmp)
 
 target_link_libraries(${PROJECT_NAME}
@@ -25,6 +27,8 @@ install(TARGETS ${PROJECT_NAME})
 install(FILES $<TARGET_PDB_FILE:${PROJECT_NAME}> DESTINATION bin OPTIONAL)
 install(IMPORTED_RUNTIME_ARTIFACTS
     opencv_imgcodecs
+    glog::glog
+    gflags::gflags
 )
 
 install(CODE [[

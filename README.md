@@ -349,7 +349,7 @@ fn main() {
 | use_angle_cls      | 启用方向分类，与cls同时使用              | false  |
 | rec                | 启用rec文本识别                          | true   |
 | enable_mkldnn      | 启用CPU推理加速                          | true   |
-| cpu_threads        | CPU线程数                                | 10     |
+| cpu_threads        | CPU线程数                                | 当前 CPU 核数     |
 | config_path        | 指定配置文件路径                         | ""     |
 
 - 配置文件用于在启动时注入配置参数，可将参数（如模型库路径等）写在其中，让程序读取它来传入配置。[格式详见此](/docs/详细使用指南.md#4-注入配置参数)。默认情况下，程序启动时读取同目录下 `程序名_config.txt` 的文件。你可传入 `-config_path="路径/配置文件.txt"` 来指定读取哪一个配置文件。（路径需全英文，支持相对路径）
