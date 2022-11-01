@@ -101,12 +101,12 @@ ocr.stop()  # 结束引擎子进程
 
 ### 2. PowerShell API
 
+> 由[jiangzian04121735/PaddleOCR-json](https://github.com/jiangzian04121735/PaddleOCR-json)协助
+
 [资源目录](api/powershell)
 
 <details>
 <summary>使用示例</summary>
-
-Powershell API 比较旧，搭配 `v1.2.1` 引擎时可能存在中文路径兼容性问题，请搭配 `v1.2.0` 及之前版本的引擎使用。我暂时没有精力维护这个API，欢迎有能力的大佬修改贡献。
 
 ```PowerShell
 Import-Module -Force D:\…………\PPOCR_api.ps1
@@ -117,7 +117,7 @@ $ocr = [PPOCR]::new("D:\…………\PaddleOCR-json\PaddleOCR_json.exe")
 # 识别图片，传入图片路径
 $imgPath = "………\test.png" 
 $getObj = $ocr.run($imgPath)
-Write-Host "图片识别完毕，状态码：$($getObj.'code') 结果：`n$($getObj.'data')`n"
+Write-Host "图片识别完毕，状态码：$($getObj.code) 结果：`n$($getObj.data | Out-String)`n"
 
 $ocr.del()  # 结束子进程。
 Write-Host "程序结束。"
@@ -337,20 +337,20 @@ fn main() {
 
 只能在启动引擎时注入，不能中途热更新。
 
-| 键名称             | 值说明                                   | 默认值 |
-| ------------------ | ---------------------------------------- | ------ |
-| det_model_dir      | det库路径                                | 必填   |
-| cls_model_dir      | cls库路径                                | 必填   |
-| rec_model_dir      | rec库路径                                | 必填   |
-| rec_char_dict_path | rec字典路径                              | 必填   |
-| rec_img_h          | v3模型填48，v2填32                       | 48     |
-| det                | 启用det文本检测                          | true   |
-| cls                | 启用cls方向分类，与use_angle_cls同时使用 | false  |
-| use_angle_cls      | 启用方向分类，与cls同时使用              | false  |
-| rec                | 启用rec文本识别                          | true   |
-| enable_mkldnn      | 启用CPU推理加速                          | true   |
-| cpu_threads        | CPU线程数                                | 当前 CPU 核数     |
-| config_path        | 指定配置文件路径                         | ""     |
+| 键名称             | 值说明                                   | 默认值        |
+| ------------------ | ---------------------------------------- | ------------- |
+| det_model_dir      | det库路径                                | 必填          |
+| cls_model_dir      | cls库路径                                | 必填          |
+| rec_model_dir      | rec库路径                                | 必填          |
+| rec_char_dict_path | rec字典路径                              | 必填          |
+| rec_img_h          | v3模型填48，v2填32                       | 48            |
+| det                | 启用det文本检测                          | true          |
+| cls                | 启用cls方向分类，与use_angle_cls同时使用 | false         |
+| use_angle_cls      | 启用方向分类，与cls同时使用              | false         |
+| rec                | 启用rec文本识别                          | true          |
+| enable_mkldnn      | 启用CPU推理加速                          | true          |
+| cpu_threads        | CPU线程数                                | 当前 CPU 核数 |
+| config_path        | 指定配置文件路径                         | ""            |
 
 - 配置文件用于在启动时注入配置参数，可将参数（如模型库路径等）写在其中，让程序读取它来传入配置。[格式详见此](/docs/详细使用指南.md#4-注入配置参数)。默认情况下，程序启动时读取同目录下 `程序名_config.txt` 的文件。你可传入 `-config_path="路径/配置文件.txt"` 来指定读取哪一个配置文件。（路径需全英文，支持相对路径）
   - 在实际使用中，建议使用手动指定配置文件的方式，这样比较灵活，能一次性指定一组配置参数，而不需要传入一大堆启动参数。
