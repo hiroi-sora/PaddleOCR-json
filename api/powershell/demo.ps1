@@ -8,7 +8,7 @@ while (1) {
     $imgPath = read-host "请输入图片路径，退出直接回车" 
     if ($imgPath) {
         $getObj = $ocr.run($imgPath)
-        Write-Host "图片识别完毕，状态码：$($getObj.'code') 结果：`n$($getObj.'data')`n"
+        Write-Host "图片识别完毕，状态码：$($getObj.code) 结果：`n$($getObj.data | Out-String)`n"
     }
     else {
         break
