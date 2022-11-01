@@ -2,7 +2,24 @@
 # 项目主页：
 # https://github.com/hiroi-sora/PaddleOCR-json
 
-
+###########################################################################
+function asc($param){ 
+##用来转换中文至\uxxxx的函数
+    $rtn = ''
+    $list = $param -split ''
+    foreach ($char in $list){
+        if($char -ne ''){
+            if([int]([char]$char) -gt 32 -and [int]([char]$char) -lt 127){
+                $rtn  += $char
+            }
+            else{
+                $rtn  += ("\u" + ("{0:x}" -f [int]([char]$char)))
+            }
+        }
+    }
+    return $rtn 
+}
+###########################################################################
 class PPOCR {
     [System.Object]$process # 子进程对象
     [int] $runFlag = 0 # 运行标志。0正在初始化，1正常运行中
@@ -20,7 +37,8 @@ class PPOCR {
         $psi = New-Object System.Diagnostics.ProcessStartInfo
         $psi.FileName = $exePath
         $psi.WorkingDirectory = $WorkingDirectory
-        $psi.Arguments = "--ensure_ascii=1"
+        #$psi.Arguments = "--ensure_ascii=1"
+        $psi.Arguments = "--use_debug=0"   #不使用debug模式，输出结果正常，使用ascii模式输出结果若含中文会402
         $psi.RedirectStandardInput = $true
         $psi.RedirectStandardOutput = $true
         $psi.CreateNoWindow = $true
@@ -73,7 +91,8 @@ class PPOCR {
         if ($this.stdSender) {
             $nowTime = Get-Date -Format "HHmmssffff"
             $this.eventJson = "OCRjson" + $this.processID + $nowTime # 更新事件标识符
-            $this.stdSender.StandardInput.WriteLine($imgPath); # 向管道写入图片路径
+            $imgPath_new = '{"image_dir": "'+ (asc $imgPath.Replace("\","\\")) +'"}'  #更新图片路径为json格式,转义\\,asc函数替换中文
+            $this.stdSender.StandardInput.WriteLine($imgPath_new); # 向管道写入图片路径
             Wait-Event -SourceIdentifier $this.eventJson # 阻塞，等待取得json
             try {
                 $getdict = $this.imgJson | ConvertFrom-Json
