@@ -184,5 +184,6 @@ img2 = visualize(textBlocksNew, testImg).get(isOrder=True)
 # 左右拼接图片并展示
 visualize.createContrast(img1, img2).show()
 ```
+![对比.png](https://tupian.li/images/2022/11/03/6363afbbb2fcd.png)
 
 使用示例详见 [demo3.py](demo3.py)
