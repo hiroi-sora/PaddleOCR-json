@@ -66,8 +66,7 @@ ocr.run('', argument={'limit_side_len': 960})
 getObj = ocr.runClipboard()
 ```
 
-
-使用示例详见 [demo.py](demo.py)
+使用示例详见 [demo1.py](demo1.py)
 
 # 结果可视化
 
@@ -126,6 +125,8 @@ img = vis.get()
 img_12 = visualize.createContrast(img1, img2)
 ```
 
+使用示例详见 [demo2.py](demo2.py)
+
 # 文本后处理 tbpu
 
 tbpu : text block processing unit
@@ -183,3 +184,5 @@ img2 = visualize(textBlocksNew, testImg).get(isOrder=True)
 # 左右拼接图片并展示
 visualize.createContrast(img1, img2).show()
 ```
+
+使用示例详见 [demo3.py](demo3.py)

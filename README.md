@@ -95,7 +95,7 @@ print(f'图片识别完毕，状态码：{getObj["code"]} 结果：\n{getObj["da
 ocr.stop()  # 结束引擎子进程
 ```
 
-更多示例请见 [demo.py](api/python/demo.py)
+Python API 有更丰富的附加模块：便于开发者调试观察的可视化模块；和[Umi-OCR](https://github.com/hiroi-sora/Umi-OCR)下放的文本块后处理（段落合并）技术。详细使用方法见 [资源目录](api/python)
 
 </details>
 
