@@ -1,3 +1,7 @@
+# 👉 demo1.py ：演示OCR基础功能
+#    demo2.py ：演示可视化接口
+#    demo3.py ：演示OCR文段后处理（段落合并）接口
+
 from PPOCR_api import PPOCR
 
 # 初始化识别器对象，传入 PaddleOCR_json.exe 的路径
@@ -25,12 +29,6 @@ ocr.run('', argument={'limit_side_len': 960})
 # 剪贴板中可以是位图（截图、网页复制），也可以是单个文件句柄（文件管理器中复制）。
 getObj = ocr.runClipboard()
 print(f'剪贴板识别完毕，状态码：{getObj["code"]} 结果：\n{getObj["data"]}\n')
-
-# 启用结果可视化：在图片上绘制包围盒，保存到ocr_output目录下
-updateDict = {'visualize': 1, 'output': 'D:/ocr_output/'}
-getObj = ocr.run(testImg, updateDict)
-print(
-    f'图片识别完毕，状态码：{getObj["code"]} 日志：\n{getObj["hotUpdate"]}\n结果：\n{getObj["data"]}\n')
 
 ocr.stop()  # 结束引擎子进程。
 print('程序结束。')
