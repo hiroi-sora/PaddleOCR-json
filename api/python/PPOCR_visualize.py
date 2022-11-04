@@ -90,6 +90,12 @@ class visualize:
         img.paste(img2, (img1.size[0], 0))
         return img
 
+    @staticmethod
+    def composite(img1, img2):
+        '''传入两个PIL Image对象（RGBA格式），以img1为底，将img2叠加在其上
+        返回生成的图片'''
+        return Image.alpha_composite(img1, img2)
+
     # ================================ 快捷接口 ================================
 
     def __init__(self, textBlocks, imagePath):
@@ -114,7 +120,7 @@ class visualize:
         flags = (isSource, isBox, isText, isOrder)
         for index, im in enumerate([self.imgSource, self.imgBox, self.imgText, self.imgOrder]):
             if im and flags[index]:
-                img = Image.alpha_composite(img, im)
+                img = visualize.composite(img, im)
         return img
 
     def show(self, isBox=True, isText=False, isOrder=False, isSource=True):

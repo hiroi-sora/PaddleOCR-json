@@ -5,13 +5,13 @@ Python API 拥有三大模块：
 
 # 基础OCR接口
 
-#### 导入
+### 导入
 
 ```python
 from PPOCR_api import PPOCR
 ```
 
-#### 初始化
+### 初始化
 
 初始化识别器对象，传入 PaddleOCR_json.exe 的路径
 
@@ -26,7 +26,7 @@ argument = {'limit_side_len': 3500}
 ocr = PPOCR(r'…………\PaddleOCR_json.exe' ,argument)
 ```
 
-#### 识别图片，传入图片路径
+### 识别图片，传入图片路径
 
 ```python
 testImg = r'………\测试.png'
@@ -41,7 +41,7 @@ else:                          # 失败
     print(f'异常信息{getObj["data"]}')
 ```
 
-#### 热更新参数
+### 热更新参数
 
 可以跟识别图片放在一起：
 ```python
@@ -59,7 +59,7 @@ print(f'热更新日志：{getObj["hotUpdate"]}')
 ocr.run('', argument={'limit_side_len': 960})
 ```
 
-#### 剪贴板识别功能
+### 剪贴板识别功能
 
 剪贴板中可以是位图（截图、网页复制），也可以是单个文件句柄（文件管理器中复制）。
 ```python
@@ -72,7 +72,7 @@ getObj = ocr.runClipboard()
 
 纯Python实现，不依赖PPOCR引擎的C++ opencv可视化模块，避免中文兼容性问题。
 
-#### 导入
+### 导入
 
 ```python
 from PPOCR_visualize import visualize
@@ -80,7 +80,7 @@ from PPOCR_visualize import visualize
 
 需要PIL图像处理库：`pip install pillow`
 
-#### 获取文本块
+### 获取文本块
 
 首先得成功执行一次OCR，获取文本块列表（即`['data']`部分）
 ```python
@@ -91,7 +91,7 @@ if not getObj["code"] == 100:
 textBlocks = getObj["data"]  # 提取文本块数据
 ```
 
-#### 简单展示结果
+### 简单展示结果
 
 只需一行代码，传入文本块和原图片的路径
 ```python
@@ -110,7 +110,8 @@ vis = visualize(textBlocks, testImg)
 img = vis.get()
 ```
 
-### 调整显示内容
+### 调整显示图层
+
 以上`show`,`save`,`get`三个接口，均能开启或禁用指定图层：
 
 - `isBox` T时启用包围盒图层。
@@ -123,6 +124,29 @@ img = vis.get()
 传入两个PIL Image对象，返回它们左右拼接而成的新Image
 ```python
 img_12 = visualize.createContrast(img1, img2)
+```
+
+### 调整显示效果（颜色、粗细、字体等）
+
+导入PIL库，以便操作图片对象
+```python
+from PIL import Image
+```
+
+接口创建各个图层，传入文本块、要生成的图层大小、自定义参数，然后将各个图层合并
+
+颜色有关的参数，均可传入6位RGB十六进制码（如`#112233`）或8位RGBA码（最后两位控制透明度，如`#11223344`）
+```python
+# 创建各图层
+img = Image.open(testImg).convert('RGBA')  # 原始图片背景图层
+imgBox = visualize.createBox(textBlocks, img.size,  # 包围盒图层
+                             outline='#ccaa99aa', width=10)
+imgText = visualize.createText(textBlocks, img.size,  # 文本图层
+                               fill='#44556699')
+# 合并各图层
+img = visualize.composite(img, imgBox)
+img = visualize.composite(img, imgText)
+img.show() # 显示
 ```
 
 使用示例详见 [demo2.py](demo2.py)
