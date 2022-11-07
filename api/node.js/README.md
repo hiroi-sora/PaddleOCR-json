@@ -4,6 +4,10 @@
 <details>
 <summary>Log</summary>
 
+v1.0.5 2022.11.7
+
+-
+
 v1.0.5 2022.10.12
 
 -
