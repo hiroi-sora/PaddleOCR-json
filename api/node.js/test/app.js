@@ -1,8 +1,9 @@
-const OCR = require('./OCR');
+const OCR = require('paddleocrjson');
 const ocr = new OCR('PaddleOCR_json.exe', [], {
-    cwd: './PaddleOCR-json'
+    cwd: 'D:\\www\\OCR\\PaddleOCR-json'
 }, false);
 
+ocr.once('init', console.log);
 const fs = require('fs').promises;
 
 const mime = require('mime');
@@ -37,7 +38,7 @@ app.route('/').get((req, res, next) => {
     });
 }).post(async (req, res, next) => {
     const path = req.file.path;
-    ocr.postMessage({ image_dir: path })
+    ocr.flush({ image_dir: path })
         .then((data) => {
             res.data = data;
             //console.log(data);

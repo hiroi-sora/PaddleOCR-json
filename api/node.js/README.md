@@ -4,13 +4,25 @@
 <details>
 <summary>Log</summary>
 
-v1.0.5 2022.11.7
+v1.0.7 2022.11.8
 
--
+ ---
+
+v1.0.6 2022.11.8
+
+`OCR.postMessage`与`OCR.flush`区别开.
+
+使监听的数据与`OCR.flush`返回的数据一致.
+
+优化动态参数中关于路径的字段.
+
+使用`npm`包管理.
+
+使用`ts`编译.
 
 v1.0.5 2022.10.12
 
--
+ ---
 
 v1.0.4 2022.10.1
 
@@ -35,7 +47,7 @@ JSON输入更改为ascii转义.
 
 v1.0.0 2022.9.10
 
--
+ ---
 
 </details>
 
@@ -43,10 +55,15 @@ v1.0.0 2022.9.10
 
 ### OCR api
 
-将本项目引入(或单独引入`OCR.js`)至你的项目中, 引用OCR.
+```
+npm install paddleocrjson
+```
 
 ```js
-const OCR = require('./OCR');
+const OCR = require('paddleocrjson');
+
+const OCR = require('paddleocrjson/es6'); // ES6
+
 const ocr = new OCR('PaddleOCR_json.exe', [], {
     cwd: './PaddleOCR-json',
 }, false);
@@ -58,11 +75,7 @@ ocr.postMessage({ image_dir: 'path/to/test/img' })
 
 ### server服务
 
-```
-npm i
-npm start
-```
-打开 http://127.0.0.1:3000 测试
+详见[PunchlY/PaddleOCR-json-node-api/test](https://github.com/PunchlY/PaddleOCR-json-node-api/tree/main/api/node.js/test).
 
 ## api
 
@@ -73,7 +86,7 @@ npm start
 #### new OCR(path, args, options, debug)
 
 ```js
-const OCR = require('./OCR');
+const OCR = require('paddleocrjson');
 const ocr = new OCR('PaddleOCR_json.exe', [], {
     cwd: './PaddleOCR-json',
 }, false);
@@ -83,23 +96,19 @@ const ocr = new OCR('PaddleOCR_json.exe', [], {
 
 `options`详见[Node.js child_process.spawn](https://nodejs.org/api/child_process.html#child_processspawncommand-args-options).
 
-#### OCR.postMessage(obj)
+#### OCR.flush(obj)
 
 ```js
-ocr.postMessage({
+ocr.flush({
     limit_side_len: 960,
     image_dir: 'path/to/test/img',
 });
 ```
-`ocr.postMessage`返回的是`Promise`对象.
+`ocr.flush`返回的是`Promise`对象.
 
 `obj`详见[hiroi-sora/PaddleOCR-json#动态参数](https://github.com/hiroi-sora/PaddleOCR-json#%E5%8A%A8%E6%80%81%E5%8F%82%E6%95%B0)与[hiroi-sora/PaddleOCR-json/blob/main/docs/详细使用指南.md#-通过管道传json建议](https://github.com/hiroi-sora/PaddleOCR-json/blob/main/docs/%E8%AF%A6%E7%BB%86%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97.md#-%E9%80%9A%E8%BF%87%E7%AE%A1%E9%81%93%E4%BC%A0json%E5%BB%BA%E8%AE%AE)
 
 与[hiroi-sora/PaddleOCR-json/blob/main/docs/详细使用指南.md#方式ex剪贴板识图](https://github.com/hiroi-sora/PaddleOCR-json/blob/main/docs/%E8%AF%A6%E7%BB%86%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97.md#%E6%96%B9%E5%BC%8Fex%E5%89%AA%E8%B4%B4%E6%9D%BF%E8%AF%86%E5%9B%BE)不同, 若`obj.image_dir`为`null`, 则获取剪贴板.
-
-#### OCR.flush(obj)
-
-`ocr.flush`是`ocr.postMessage`的别名.
 
 #### 其他
 
@@ -108,11 +117,16 @@ ocr.postMessage({
 例如:
 ```js
 const ocr = new OCR();
+
+ocr.on('init', (pid) => {
+    console.log('OCR init completed.');
+    console.log('pid:', pid);
+});
+
 ocr.on('message', (data) => {
     console.log(data);
-    // 首先会输出 OCR init 的数据, 
-    // 值为 { code: 0, message: 'OCR init completed.', pid: PID } .
-    // PID 是进程 PaddleOCR-json.exe 的 pid值.
+    // { code: ..., message: ..., pid: ... , data: ... }
+    // { code: ..., message: ..., data: ... }
 });
 ```
 
