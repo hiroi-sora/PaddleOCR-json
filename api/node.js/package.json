@@ -1,15 +1,25 @@
 {
-  "name": "PaddleOCR-json-node-api",
-  "version": "1.0.4",
-  "description": "基于 https://github.com/hiroi-sora/PaddleOCR-json 的node.js api",
-  "homepage": "https://github.com/PunchlY/PaddleOCR-json-node-api",
-  "license": "WTFPL",
-  "dependencies": {
-    "express": "^4.18.1",
-    "mime": "^3.0.0",
-    "multer": "^1.4.5-lts.1"
-  },
-  "scripts": {
-    "start": "node app.js"
-  }
+    "name": "paddleocrjson",
+    "version": "1.0.7",
+    "description": "基于 https://github.com/hiroi-sora/PaddleOCR-json 的node.js api",
+    "homepage": "https://github.com/PunchlY/PaddleOCR-json-node-api/blob/main/api/node.js",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/PunchlY/PaddleOCR-json-node-api.git"
+    },
+    "author": "punchly <punchly@foxmail.com>",
+    "bugs": {
+        "url": "https://github.com/PunchlY/PaddleOCR-json-node-api/issues"
+    },
+    "license": "WTFPL",
+    "main": "./esnext",
+    "devDependencies": {
+        "@types/node": "^18.11.9"
+    },
+    "keywords": [
+        "OCR",
+        "PaddleOCR",
+        "api",
+        "json"
+    ]
 }
