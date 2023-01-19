@@ -82,7 +82,7 @@ public:
   void Run(std::vector<cv::Mat> img_list, std::vector<std::string> &rec_texts,
            std::vector<float> &rec_text_scores, std::vector<double> &times);
   
-  // ÈÈ¸üÐÂ
+  // çƒ­æ›´æ–°
   void HotUpdate(const std::string& model_dir, const bool& use_gpu,
     const int& gpu_id, const int& gpu_mem,
     const int& cpu_math_library_num_threads,
@@ -101,7 +101,7 @@ public:
     this->rec_batch_num_ = rec_batch_num;
     this->rec_img_h_ = rec_img_h;
     this->rec_img_w_ = rec_img_w;
-    // ¸üÐÂÏòÁ¿
+    // æ›´æ–°å‘é‡
     this->rec_image_shape_[1] = rec_img_h;
     this->rec_image_shape_[2] = rec_img_w;
   }

@@ -17,44 +17,44 @@
 #ifndef _tools_flags_
 #define _tools_flags_
 
-// ³ÌĞòÄÚ²¿Ê¹ÓÃ£¬²»Êä³öµÄ±êÖ¾Âë
-#define CODE_INIT                0   // Ã¿»ØºÏ³õÊ¼Öµ£¬»ØºÏ½áÊøÊ±ÈÔÎªËü´ú±íÊÜ¹Ü¿ØµÄÇøÓòÄÚÎ´·¢ÏÖ´íÎó
-#define CODE_ERR_MAT_NULL       -999 // OCR¶Áµ½µÄmatÎª¿Õ¡£½èÖú cls_label À´´«µİ¡£
+// ç¨‹åºå†…éƒ¨ä½¿ç”¨ï¼Œä¸è¾“å‡ºçš„æ ‡å¿—ç 
+#define CODE_INIT                0   // æ¯å›åˆåˆå§‹å€¼ï¼Œå›åˆç»“æŸæ—¶ä»ä¸ºå®ƒä»£è¡¨å—ç®¡æ§çš„åŒºåŸŸå†…æœªå‘ç°é”™è¯¯
+#define CODE_ERR_MAT_NULL       -999 // OCRè¯»åˆ°çš„matä¸ºç©ºã€‚å€ŸåŠ© cls_label æ¥ä¼ é€’ã€‚
 
-// Êä³öµÄ±êÖ¾Âë
+// è¾“å‡ºçš„æ ‡å¿—ç 
 
-// Ê¶±ğ³É¹¦
-#define CODE_OK                 100 // ³É¹¦£¬ÇÒÊ¶±ğ³öÎÄ×Ö
-#define CODE_OK_NONE            101 // ³É¹¦£¬ÇÒÎ´Ê¶±ğµ½ÎÄ×Ö
+// è¯†åˆ«æˆåŠŸ
+#define CODE_OK                 100 // æˆåŠŸï¼Œä¸”è¯†åˆ«å‡ºæ–‡å­—
+#define CODE_OK_NONE            101 // æˆåŠŸï¼Œä¸”æœªè¯†åˆ«åˆ°æ–‡å­—
 #define MSG_OK_NONE(p)          "No text found in image. Path: \""+p+"\""
-// °´Â·¾¶¶ÁÍ¼£¬Ê§°Ü
-#define CODE_ERR_PATH_EXIST     200 // Í¼Æ¬Â·¾¶²»´æÔÚ
+// æŒ‰è·¯å¾„è¯»å›¾ï¼Œå¤±è´¥
+#define CODE_ERR_PATH_EXIST     200 // å›¾ç‰‡è·¯å¾„ä¸å­˜åœ¨
 #define MSG_ERR_PATH_EXIST(p)   "Image path dose not exist. Path: \""+p+"\""
-#define CODE_ERR_PATH_CONV      201 // Í¼Æ¬Â·¾¶stringÎŞ·¨×ª»»µ½wstring
+#define CODE_ERR_PATH_CONV      201 // å›¾ç‰‡è·¯å¾„stringæ— æ³•è½¬æ¢åˆ°wstring
 #define MSG_ERR_PATH_CONV(p)    "Image path failed to convert to utf-16 wstring. Path: \""+p+"\""
-#define CODE_ERR_PATH_READ      202 // Í¼Æ¬Â·¾¶´æÔÚ£¬µ«ÎŞ·¨´ò¿ªÎÄ¼ş
+#define CODE_ERR_PATH_READ      202 // å›¾ç‰‡è·¯å¾„å­˜åœ¨ï¼Œä½†æ— æ³•æ‰“å¼€æ–‡ä»¶
 #define MSG_ERR_PATH_READ(p)    "Image open failed. Path: \""+p+"\""
-#define CODE_ERR_PATH_DECODE    203 // Í¼Æ¬´ò¿ª³É¹¦£¬µ«¶ÁÈ¡µ½µÄÄÚÈİÎŞ·¨±»opencv½âÂë
+#define CODE_ERR_PATH_DECODE    203 // å›¾ç‰‡æ‰“å¼€æˆåŠŸï¼Œä½†è¯»å–åˆ°çš„å†…å®¹æ— æ³•è¢«opencvè§£ç 
 #define MSG_ERR_PATH_DECODE(p)  "Image decode failed. Path: \""+p+"\""
-// ¼ôÌù°å¶ÁÍ¼£¬Ê§°Ü
-#define CODE_ERR_CLIP_OPEN      210 // ¼ôÌù°å´ò¿ªÊ§°Ü ( OpenClipboard )
+// å‰ªè´´æ¿è¯»å›¾ï¼Œå¤±è´¥
+#define CODE_ERR_CLIP_OPEN      210 // å‰ªè´´æ¿æ‰“å¼€å¤±è´¥ ( OpenClipboard )
 #define MSG_ERR_CLIP_OPEN       "Clipboard open failed."
-#define CODE_ERR_CLIP_EMPTY     211 // ¼ôÌù°åÎª¿Õ ( GetPriorityClipboardFormat NULL )
+#define CODE_ERR_CLIP_EMPTY     211 // å‰ªè´´æ¿ä¸ºç©º ( GetPriorityClipboardFormat NULL )
 #define MSG_ERR_CLIP_EMPTY      "Clipboard is empty."
-#define CODE_ERR_CLIP_FORMAT    212 // ¼ôÌù°åµÄ¸ñÊ½²»Ö§³Ö ( GetPriorityClipboardFormat -1 )
+#define CODE_ERR_CLIP_FORMAT    212 // å‰ªè´´æ¿çš„æ ¼å¼ä¸æ”¯æŒ ( GetPriorityClipboardFormat -1 )
 #define MSG_ERR_CLIP_FORMAT     "Clipboard format is not valid."
-#define CODE_ERR_CLIP_DATA      213 // ¼ôÌù°å»ñÈ¡ÄÚÈİ¾ä±úÊ§°Ü£¬Í¨³£ÓÉ±ğµÄ³ÌĞòÕ¼ÓÃ¼ôÌù°åÒıÆğ ( GetClipboardData NULL )
+#define CODE_ERR_CLIP_DATA      213 // å‰ªè´´æ¿è·å–å†…å®¹å¥æŸ„å¤±è´¥ï¼Œé€šå¸¸ç”±åˆ«çš„ç¨‹åºå ç”¨å‰ªè´´æ¿å¼•èµ· ( GetClipboardData NULL )
 #define MSG_ERR_CLIP_DATA       "Getting clipboard data handle failed."
-#define CODE_ERR_CLIP_FILES     214 // ¼ôÌù°å²éÑ¯µ½µÄÎÄ¼şµÄÊıÁ¿²»Îª1 ( DragQueryFile != 1 )
+#define CODE_ERR_CLIP_FILES     214 // å‰ªè´´æ¿æŸ¥è¯¢åˆ°çš„æ–‡ä»¶çš„æ•°é‡ä¸ä¸º1 ( DragQueryFile != 1 )
 #define MSG_ERR_CLIP_FILES(n)   "Clipboard number of query files is not valid. Number: "+std::to_string(n)
-#define CODE_ERR_CLIP_GETOBJ    215 // ¼ôÌù°å¼ìË÷Í¼ĞÎ¶ÔÏóĞÅÏ¢Ê§°Ü ( GetObject NULL )
+#define CODE_ERR_CLIP_GETOBJ    215 // å‰ªè´´æ¿æ£€ç´¢å›¾å½¢å¯¹è±¡ä¿¡æ¯å¤±è´¥ ( GetObject NULL )
 #define MSG_ERR_CLIP_GETOBJ     "Clipboard get bitmap object failed."
-#define CODE_ERR_CLIP_BITMAP    216 // ¼ôÌù°å»ñÈ¡Î»Í¼Êı¾İÊ§°Ü ( GetBitmapBits ¸´ÖÆ×Ö½ÚÎª¿Õ )
+#define CODE_ERR_CLIP_BITMAP    216 // å‰ªè´´æ¿è·å–ä½å›¾æ•°æ®å¤±è´¥ ( GetBitmapBits å¤åˆ¶å­—èŠ‚ä¸ºç©º )
 #define MSG_ERR_CLIP_BITMAP     "Getting clipboard bitmap bits failed."
-#define CODE_ERR_CLIP_CHANNEL   217 // ¼ôÌù°åÖĞÎ»Í¼µÄÍ¨µÀÊı²»Ö§³Ö ( nChannels ²»Îª1£¬3£¬4 )
+#define CODE_ERR_CLIP_CHANNEL   217 // å‰ªè´´æ¿ä¸­ä½å›¾çš„é€šé“æ•°ä¸æ”¯æŒ ( nChannels ä¸ä¸º1ï¼Œ3ï¼Œ4 )
 #define MSG_ERR_CLIP_CHANNEL(n) "Clipboard number of image channels is not valid. Number: "+std::to_string(n)
-// Î´Öª
-#define CODE_ERR_UNKNOW        299 // Î´ÖªÒì³£
+// æœªçŸ¥
+#define CODE_ERR_UNKNOW        299 // æœªçŸ¥å¼‚å¸¸
 #define MSG_ERR_UNKNOW         "An unknown error has occurred."
 
 

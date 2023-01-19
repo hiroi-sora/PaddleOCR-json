@@ -73,12 +73,14 @@
 
 ## API列表
 
-### 1. [Python API](api/python)
+`资源目录`下有更详细的使用说明及demo。
 
-将 [PPOCR_api.py](api/python/PPOCR_api.py) 引入你的项目。
+### 1. Python API
+
+[资源目录](api/python)
 
 <details>
-<summary>使用示例：</summary>
+<summary>使用示例</summary>
 
 ```python
 from PPOCR_api import PPOCR
@@ -93,16 +95,18 @@ print(f'图片识别完毕，状态码：{getObj["code"]} 结果：\n{getObj["da
 ocr.stop()  # 结束引擎子进程
 ```
 
-更多示例请见 [demo.py](api/python/demo.py)
+Python API 有更丰富的附加模块：便于开发者调试观察的可视化模块；和[Umi-OCR](https://github.com/hiroi-sora/Umi-OCR)下放的文本块后处理（段落合并）技术。详细使用方法见 [资源目录](api/python)
 
 </details>
 
-### 2. [PowerShell API](api/powershell)
+### 2. PowerShell API
 
-将 [PPOCR_api.ps1](api/powershell/PPOCR_api.ps1) 引入你的项目。
+> 由[jiangzian04121735/PaddleOCR-json](https://github.com/jiangzian04121735/PaddleOCR-json)协助
+
+[资源目录](api/powershell)
 
 <details>
-<summary>使用示例：</summary>
+<summary>使用示例</summary>
 
 ```PowerShell
 Import-Module -Force D:\…………\PPOCR_api.ps1
@@ -113,7 +117,7 @@ $ocr = [PPOCR]::new("D:\…………\PaddleOCR-json\PaddleOCR_json.exe")
 # 识别图片，传入图片路径
 $imgPath = "………\test.png" 
 $getObj = $ocr.run($imgPath)
-Write-Host "图片识别完毕，状态码：$($getObj.'code') 结果：`n$($getObj.'data')`n"
+Write-Host "图片识别完毕，状态码：$($getObj.code) 结果：`n$($getObj.data | Out-String)`n"
 
 $ocr.del()  # 结束子进程。
 Write-Host "程序结束。"
@@ -122,14 +126,14 @@ Write-Host "程序结束。"
 </details>
 
 
-### 3. [Node.js API](api/node.js)
+### 3. Node.js API
 
 > 由[PunchlY/PaddleOCR-json-node-api](https://github.com/PunchlY/PaddleOCR-json-node-api)贡献
 
-将 [OCR.js](api/node.js/OCR.js) 引入你的项目。
+[资源目录](api/node.js)
 
 <details>
-<summary>使用示例：</summary>
+<summary>使用示例</summary>
 
 ```js
 const OCR = require('./OCR');
@@ -144,14 +148,14 @@ ocr.postMessage({ image_dir: 'path/to/test/img' })
 
 </details>
 
-### 4. [Java API](api/java)
+### 4. Java API
 
 > 由[jerrylususu/PaddleOCR-json-java-api](https://github.com/jerrylususu/PaddleOCR-json-java-api)贡献
 
-将 [Ocr.java](api/java/Ocr.java) 引入你的项目。（需要 GSON 依赖）
+[资源目录](api/java)
 
 <details>
-<summary>使用示例：</summary>
+<summary>使用示例</summary>
 
 ```java
 // paddleocr_json 的可执行文件所在路径
@@ -181,6 +185,43 @@ try (Ocr ocr = new Ocr(new File(exePath), arguments)) {
 ```
 
 </details>
+
+### 5. Rust API
+
+> 由[OverflowCat/paddleocr](https://github.com/OverflowCat/paddleocr)贡献
+
+[资源目录](api/rust)
+
+<details>
+<summary>使用示例</summary>
+
+```rust
+fn main() {
+    let mut p = paddleocr::Ppocr::new(std::path::PathBuf::from(
+        "C:/.../PaddleOCR_json.exe", // PaddleOCR_json.exe 的路径
+    ))
+    .unwrap(); // 会检测是否出现 `OCR init completed.`，`Ok(x)` 说明初始化成功
+
+    let now = std::time::Instant::now(); // 开始计算所需时间
+    {
+        // OCR 文件
+        println!("{}", p.ocr("C:/.../test1.png").unwrap());
+        println!("{}", p.ocr("C:/.../test2.png").unwrap());
+        println!("{}", p.ocr("C:/.../test3.png").unwrap());
+        println!("{}", p.ocr("C:/.../test4.png").unwrap());
+        println!("{}", p.ocr("C:/.../test5.png").unwrap());
+
+        // OCR 当前剪贴板
+        println!("{}", p.ocr_clipboard().unwrap());
+    }
+    println!("Elapsed: {:.2?}", now.elapsed());
+
+    // `struct Ppocr` 会自动在 `Drop` 时结束进程
+}
+```
+
+</details>
+
 
 ### 更多语言API
 
@@ -296,20 +337,20 @@ try (Ocr ocr = new Ocr(new File(exePath), arguments)) {
 
 只能在启动引擎时注入，不能中途热更新。
 
-| 键名称             | 值说明                                   | 默认值 |
-| ------------------ | ---------------------------------------- | ------ |
-| det_model_dir      | det库路径                                | 必填   |
-| cls_model_dir      | cls库路径                                | 必填   |
-| rec_model_dir      | rec库路径                                | 必填   |
-| rec_char_dict_path | rec字典路径                              | 必填   |
-| rec_img_h          | v3模型填48，v2填32                       | 48     |
-| det                | 启用det文本检测                          | true   |
-| cls                | 启用cls方向分类，与use_angle_cls同时使用 | false  |
-| use_angle_cls      | 启用方向分类，与cls同时使用              | false  |
-| rec                | 启用rec文本识别                          | true   |
-| enable_mkldnn      | 启用CPU推理加速                          | true   |
-| cpu_threads        | CPU线程数                                | 10     |
-| config_path        | 指定配置文件路径                         | ""     |
+| 键名称             | 值说明                                   | 默认值        |
+| ------------------ | ---------------------------------------- | ------------- |
+| det_model_dir      | det库路径                                | 必填          |
+| cls_model_dir      | cls库路径                                | 必填          |
+| rec_model_dir      | rec库路径                                | 必填          |
+| rec_char_dict_path | rec字典路径                              | 必填          |
+| rec_img_h          | v3模型填48，v2填32                       | 48            |
+| det                | 启用det文本检测                          | true          |
+| cls                | 启用cls方向分类，与use_angle_cls同时使用 | false         |
+| use_angle_cls      | 启用方向分类，与cls同时使用              | false         |
+| rec                | 启用rec文本识别                          | true          |
+| enable_mkldnn      | 启用CPU推理加速                          | true          |
+| cpu_threads        | CPU线程数                                | 当前 CPU 核数 |
+| config_path        | 指定配置文件路径                         | ""            |
 
 - 配置文件用于在启动时注入配置参数，可将参数（如模型库路径等）写在其中，让程序读取它来传入配置。[格式详见此](/docs/详细使用指南.md#4-注入配置参数)。默认情况下，程序启动时读取同目录下 `程序名_config.txt` 的文件。你可传入 `-config_path="路径/配置文件.txt"` 来指定读取哪一个配置文件。（路径需全英文，支持相对路径）
   - 在实际使用中，建议使用手动指定配置文件的方式，这样比较灵活，能一次性指定一组配置参数，而不需要传入一大堆启动参数。
@@ -320,12 +361,12 @@ try (Ocr ocr = new Ocr(new File(exePath), arguments)) {
 
 可以在启动时注入，也可以热更新。
 
-| 键名称         | 值说明                                   | 默认值      |
-| -------------- | ---------------------------------------- | ----------- |
-| limit_side_len | 压缩阈限，边长大于这个值的图片会被压缩   | 960         |
-| limit_type     | 压缩阈限对长边还是短边生效，"min"或"max" | "max"       |
-| visualize      | 启用结果可视化                           | false       |
-| output         | 启用结果可视化的保存路径，不可中文       | "./output/" |
+| 键名称         | 值说明                                                                                                                                                           | 默认值      |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| limit_side_len | 压缩/放大阈限，单位像素                                                                                                                                          | 960         |
+| limit_type     | 为"max"时，若图片长边大于limit_side_len，会压缩至该值，减少识别耗时。为"min"时，若图片短边小于limit_side_len，会放大至该值，增加小尺寸图片的识别率(一般用不到)。 | "max"       |
+| visualize      | 启用结果可视化                                                                                                                                                   | false       |
+| output         | 启用结果可视化的保存路径，不可中文                                                                                                                               | "./output/" |
 
 - 热更新的意义在于动态更新`limit_side_len`来适应不同大小的图片，避免重启引擎的时间开销。
 - 启用结果可视化后，引擎会在每一张识别的图片上绘制文本包围盒，按原来的文件名保存到output目录下。output目录不能为中文。启用可视化时，原文件名不建议为中文，可能会乱码或无法保存。
@@ -337,10 +378,11 @@ try (Ocr ocr = new Ocr(new File(exePath), arguments)) {
 👆当你需要修改或开发新API时欢迎参考。
 
 
-### [项目构建指南](docs/项目构建指南.md)
+### 项目构建指南
 
-👆当你需要修改本项目代码时欢迎参考。
+方式1. [传统构建](https://github.com/hiroi-sora/PaddleOCR-json/blob/main_old_builds/docs/%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA%E6%8C%87%E5%8D%97.md)
 
+方式2(推荐). [使用 CMake 快速构建](docs/项目构建指南.md)
 
 ### 感谢
 
@@ -350,17 +392,19 @@ try (Ocr ocr = new Ocr(new File(exePath), arguments)) {
 感谢 [PaddlePaddle/PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) ，没有它就没有本项目：
 > “Awesome multilingual OCR toolkits based on PaddlePaddle”
 
-感谢各位为本项目开发API的朋友！
+感谢各位为本项目开发API及贡献代码的朋友！
 
 ## 更新日志
 
-#### v1.2.1 `2022.9.28` 
+版本号链接可前往对应备份分支。
+
+#### [v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.2.1) `2022.9.28` 
 - 修复了一些BUG。
 - 解决非中文windows难以读取中文路径的问题，拥抱utf-8，彻底摆脱对gbk等区域性编码的依赖。
 - 新功能：直接读取并识别剪贴板内存中的图片。
 - 错误代码和提示更详细。
 
-#### v1.2.0 `2022.8.29` 
+#### [v1.2.0](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.2.0) `2022.8.29` 
 - 修复了一些BUG。
 - 增强了面对不合法编码时的健壮性。
 - 默认开启mkldnn加速。

@@ -59,13 +59,13 @@ DECLARE_bool(det);
 DECLARE_bool(rec);
 DECLARE_bool(cls);
 DECLARE_bool(table);
-// 读取配置文件 
+// 璇诲彇閰嶇疆鏂囦欢 
 DECLARE_string(config_path);
-// ture时输出json字符串转ascii编码 
+// ture鏃惰緭鍑簀son瀛楃涓茶浆ascii缂栫爜 
 DECLARE_bool(ensure_ascii);
-// ture时退出前暂停程序 
+// ture鏃堕��鍑哄墠鏆傚仠绋嬪簭 
 DECLARE_bool(use_system_pause);
-// ture时将控制台设为chcp65001
+// ture鏃跺皢鎺у埗鍙拌涓篶hcp65001
 DECLARE_bool(ensure_chcp);
-// 启用debug
+// 鍚敤debug
 DECLARE_bool(use_debug);

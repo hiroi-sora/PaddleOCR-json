@@ -20,39 +20,39 @@
 #include <windows.h>
 #include <filesystem>
 #include <include/args.h>
-#include <include/nlohmann_json.hpp>
-#include <include/tools_flags.h> // ±êÖ¾
-// ¶ÁÍ¼Ïà¹Ø
+#include <nlohmann/json.hpp>
+#include <include/tools_flags.h> // æ ‡å¿—
+// è¯»å›¾ç›¸å…³
 #include "opencv2/core.hpp"
 #include "opencv2/imgcodecs.hpp"
-#include "opencv2/opencv.hpp" // TODO µ÷ÊÔÏÔÊ¾Í¼Æ¬ÓÃ£¬ÕıÊ½Ê±²»±ØÒª
-// ±àÂë×ª»»
+#include "opencv2/opencv.hpp" // TODO è°ƒè¯•æ˜¾ç¤ºå›¾ç‰‡ç”¨ï¼Œæ­£å¼æ—¶ä¸å¿…è¦
+// ç¼–ç è½¬æ¢
 #include<codecvt>
-std::wstring_convert<std::codecvt_utf8<wchar_t>> conv_Ustr_Wstr; // string utf-8 Óë wstring utf-16 µÄË«Ïò×ª»»Æ÷
+std::wstring_convert<std::codecvt_utf8<wchar_t>> conv_Ustr_Wstr; // string utf-8 ä¸ wstring utf-16 çš„åŒå‘è½¬æ¢å™¨
 
 using namespace std;
 using namespace nlohmann;
 
 
 namespace tool {
-  // ============== Ö´ĞĞ×´Ì¬ ======================
+  // ============== æ‰§è¡ŒçŠ¶æ€ ======================
 
-  int ToolCode = 0; // »º´æ±¾»ØºÏ´íÎóÂë
-  string ToolMsg = ""; // »º´æ±¾»ØºÏ´íÎóÌáÊ¾
-  // »ñÈ¡×´Ì¬
+  int ToolCode = 0; // ç¼“å­˜æœ¬å›åˆé”™è¯¯ç 
+  string ToolMsg = ""; // ç¼“å­˜æœ¬å›åˆé”™è¯¯æç¤º
+  // è·å–çŠ¶æ€
   void get_state(int& code, string& msg) {
 	code = ToolCode;
 	msg = ToolMsg;
   }
-  // ÉèÖÃ×´Ì¬
+  // è®¾ç½®çŠ¶æ€
   void set_state(int code = CODE_INIT, string msg = "") {
 	ToolCode = code;
 	ToolMsg = msg;
   }
-  // ×¨ÃÅÓÃÓÚÏûÏ¢µÄwstring×ªstring£¬×ª»»Ê§°ÜÊ±·µ»ØÄ¬ÈÏÌáÊ¾ÎÄ×Ö
+  // ä¸“é—¨ç”¨äºæ¶ˆæ¯çš„wstringè½¬stringï¼Œè½¬æ¢å¤±è´¥æ—¶è¿”å›é»˜è®¤æç¤ºæ–‡å­—
   string msg_wstr_2_ustr(wstring& msg) {
 	try {
-	  string msgU8 = conv_Ustr_Wstr.to_bytes(msg); // ×ª»Øu8
+	  string msgU8 = conv_Ustr_Wstr.to_bytes(msg); // è½¬å›u8
 	  return msgU8;
 	}
 	catch (...) {
@@ -60,57 +60,57 @@ namespace tool {
 	}
   }
 
-  // ================ ÔÓ ==========================
+  // ================ æ‚ ==========================
 
-	// ÍË³ö³ÌĞòÇ°ÔİÍ£
+	// é€€å‡ºç¨‹åºå‰æš‚åœ
 	void exit_pause(int x = 1) {
-	  cout << "OCR exit." << endl; // ÍË³öÌáÊ¾ 
+	  cout << "OCR exit." << endl; // é€€å‡ºæç¤º 
 	  if (FLAGS_use_system_pause) system("pause");
 	  exit(x);
 	}
  
-  // ¶à×Ö½ÚANSI×Ö·ûÊı×é×ª¿í×Ö·ûÊı×é
+  // å¤šå­—èŠ‚ANSIå­—ç¬¦æ•°ç»„è½¬å®½å­—ç¬¦æ•°ç»„
   wchar_t* char_2_wchar(char* c) {
-	setlocale(LC_ALL, ""); // ³ÌĞòµÄÇøÓòÉèÖÃÎªwindowsÏµÍ³µ±Ç°ÇøÓò
-	size_t lenWchar = mbstowcs(NULL, c, 0); // µÃµ½×ªÎª¿í×Ö·û´®µÄ³¤¶È
-	wchar_t* wc = new wchar_t[lenWchar + 1]; // ´æ·ÅÎÄ¼şÃûµÄ¿í×Ö·û´®
-	int n = mbstowcs(wc, c, lenWchar + 1); // ¶à×Ö½Ú×ª¿í×Ö·û
-	setlocale(LC_ALL, "C"); // »¹Ô­ÇøÓòÉèÖÃÎªÄ¬ÈÏ
+	setlocale(LC_ALL, ""); // ç¨‹åºçš„åŒºåŸŸè®¾ç½®ä¸ºwindowsç³»ç»Ÿå½“å‰åŒºåŸŸ
+	size_t lenWchar = mbstowcs(NULL, c, 0); // å¾—åˆ°è½¬ä¸ºå®½å­—ç¬¦ä¸²çš„é•¿åº¦
+	wchar_t* wc = new wchar_t[lenWchar + 1]; // å­˜æ”¾æ–‡ä»¶åçš„å®½å­—ç¬¦ä¸²
+	int n = mbstowcs(wc, c, lenWchar + 1); // å¤šå­—èŠ‚è½¬å®½å­—ç¬¦
+	setlocale(LC_ALL, "C"); // è¿˜åŸåŒºåŸŸè®¾ç½®ä¸ºé»˜è®¤
 	return wc;
   }
 
-  // =============== ÅäÖÃ ==============================
+  // =============== é…ç½® ==============================
 
-  // ¼ÓÔØÒ»Ìõjson
+  // åŠ è½½ä¸€æ¡json
   std::string load_json_str(string& str_in, bool& is_image, bool& is_hotupdate) {
 	is_image = false;
 	is_hotupdate = false;
 	string logstr = "";
 	try {
-	  auto j = json::parse(str_in); // ×ªjson¶ÔÏó 
-	  for (auto& el : j.items()) { // ±éÀú¼üÖµ 
+	  auto j = json::parse(str_in); // è½¬jsonå¯¹è±¡ 
+	  for (auto& el : j.items()) { // éå†é”®å€¼ 
 		string value = to_string(el.value());
 		int vallen = value.length();
 		if (vallen > 2 && value[0] == '\"' && value[vallen - 1] == '\"') {
-		  value = value.substr(1, vallen - 2); // É¾È¥nlohmann×Ö·û´®µÄÁ½¶ËÒıºÅ
+		  value = value.substr(1, vallen - 2); // åˆ å»nlohmannå­—ç¬¦ä¸²çš„ä¸¤ç«¯å¼•å·
 		}
-		if (el.key() == "image_dir" || el.key() == "image_path") { // Í¼Æ¬Â·¾¶
+		if (el.key() == "image_dir" || el.key() == "image_path") { // å›¾ç‰‡è·¯å¾„
 		  //str_in = utf8_2_gbk(value);
-		  str_in = value; // Ö±½Ó·µ»Øutf-8
+		  str_in = value; // ç›´æ¥è¿”å›utf-8
 		  is_image = true;
 		}
-		else { // ÆäËü²ÎÊı
-		  // ÉèÖÃÒ»×éÅäÖÃ¡£×Ô¶¯¼ìÑéÊÇ·ñ´æÔÚºÍºÏ·¨ĞÔ¡£ÓÅÏÈ¼¶¸ßÓÚÆô¶¯²ÎÊı¡£
+		else { // å…¶å®ƒå‚æ•°
+		  // è®¾ç½®ä¸€ç»„é…ç½®ã€‚è‡ªåŠ¨æ£€éªŒæ˜¯å¦å­˜åœ¨å’Œåˆæ³•æ€§ã€‚ä¼˜å…ˆçº§é«˜äºå¯åŠ¨å‚æ•°ã€‚
 		  string getlog = google::SetCommandLineOption(el.key().c_str(), value.c_str());
 		  int getlen = getlog.length();
 		  if (getlen > 0 && (getlog[getlen - 1] == '\n' || getlog[getlen - 1] == '\r\n')) {
-			getlog = getlog.substr(0, getlen - 1); // É¾È¥SetCommandLineOption½áÎ²»»ĞĞ
+			getlog = getlog.substr(0, getlen - 1); // åˆ å»SetCommandLineOptionç»“å°¾æ¢è¡Œ
 		  }
 		  logstr += getlog + ". ";
 		  is_hotupdate = true;
 		}
 	  }
-	  if (!is_image) { // ×ªjson³É¹¦£¬ÇÒjsonÖĞÃ»ÓĞÍ¼Æ¬Â·¾¶ 
+	  if (!is_image) { // è½¬jsonæˆåŠŸï¼Œä¸”jsonä¸­æ²¡æœ‰å›¾ç‰‡è·¯å¾„ 
 		str_in = "";
 	  }
 	}
@@ -121,221 +121,221 @@ namespace tool {
 	return logstr;
   }
 
-  // ½âÎöÒ»ĞĞÅäÖÃÎÄ±¾ÖĞµÄ¼üºÍÖµ£¬³É¹¦·µ»Øtrue¡£ 
+  // è§£æä¸€è¡Œé…ç½®æ–‡æœ¬ä¸­çš„é”®å’Œå€¼ï¼ŒæˆåŠŸè¿”å›trueã€‚ 
   bool get_line_config(string s, string& key, string& value) {
 	int i = 0;
-	// È¥µ½µÚÒ»¸ö¿Õ¸ñ£¬½ØÈ¡µÚÒ»¶Îkey
+	// å»åˆ°ç¬¬ä¸€ä¸ªç©ºæ ¼ï¼Œæˆªå–ç¬¬ä¸€æ®µkey
 	while (s[i] != '\0' && s[i] != ' ')  ++i;
 	if (s[i] == '\0' || i == 0) return false;
 	key = s.substr(0, i);
 
-	// È¥µ½¿Õ¸ñ½áÊø´¦£¬½ØÈ¡µÚ¶ş¶Îvalue
+	// å»åˆ°ç©ºæ ¼ç»“æŸå¤„ï¼Œæˆªå–ç¬¬äºŒæ®µvalue
 	while (s[i] != '\0' && s[i] == ' ')  ++i;
 	if (s[i] == '\0') return false;
 	value = s.substr(i);
 	return true;
   }
 
-  // ´Óimage_dir¼ÓÔØÅäÖÃÎÄ¼ş£¬²ÎÊıĞ´ÈëFLAGS
+  // ä»image_diråŠ è½½é…ç½®æ–‡ä»¶ï¼Œå‚æ•°å†™å…¥FLAGS
   void load_congif_file() {
-	// ÌáÈ¡ÒÑÓĞFlags
+	// æå–å·²æœ‰Flags
 	std::vector<google::CommandLineFlagInfo> allFlags;
 	GetAllFlags(&allFlags);
 
-	// ¶ÁÈëÅäÖÃÎÄ¼ş
+	// è¯»å…¥é…ç½®æ–‡ä»¶
 	bool isDefaultDir = false;
-	if (FLAGS_config_path == "") { // Î´´«ÈëÅäÖÃÎÄ¼şÂ·¾¶£¬ÔòÄ¬ÈÏÂ·¾¶Îª ³ÌĞòÃû+ºó×º 
+	if (FLAGS_config_path == "") { // æœªä¼ å…¥é…ç½®æ–‡ä»¶è·¯å¾„ï¼Œåˆ™é»˜è®¤è·¯å¾„ä¸º ç¨‹åºå+åç¼€ 
 	  string exe_name = google::ProgramInvocationShortName();
-	  string::size_type dPos = exe_name.rfind('.'); // ×îºóÒ»¸öµãÎ»ÖÃ
+	  string::size_type dPos = exe_name.rfind('.'); // æœ€åä¸€ä¸ªç‚¹ä½ç½®
 	  FLAGS_config_path = exe_name.substr(0, dPos) + (string)"_config.txt";
 	  isDefaultDir = true;
 	}
 	ifstream inConf(FLAGS_config_path);
-	if (!inConf) { // ´«ÈëÅäÖÃÎÄ¼ş²»´æÔÚÊ±±¨´í
+	if (!inConf) { // ä¼ å…¥é…ç½®æ–‡ä»¶ä¸å­˜åœ¨æ—¶æŠ¥é”™
 	  if (!isDefaultDir) std::cerr << "[ERROR] config path not exist! config_dir: " << FLAGS_config_path << endl;
 	  return;
 	}
 
-	// ½âÎöÅäÖÃÎÄ¼ş
+	// è§£æé…ç½®æ–‡ä»¶
 	string s;
-	while (getline(inConf, s)) // °´ĞĞ¶ÁÈëĞÅÏ¢ 
+	while (getline(inConf, s)) // æŒ‰è¡Œè¯»å…¥ä¿¡æ¯ 
 	{
-	  if (s[0] == '#') continue; // ÅÅ³ı×¢ÊÍ 
+	  if (s[0] == '#') continue; // æ’é™¤æ³¨é‡Š 
 	  string key, value;
-	  if (!get_line_config(s, key, value)) continue; // ½âÎöÒ»ĞĞÅäÖÃ 
+	  if (!get_line_config(s, key, value)) continue; // è§£æä¸€è¡Œé…ç½® 
 
-	   // ÉèÖÃÒ»×éÅäÖÃ¡£×Ô¶¯¼ìÑéÊÇ·ñ´æÔÚºÍºÏ·¨ĞÔ¡£ÓÅÏÈ¼¶µÍÓÚÆô¶¯²ÎÊı¡£
+	   // è®¾ç½®ä¸€ç»„é…ç½®ã€‚è‡ªåŠ¨æ£€éªŒæ˜¯å¦å­˜åœ¨å’Œåˆæ³•æ€§ã€‚ä¼˜å…ˆçº§ä½äºå¯åŠ¨å‚æ•°ã€‚
 	  google::SetCommandLineOptionWithMode(key.c_str(), value.c_str(), google::SET_FLAG_IF_DEFAULT);
 	}
 	inConf.close();
   }
 
-  // ================ ¶ÁÍ¼ =============================
+  // ================ è¯»å›¾ =============================
 
-  // ¼ì²éÂ·¾¶pathWÊÇ·ñÎªÎÄ¼ş£¬ÊÇ·µ»Øtrue
+  // æ£€æŸ¥è·¯å¾„pathWæ˜¯å¦ä¸ºæ–‡ä»¶ï¼Œæ˜¯è¿”å›true
   bool is_exists_wstr(wstring pathW) {
 	struct _stat buf;
 	int result = _wstat((wchar_t*)pathW.c_str(), &buf);
-	if (result != 0) { // ·¢Éú´íÎó
+	if (result != 0) { // å‘ç”Ÿé”™è¯¯
 	  return false;
 	}
-	if (S_IFREG & buf.st_mode) { // ÊÇÎÄ¼ş
+	if (S_IFREG & buf.st_mode) { // æ˜¯æ–‡ä»¶
 	  return true;
 	}
-	// else if (S_IFDIR & buf.st_mode) { // ÊÇÄ¿Â¼
+	// else if (S_IFDIR & buf.st_mode) { // æ˜¯ç›®å½•
 	   //return false;
 	// }
 	return false;
   }
 
-  // ´úÌæ cv::imread £¬´ÓÂ·¾¶pathW¶ÁÈëÒ»ÕÅÍ¼Æ¬¡£pathW±ØĞëÎªunicodeµÄwstring
+  // ä»£æ›¿ cv::imread ï¼Œä»è·¯å¾„pathWè¯»å…¥ä¸€å¼ å›¾ç‰‡ã€‚pathWå¿…é¡»ä¸ºunicodeçš„wstring
   cv::Mat imread_wstr(wstring pathW, int flags = cv::IMREAD_COLOR) {
-    string pathU8 = msg_wstr_2_ustr(pathW); // ÔÙ×ª»Øutf-8£¬ÒÔ±¸Êä³ö´íÎó¡£
-    // ¡ü ÓÉÓÚÕâ¸öº¯ÊıÒª±»¼ôÌù°åCF_UNICODETEXTµÈ¸´ÓÃ£¬¿ÉÄÜµ÷ÓÃ·½Ö»ÄÜÌá¹©wstring£¬ËùÒÔ¶à´ËÒ»¾Ù×ª»»Ò»´Î¡£
-    if (!is_exists_wstr(pathW)) { // Â·¾¶²»´æÔÚ
-      set_state(CODE_ERR_PATH_EXIST, MSG_ERR_PATH_EXIST(pathU8)); // ±¨¸æ×´Ì¬£ºÂ·¾¶²»´æÔÚÇÒÎŞ·¨Êä³ö
+    string pathU8 = msg_wstr_2_ustr(pathW); // å†è½¬å›utf-8ï¼Œä»¥å¤‡è¾“å‡ºé”™è¯¯ã€‚
+    // â†‘ ç”±äºè¿™ä¸ªå‡½æ•°è¦è¢«å‰ªè´´æ¿CF_UNICODETEXTç­‰å¤ç”¨ï¼Œå¯èƒ½è°ƒç”¨æ–¹åªèƒ½æä¾›wstringï¼Œæ‰€ä»¥å¤šæ­¤ä¸€ä¸¾è½¬æ¢ä¸€æ¬¡ã€‚
+    if (!is_exists_wstr(pathW)) { // è·¯å¾„ä¸å­˜åœ¨
+      set_state(CODE_ERR_PATH_EXIST, MSG_ERR_PATH_EXIST(pathU8)); // æŠ¥å‘ŠçŠ¶æ€ï¼šè·¯å¾„ä¸å­˜åœ¨ä¸”æ— æ³•è¾“å‡º
       return cv::Mat();
     }
-    FILE* fp = _wfopen((wchar_t*)pathW.c_str(), L"rb"); // wpathÇ¿ÖÆÀàĞÍ×ª»»µ½whar_t£¬³¢ÊÔ´ò¿ªÎÄ¼ş
-    if (!fp) { // ´ò¿ªÊ§°Ü
-      set_state(CODE_ERR_PATH_READ, MSG_ERR_PATH_READ(pathU8)); // ±¨¸æ×´Ì¬£ºÎŞ·¨¶ÁÈ¡
+    FILE* fp = _wfopen((wchar_t*)pathW.c_str(), L"rb"); // wpathå¼ºåˆ¶ç±»å‹è½¬æ¢åˆ°whar_tï¼Œå°è¯•æ‰“å¼€æ–‡ä»¶
+    if (!fp) { // æ‰“å¼€å¤±è´¥
+      set_state(CODE_ERR_PATH_READ, MSG_ERR_PATH_READ(pathU8)); // æŠ¥å‘ŠçŠ¶æ€ï¼šæ— æ³•è¯»å–
       return cv::Mat();
     }
-    // ½«ÎÄ¼ş¶Áµ½ÄÚ´æ
-    fseek(fp, 0, SEEK_END); // ÉèÖÃÁ÷ fp µÄÎÄ¼şÎ»ÖÃÎª SEEK_END ÎÄ¼şµÄÄ©Î²
-    long sz = ftell(fp); // »ñÈ¡Á÷ fp µÄµ±Ç°ÎÄ¼şÎ»ÖÃ£¬¼´×Ü´óĞ¡£¨×Ö½Ú£©
-    char* buf = new char[sz]; // ´æ·ÅÎÄ¼ş×Ö½ÚÄÚÈİ
-    fseek(fp, 0, SEEK_SET); // ÉèÖÃÁ÷ fp µÄÎÄ¼şÎ»ÖÃÎª SEEK_SET ÎÄ¼şµÄ¿ªÍ·
-    long n = fread(buf, 1, sz, fp); // ´Ó¸ø¶¨Á÷ fp ¶ÁÈ¡Êı¾İµ½ buf ËùÖ¸ÏòµÄÊı×éÖĞ£¬·µ»Ø³É¹¦¶ÁÈ¡µÄÔªËØ×ÜÊı
-    cv::_InputArray arr(buf, sz); // ×ª»»ÎªOpenCVÊı×é
-    cv::Mat img = cv::imdecode(arr, flags); // ½âÂëÄÚ´æÊı¾İ£¬±ä³Écv::MatÊı¾İ
-    delete[] buf; // ÊÍ·Åbuf¿Õ¼ä
-    fclose(fp); // ¹Ø±ÕÎÄ¼ş
+    // å°†æ–‡ä»¶è¯»åˆ°å†…å­˜
+    fseek(fp, 0, SEEK_END); // è®¾ç½®æµ fp çš„æ–‡ä»¶ä½ç½®ä¸º SEEK_END æ–‡ä»¶çš„æœ«å°¾
+    long sz = ftell(fp); // è·å–æµ fp çš„å½“å‰æ–‡ä»¶ä½ç½®ï¼Œå³æ€»å¤§å°ï¼ˆå­—èŠ‚ï¼‰
+    char* buf = new char[sz]; // å­˜æ”¾æ–‡ä»¶å­—èŠ‚å†…å®¹
+    fseek(fp, 0, SEEK_SET); // è®¾ç½®æµ fp çš„æ–‡ä»¶ä½ç½®ä¸º SEEK_SET æ–‡ä»¶çš„å¼€å¤´
+    long n = fread(buf, 1, sz, fp); // ä»ç»™å®šæµ fp è¯»å–æ•°æ®åˆ° buf æ‰€æŒ‡å‘çš„æ•°ç»„ä¸­ï¼Œè¿”å›æˆåŠŸè¯»å–çš„å…ƒç´ æ€»æ•°
+    cv::_InputArray arr(buf, sz); // è½¬æ¢ä¸ºOpenCVæ•°ç»„
+    cv::Mat img = cv::imdecode(arr, flags); // è§£ç å†…å­˜æ•°æ®ï¼Œå˜æˆcv::Matæ•°æ®
+    delete[] buf; // é‡Šæ”¾bufç©ºé—´
+    fclose(fp); // å…³é—­æ–‡ä»¶
     if (!img.data) {
-      set_state(CODE_ERR_PATH_DECODE, MSG_ERR_PATH_DECODE(pathU8)); // ±¨¸æ×´Ì¬£º½âÂëÊ§°Ü
+      set_state(CODE_ERR_PATH_DECODE, MSG_ERR_PATH_DECODE(pathU8)); // æŠ¥å‘ŠçŠ¶æ€ï¼šè§£ç å¤±è´¥
     }
     return img;
   }
 
-  // ´Ó¼ôÌù°å¶ÁÈëÒ»ÕÅÍ¼Æ¬¡£
+  // ä»å‰ªè´´æ¿è¯»å…¥ä¸€å¼ å›¾ç‰‡ã€‚
   cv::Mat imread_clipboard(int flags = cv::IMREAD_COLOR) {
-    // ²Î¿¼ÎÄµµ£º https://docs.microsoft.com/zh-cn/windows/win32/dataxchg/using-the-clipboard
+    // å‚è€ƒæ–‡æ¡£ï¼š https://docs.microsoft.com/zh-cn/windows/win32/dataxchg/using-the-clipboard
 
-    // ³¢ÊÔ´ò¿ª¼ôÌù°å£¬Ëø¶¨£¬·ÀÖ¹ÆäËûÓ¦ÓÃ³ÌĞòĞŞ¸Ä¼ôÌù°åÄÚÈİ
+    // å°è¯•æ‰“å¼€å‰ªè´´æ¿ï¼Œé”å®šï¼Œé˜²æ­¢å…¶ä»–åº”ç”¨ç¨‹åºä¿®æ”¹å‰ªè´´æ¿å†…å®¹
     if (!OpenClipboard(NULL)) {
-      set_state(CODE_ERR_CLIP_OPEN, MSG_ERR_CLIP_OPEN); // ±¨¸æ×´Ì¬£º¼ôÌù°å´ò¿ªÊ§°Ü
+      set_state(CODE_ERR_CLIP_OPEN, MSG_ERR_CLIP_OPEN); // æŠ¥å‘ŠçŠ¶æ€ï¼šå‰ªè´´æ¿æ‰“å¼€å¤±è´¥
     }
     else {
-      static UINT auPriorityList[] = {  // ÔÊĞí¶ÁÈëµÄ¼ôÌù°å¸ñÊ½£º
-        CF_BITMAP,                      // Î»Í¼
-        CF_HDROP,                       // ÎÄ¼şÁĞ±í¾ä±ú£¨ÎÄ¼ş¹ÜÀíÆ÷Ñ¡ÖĞÎÄ¼ş¸´ÖÆ£©
+      static UINT auPriorityList[] = {  // å…è®¸è¯»å…¥çš„å‰ªè´´æ¿æ ¼å¼ï¼š
+        CF_BITMAP,                      // ä½å›¾
+        CF_HDROP,                       // æ–‡ä»¶åˆ—è¡¨å¥æŸ„ï¼ˆæ–‡ä»¶ç®¡ç†å™¨é€‰ä¸­æ–‡ä»¶å¤åˆ¶ï¼‰
       };
-      int auPriorityLen = sizeof(auPriorityList) / sizeof(auPriorityList[0]); // ÁĞ±í³¤¶È
-      int uFormat = GetPriorityClipboardFormat(auPriorityList, auPriorityLen); // »ñÈ¡µ±Ç°¼ôÌù°åÄÚÈİµÄ¸ñÊ½
-      // ¸ù¾İ¸ñÊ½·ÖÅä²»Í¬ÈÎÎñ¡£
-      //     ÈôÈÎÎñ³É¹¦£¬ÊÍ·ÅÈ«²¿×ÊÔ´£¬¹Ø±Õ¼ôÌù°å£¬·µ»ØÍ¼Æ¬mat¡£
-      //     ÈôÈÎÎñÊ§°Ü£¬ÊÍ·ÅÒÑ´ò¿ªµÄ×ÊÔ´ºÍËø£¬±¨¸æ×´Ì¬£¬Ìø³öswitch£¬Í³Ò»¹Ø±Õ¼ôÌù°åºÍ·µ»Ø¿Õmat
+      int auPriorityLen = sizeof(auPriorityList) / sizeof(auPriorityList[0]); // åˆ—è¡¨é•¿åº¦
+      int uFormat = GetPriorityClipboardFormat(auPriorityList, auPriorityLen); // è·å–å½“å‰å‰ªè´´æ¿å†…å®¹çš„æ ¼å¼
+      // æ ¹æ®æ ¼å¼åˆ†é…ä¸åŒä»»åŠ¡ã€‚
+      //     è‹¥ä»»åŠ¡æˆåŠŸï¼Œé‡Šæ”¾å…¨éƒ¨èµ„æºï¼Œå…³é—­å‰ªè´´æ¿ï¼Œè¿”å›å›¾ç‰‡matã€‚
+      //     è‹¥ä»»åŠ¡å¤±è´¥ï¼Œé‡Šæ”¾å·²æ‰“å¼€çš„èµ„æºå’Œé”ï¼ŒæŠ¥å‘ŠçŠ¶æ€ï¼Œè·³å‡ºswitchï¼Œç»Ÿä¸€å…³é—­å‰ªè´´æ¿å’Œè¿”å›ç©ºmat
       switch (uFormat)
       {
 
-      case CF_BITMAP: { // 1. Î»Í¼ ===================================================================
-        HBITMAP hbm = (HBITMAP)GetClipboardData(uFormat); // 1.1. ´Ó¼ôÌù°åÖĞÂ¼ÈëÖ¸Õë£¬µÃµ½ÎÄ¼ş¾ä±ú
+      case CF_BITMAP: { // 1. ä½å›¾ ===================================================================
+        HBITMAP hbm = (HBITMAP)GetClipboardData(uFormat); // 1.1. ä»å‰ªè´´æ¿ä¸­å½•å…¥æŒ‡é’ˆï¼Œå¾—åˆ°æ–‡ä»¶å¥æŸ„
         if (hbm) {
-          // GlobalLock(hbm); // ·µ»ØÖµ×ÜÊÇÎŞĞ§µÄ£¬¶ÁÎ»Í¼ËÆºõ²»ĞèÒªËø£¿
+          // GlobalLock(hbm); // è¿”å›å€¼æ€»æ˜¯æ— æ•ˆçš„ï¼Œè¯»ä½å›¾ä¼¼ä¹ä¸éœ€è¦é”ï¼Ÿ
         // https://social.msdn.microsoft.com/Forums/vstudio/en-US/d2a6aa71-68d7-4db0-8b1f-5d1920f9c4ce/globallock-and-dib-transform-into-hbitmap-issue?forum=vcgeneral
-          BITMAP bmp; // ´æ·ÅÖ¸Ïò»º³åÇøµÄÖ¸Õë£¬»º³åÇø½ÓÊÕÓĞ¹ØÖ¸¶¨Í¼ĞÎ¶ÔÏóµÄĞÅÏ¢
-          GetObject(hbm, sizeof(BITMAP), &bmp); // 1.2. »ñÈ¡Í¼ĞÎ¶ÔÏóµÄĞÅÏ¢£¨²»º¬Í¼Æ¬ÄÚÈİ±¾Éí£©
+          BITMAP bmp; // å­˜æ”¾æŒ‡å‘ç¼“å†²åŒºçš„æŒ‡é’ˆï¼Œç¼“å†²åŒºæ¥æ”¶æœ‰å…³æŒ‡å®šå›¾å½¢å¯¹è±¡çš„ä¿¡æ¯
+          GetObject(hbm, sizeof(BITMAP), &bmp); // 1.2. è·å–å›¾å½¢å¯¹è±¡çš„ä¿¡æ¯ï¼ˆä¸å«å›¾ç‰‡å†…å®¹æœ¬èº«ï¼‰
           if (!hbm) {
-            set_state(CODE_ERR_CLIP_GETOBJ, MSG_ERR_CLIP_GETOBJ); // ±¨¸æ×´Ì¬£º¼ìË÷Í¼ĞÎ¶ÔÏóĞÅÏ¢Ê§°Ü
+            set_state(CODE_ERR_CLIP_GETOBJ, MSG_ERR_CLIP_GETOBJ); // æŠ¥å‘ŠçŠ¶æ€ï¼šæ£€ç´¢å›¾å½¢å¯¹è±¡ä¿¡æ¯å¤±è´¥
             break;
           }
-          int nChannels = bmp.bmBitsPixel == 1 ? 1 : bmp.bmBitsPixel / 8; // ¸ù¾İÉ«Éî¼ÆËãÍ¨µÀÊı£¬32bitÎª4£¬24bitÎª3
-          // 1.3. ½«¾ä±úhbmÖĞµÄÎ»Í¼¸´ÖÆµ½»º³åÇø
-          long sz = bmp.bmHeight * bmp.bmWidth * nChannels; // Í¼Æ¬´óĞ¡£¨×Ö½Ú£©
-          cv::Mat mat(cv::Size(bmp.bmWidth, bmp.bmHeight), CV_MAKETYPE(CV_8U, nChannels));  // ´´Ôì¿Õ¾ØÕó£¬´«ÈëÎ»Í¼´óĞ¡ºÍÉî¶È
-          long getsz = GetBitmapBits(hbm, sz, mat.data); // ½«¾ä±úhbmÖĞsz¸ö×Ö½Ú¸´ÖÆµ½»º³åÇøimg.data
+          int nChannels = bmp.bmBitsPixel == 1 ? 1 : bmp.bmBitsPixel / 8; // æ ¹æ®è‰²æ·±è®¡ç®—é€šé“æ•°ï¼Œ32bitä¸º4ï¼Œ24bitä¸º3
+          // 1.3. å°†å¥æŸ„hbmä¸­çš„ä½å›¾å¤åˆ¶åˆ°ç¼“å†²åŒº
+          long sz = bmp.bmHeight * bmp.bmWidth * nChannels; // å›¾ç‰‡å¤§å°ï¼ˆå­—èŠ‚ï¼‰
+          cv::Mat mat(cv::Size(bmp.bmWidth, bmp.bmHeight), CV_MAKETYPE(CV_8U, nChannels));  // åˆ›é€ ç©ºçŸ©é˜µï¼Œä¼ å…¥ä½å›¾å¤§å°å’Œæ·±åº¦
+          long getsz = GetBitmapBits(hbm, sz, mat.data); // å°†å¥æŸ„hbmä¸­szä¸ªå­—èŠ‚å¤åˆ¶åˆ°ç¼“å†²åŒºimg.data
           if (!getsz) {
-            set_state(CODE_ERR_CLIP_BITMAP, MSG_ERR_CLIP_BITMAP); // ±¨¸æ×´Ì¬£º»ñÈ¡Î»Í¼Êı¾İÊ§°Ü
+            set_state(CODE_ERR_CLIP_BITMAP, MSG_ERR_CLIP_BITMAP); // æŠ¥å‘ŠçŠ¶æ€ï¼šè·å–ä½å›¾æ•°æ®å¤±è´¥
             break;
           }
-          CloseClipboard();  // ÊÍ·Å×ÊÔ´
-          // 1.4. ·µ»ØºÏÊÊµÄÍ¨µÀ
+          CloseClipboard();  // é‡Šæ”¾èµ„æº
+          // 1.4. è¿”å›åˆé€‚çš„é€šé“
           if (mat.data) {
-            if (nChannels == 1 || nChannels == 3) { // 1»ò3Í¨µÀ£¬PPOCR¿ÉÊ¶±ğ£¬Ö±½Ó·µ»Ø
+            if (nChannels == 1 || nChannels == 3) { // 1æˆ–3é€šé“ï¼ŒPPOCRå¯è¯†åˆ«ï¼Œç›´æ¥è¿”å›
               return mat;
             }
-            else if (nChannels == 4) { // 4Í¨µÀ£¬PPOCR²»¿ÉÊ¶±ğ£¬É¾È¥alpha×ª3Í¨µÀÔÙ·µ»Ø
+            else if (nChannels == 4) { // 4é€šé“ï¼ŒPPOCRä¸å¯è¯†åˆ«ï¼Œåˆ å»alphaè½¬3é€šé“å†è¿”å›
               cv::Mat mat_c3;
-              cv::cvtColor(mat, mat_c3, cv::COLOR_BGRA2BGR); // É«²Ê¿Õ¼ä×ª»»
+              cv::cvtColor(mat, mat_c3, cv::COLOR_BGRA2BGR); // è‰²å½©ç©ºé—´è½¬æ¢
               return mat_c3;
             }
-            set_state(CODE_ERR_CLIP_CHANNEL, MSG_ERR_CLIP_CHANNEL(nChannels)); // ±¨¸æ×´Ì¬£ºÍ¨µÀÊıÒì³£
+            set_state(CODE_ERR_CLIP_CHANNEL, MSG_ERR_CLIP_CHANNEL(nChannels)); // æŠ¥å‘ŠçŠ¶æ€ï¼šé€šé“æ•°å¼‚å¸¸
             break;
           }
-          // ÀíÂÛÉÏÉÏÃæ !getsz ÒÑ¾­ break ÁË£¬²»»á×ßµ½ÕâÀï¡£±£ÏÕÆğ¼ûÔÙ±¨¸æÒ»´Î
-          set_state(CODE_ERR_CLIP_BITMAP, MSG_ERR_CLIP_BITMAP); // ±¨¸æ×´Ì¬£º»ñÈ¡Î»Í¼Êı¾İÊ§°Ü
+          // ç†è®ºä¸Šä¸Šé¢ !getsz å·²ç» break äº†ï¼Œä¸ä¼šèµ°åˆ°è¿™é‡Œã€‚ä¿é™©èµ·è§å†æŠ¥å‘Šä¸€æ¬¡
+          set_state(CODE_ERR_CLIP_BITMAP, MSG_ERR_CLIP_BITMAP); // æŠ¥å‘ŠçŠ¶æ€ï¼šè·å–ä½å›¾æ•°æ®å¤±è´¥
           break;
         }
-        set_state(CODE_ERR_CLIP_DATA, MSG_ERR_CLIP_DATA); // ±¨¸æ×´Ì¬£º»ñÈ¡¼ôÌù°åÊı¾İÊ§°Ü
+        set_state(CODE_ERR_CLIP_DATA, MSG_ERR_CLIP_DATA); // æŠ¥å‘ŠçŠ¶æ€ï¼šè·å–å‰ªè´´æ¿æ•°æ®å¤±è´¥
         break;
       }
 
-      case CF_HDROP: { // 2. ÎÄ¼şÁĞ±í¾ä±ú =========================================================== 
-        HDROP hClip = (HDROP)GetClipboardData(uFormat); // 2.1. µÃµ½ÎÄ¼şÁĞ±íµÄ¾ä±ú
+      case CF_HDROP: { // 2. æ–‡ä»¶åˆ—è¡¨å¥æŸ„ =========================================================== 
+        HDROP hClip = (HDROP)GetClipboardData(uFormat); // 2.1. å¾—åˆ°æ–‡ä»¶åˆ—è¡¨çš„å¥æŸ„
         if (hClip) {
           // https://docs.microsoft.com/zh-CN/windows/win32/api/shellapi/nf-shellapi-dragqueryfilea
-          GlobalLock(hClip); // 2.2. Ëø¶¨È«¾ÖÄÚ´æ¶ÔÏó
-          int iFiles = DragQueryFile(hClip, 0xFFFFFFFF, NULL, 0); // 2.3. 0xFFFFFFFF±íÊ¾·µ»ØÎÄ¼şÁĞ±íµÄ¼ÆÊı
-          if (iFiles != 1) { // Ö»ÔÊĞí1¸öÎÄ¼ş
+          GlobalLock(hClip); // 2.2. é”å®šå…¨å±€å†…å­˜å¯¹è±¡
+          int iFiles = DragQueryFile(hClip, 0xFFFFFFFF, NULL, 0); // 2.3. 0xFFFFFFFFè¡¨ç¤ºè¿”å›æ–‡ä»¶åˆ—è¡¨çš„è®¡æ•°
+          if (iFiles != 1) { // åªå…è®¸1ä¸ªæ–‡ä»¶
             GlobalUnlock(hClip);
-            set_state(CODE_ERR_CLIP_FILES, MSG_ERR_CLIP_FILES(iFiles)); // ±¨¸æ×´Ì¬£ºÎÄ¼şµÄÊıÁ¿²»Îª1
+            set_state(CODE_ERR_CLIP_FILES, MSG_ERR_CLIP_FILES(iFiles)); // æŠ¥å‘ŠçŠ¶æ€ï¼šæ–‡ä»¶çš„æ•°é‡ä¸ä¸º1
             break;
           }
           //for (int i = 0; i < iFiles; i++) {
-          int i = 0; // Ö»È¡µÚ1¸öÎÄ¼ş
-          UINT lenChar = DragQueryFile(hClip, i, NULL, 0); // 2.4. µÃµ½µÚi¸öÎÄ¼şÃû¶ÁÈëËùĞè»º³åÇøµÄ´óĞ¡£¨×Ö½Ú£©
-          char* nameC = new char[lenChar + 1]; // ´æ·ÅÎÄ¼şÃûµÄ×Ö½ÚÄÚÈİ
-          DragQueryFile(hClip, i, nameC, lenChar + 1); // 2.5. ¶ÁÈëµÚi¸öÎÄ¼şÃû
-          wchar_t* nameW = char_2_wchar(nameC); // 2.6. ÎÄ¼şÃû×ªÎª¿í×Ö½ÚÊı×é
-          cv::Mat mat = imread_wstr(nameW); // 2.7. ³¢ÊÔ¶ÁÈ¡ÎÄ¼ş
-          // ÊÍ·Å×ÊÔ´
+          int i = 0; // åªå–ç¬¬1ä¸ªæ–‡ä»¶
+          UINT lenChar = DragQueryFile(hClip, i, NULL, 0); // 2.4. å¾—åˆ°ç¬¬iä¸ªæ–‡ä»¶åè¯»å…¥æ‰€éœ€ç¼“å†²åŒºçš„å¤§å°ï¼ˆå­—èŠ‚ï¼‰
+          char* nameC = new char[lenChar + 1]; // å­˜æ”¾æ–‡ä»¶åçš„å­—èŠ‚å†…å®¹
+          DragQueryFile(hClip, i, nameC, lenChar + 1); // 2.5. è¯»å…¥ç¬¬iä¸ªæ–‡ä»¶å
+          wchar_t* nameW = char_2_wchar(nameC); // 2.6. æ–‡ä»¶åè½¬ä¸ºå®½å­—èŠ‚æ•°ç»„
+          cv::Mat mat = imread_wstr(nameW); // 2.7. å°è¯•è¯»å–æ–‡ä»¶
+          // é‡Šæ”¾èµ„æº
           delete[] nameC;
           delete[] nameW;
-          GlobalUnlock(hClip); // 2.x.1 ÊÍ·ÅÎÄ¼şÁĞ±í¾ä±ú
-          CloseClipboard(); // 2.x.2 ¹Ø±Õ¼ôÌù°å
+          GlobalUnlock(hClip); // 2.x.1 é‡Šæ”¾æ–‡ä»¶åˆ—è¡¨å¥æŸ„
+          CloseClipboard(); // 2.x.2 å…³é—­å‰ªè´´æ¿
           return mat;
         }
-        set_state(CODE_ERR_CLIP_DATA, MSG_ERR_CLIP_DATA); // ±¨¸æ×´Ì¬£º»ñÈ¡¼ôÌù°åÊı¾İÊ§°Ü
+        set_state(CODE_ERR_CLIP_DATA, MSG_ERR_CLIP_DATA); // æŠ¥å‘ŠçŠ¶æ€ï¼šè·å–å‰ªè´´æ¿æ•°æ®å¤±è´¥
         break;
       }
 
-      case NULL: // ¼ôÌù°åÎª¿Õ
-        set_state(CODE_ERR_CLIP_EMPTY, MSG_ERR_CLIP_EMPTY); // ±¨¸æ×´Ì¬£º¼ôÌù°åÎª¿Õ
+      case NULL: // å‰ªè´´æ¿ä¸ºç©º
+        set_state(CODE_ERR_CLIP_EMPTY, MSG_ERR_CLIP_EMPTY); // æŠ¥å‘ŠçŠ¶æ€ï¼šå‰ªè´´æ¿ä¸ºç©º
         break;
-      case -1: // ÆäËü²»Ö§³ÖµÄ¸ñÊ½
-      default: // Î´Öª
-        set_state(CODE_ERR_CLIP_FORMAT, MSG_ERR_CLIP_FORMAT); // ±¨¸æ×´Ì¬£º ¼ôÌù°åµÄ¸ñÊ½²»Ö§³Ö
+      case -1: // å…¶å®ƒä¸æ”¯æŒçš„æ ¼å¼
+      default: // æœªçŸ¥
+        set_state(CODE_ERR_CLIP_FORMAT, MSG_ERR_CLIP_FORMAT); // æŠ¥å‘ŠçŠ¶æ€ï¼š å‰ªè´´æ¿çš„æ ¼å¼ä¸æ”¯æŒ
         break;
       }
-      CloseClipboard(); // ÎªbreakµÄÇé¿ö¹Ø±Õ¼ôÌù°å£¬Ê¹ÆäËû´°¿ÚÄÜ¹»¼ÌĞø·ÃÎÊ¼ôÌù°å¡£
+      CloseClipboard(); // ä¸ºbreakçš„æƒ…å†µå…³é—­å‰ªè´´æ¿ï¼Œä½¿å…¶ä»–çª—å£èƒ½å¤Ÿç»§ç»­è®¿é—®å‰ªè´´æ¿ã€‚
     }
     return cv::Mat();
   }
 
-  // ===== Ã¿»ØºÏµÄÈë¿Ú£º¶ÁÈ¡Í¼Æ¬ =============
-  // ´úÌæ cv::imread £¬´ÓÂ·¾¶pathU8¶ÁÈëÒ»ÕÅÍ¼Æ¬¡£pathU8±ØĞëÎªutf-8µÄstring
+  // ===== æ¯å›åˆçš„å…¥å£ï¼šè¯»å–å›¾ç‰‡ =============
+  // ä»£æ›¿ cv::imread ï¼Œä»è·¯å¾„pathU8è¯»å…¥ä¸€å¼ å›¾ç‰‡ã€‚pathU8å¿…é¡»ä¸ºutf-8çš„string
   cv::Mat imread_utf8(string pathU8, int flags = cv::IMREAD_COLOR) {
-    set_state(); // ±¨¸æ×´Ì¬£º³õÊ¼»¯
-    if (pathU8 == u8"clipboard") { // ÈôÎª¼ôÌù°åÈÎÎñ
+    set_state(); // æŠ¥å‘ŠçŠ¶æ€ï¼šåˆå§‹åŒ–
+    if (pathU8 == u8"clipboard") { // è‹¥ä¸ºå‰ªè´´æ¿ä»»åŠ¡
       return imread_clipboard(flags);
     }
-    // string u8 ×ª wchar_t
+    // string u8 è½¬ wchar_t
     std::wstring wpath;
     try {
-      wpath = conv_Ustr_Wstr.from_bytes(pathU8); // ÀûÓÃ×ª»»Æ÷×ª»»
+      wpath = conv_Ustr_Wstr.from_bytes(pathU8); // åˆ©ç”¨è½¬æ¢å™¨è½¬æ¢
     }
     catch (...) {
-      set_state(CODE_ERR_PATH_CONV, MSG_ERR_PATH_CONV(pathU8)); // ±¨¸æ×´Ì¬£º×ªwstringÊ§°Ü
+      set_state(CODE_ERR_PATH_CONV, MSG_ERR_PATH_CONV(pathU8)); // æŠ¥å‘ŠçŠ¶æ€ï¼šè½¬wstringå¤±è´¥
       return cv::Mat();
     }
     return imread_wstr(wpath);
@@ -343,19 +343,19 @@ namespace tool {
 }
 
 /*
-      // CF_UNICODETEXT,               // unicode×Ö·û´®
-      // ±¸·İ£º¼ôÌù°å¶ÁÂ·¾¶×Ö·û´®
-      case CF_UNICODETEXT: { // 1. unicode×Ö·û´® ==========================================================
-        HANDLE hClip = GetClipboardData(uFormat); // 1.1. ÒÔÖ¸¶¨¸ñÊ½´Ó¼ôÌù°åÖĞ¼ìË÷Êı¾İ£¬·µ»ØÖ¸¶¨¸ñÊ½µÄ¼ôÌù°å¶ÔÏóµÄ¾ä±ú
-        if (hClip) { // »ñÈ¡³É¹¦
-          wchar_t* pBuf = (wchar_t*)GlobalLock(hClip); // 1.2. Ëø¶¨È«¾ÖÄÚ´æ¶ÔÏó£¬²¢·µ»ØÖ¸Ïò¸Ã¶ÔÏóµÄÄÚ´æ¿éµÄµÚÒ»¸ö×Ö½ÚµÄÖ¸Õë
+      // CF_UNICODETEXT,               // unicodeå­—ç¬¦ä¸²
+      // å¤‡ä»½ï¼šå‰ªè´´æ¿è¯»è·¯å¾„å­—ç¬¦ä¸²
+      case CF_UNICODETEXT: { // 1. unicodeå­—ç¬¦ä¸² ==========================================================
+        HANDLE hClip = GetClipboardData(uFormat); // 1.1. ä»¥æŒ‡å®šæ ¼å¼ä»å‰ªè´´æ¿ä¸­æ£€ç´¢æ•°æ®ï¼Œè¿”å›æŒ‡å®šæ ¼å¼çš„å‰ªè´´æ¿å¯¹è±¡çš„å¥æŸ„
+        if (hClip) { // è·å–æˆåŠŸ
+          wchar_t* pBuf = (wchar_t*)GlobalLock(hClip); // 1.2. é”å®šå…¨å±€å†…å­˜å¯¹è±¡ï¼Œå¹¶è¿”å›æŒ‡å‘è¯¥å¯¹è±¡çš„å†…å­˜å—çš„ç¬¬ä¸€ä¸ªå­—èŠ‚çš„æŒ‡é’ˆ
           wstring wpath = pBuf;
-          // ÊÍ·Å×ÊÔ´
-          GlobalUnlock(hClip); // 1.x.1. ÊÍ·ÅÄÚ´æ¶ÔÏó£¬µİ¼õÓëGMEM_MOVEABLEÒ»Æğ·ÖÅäµÄÄÚ´æ¶ÔÏó¹ØÁªµÄËø¶¨¼ÆÊı
-          CloseClipboard(); // 1.x.2. ¹Ø±Õ¼ôÌù°å£¬Ê¹ÆäËû´°¿ÚÄÜ¹»¼ÌĞø·ÃÎÊ¼ôÌù°å
-          return imread_wstr(wpath); // 1.³É¹¦£º³¢ÊÔ¸ù¾İÕâ¸ö×Ö·û´®¶ÁÈ¡ÎÄ¼ş
+          // é‡Šæ”¾èµ„æº
+          GlobalUnlock(hClip); // 1.x.1. é‡Šæ”¾å†…å­˜å¯¹è±¡ï¼Œé€’å‡ä¸GMEM_MOVEABLEä¸€èµ·åˆ†é…çš„å†…å­˜å¯¹è±¡å…³è”çš„é”å®šè®¡æ•°
+          CloseClipboard(); // 1.x.2. å…³é—­å‰ªè´´æ¿ï¼Œä½¿å…¶ä»–çª—å£èƒ½å¤Ÿç»§ç»­è®¿é—®å‰ªè´´æ¿
+          return imread_wstr(wpath); // 1.æˆåŠŸï¼šå°è¯•æ ¹æ®è¿™ä¸ªå­—ç¬¦ä¸²è¯»å–æ–‡ä»¶
         }
-        set_state(CODE_ERR_CLIP_DATA, MSG_ERR_CLIP_DATA); // ±¨¸æ×´Ì¬£º»ñÈ¡¼ôÌù°åÊı¾İÊ§°Ü
+        set_state(CODE_ERR_CLIP_DATA, MSG_ERR_CLIP_DATA); // æŠ¥å‘ŠçŠ¶æ€ï¼šè·å–å‰ªè´´æ¿æ•°æ®å¤±è´¥
         break;
       }
 

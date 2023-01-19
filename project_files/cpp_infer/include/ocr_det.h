@@ -75,7 +75,7 @@ public:
   void Run(cv::Mat &img, std::vector<std::vector<std::vector<int>>> &boxes,
            std::vector<double> &times);
 
-  // ÈÈ¸üÐÂ
+  // çƒ­æ›´æ–°
   void HotUpdate(const std::string& model_dir, const bool& use_gpu,
     const int& gpu_id, const int& gpu_mem,
     const int& cpu_math_library_num_threads,

@@ -104,7 +104,7 @@ void DBDetector::LoadModel(const std::string &model_dir) {
     tool::exit_pause(1);
   }
 
-  // µ÷ÓÃ¿â´´½¨Ô¤²âÆ÷Ê±£¬¹Ø±Õ±ê×¼Êä³ö£¬ÆÁ±ÎÈÕÖ¾Êä³öµ½¿ØÖÆÌ¨¡£Ö®ºóÖØÐÂ´ò¿ª±ê×¼Êä³ö¡£
+  // è°ƒç”¨åº“åˆ›å»ºé¢„æµ‹å™¨æ—¶ï¼Œå…³é—­æ ‡å‡†è¾“å‡ºï¼Œå±è”½æ—¥å¿—è¾“å‡ºåˆ°æŽ§åˆ¶å°ã€‚ä¹‹åŽé‡æ–°æ‰“å¼€æ ‡å‡†è¾“å‡ºã€‚
   //fclose(stdout);
   //fclose(stderr);
   //this->predictor_ = CreatePredictor(config);
@@ -142,7 +142,7 @@ void DBDetector::Run(cv::Mat &img,
   input_t->CopyFromCpu(input.data());
 
   //fclose(stderr);
-  // ¡ýÕâ¾ä´úÂëµÚÒ»´Îµ÷ÓÃÊ±»á´òÓ¡Ò»ÐÐÈÕÖ¾µ½Êä³öÁ÷stderr¡£²»Ó°Ïìstdout¡£
+  // â†“è¿™å¥ä»£ç ç¬¬ä¸€æ¬¡è°ƒç”¨æ—¶ä¼šæ‰“å°ä¸€è¡Œæ—¥å¿—åˆ°è¾“å‡ºæµstderrã€‚ä¸å½±å“stdoutã€‚
   this->predictor_->Run();
   //freopen("CON", "w", stderr);
 
