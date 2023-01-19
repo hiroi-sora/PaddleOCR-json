@@ -1,9 +1,11 @@
 const OCR = require('paddleocrjson');
 const ocr = new OCR('PaddleOCR_json.exe', [], {
-    cwd: 'D:\\www\\OCR\\PaddleOCR-json'
+    cwd: 'D:\\www\\OCR\\PaddleOCR-json',
 }, false);
 
 ocr.once('init', console.log);
+ocr.once('exit', process.exit);
+
 const fs = require('fs').promises;
 
 const mime = require('mime');
@@ -23,20 +25,20 @@ const upload = require('multer')({
     },
 }).single('img');
 
-app.route('/').get((req, res, next) => {
+app.route('/').get((req, res, next) =>
     res.send(`
 <form action="/" method="POST" enctype="multipart/form-data">
     <input type="file" name="img">
     <button type="submit">Up</button>
-</form>`);
-    return;
-}).post((req, res, next) => {
+</form>`
+    )
+).post((req, res, next) =>
     upload(req, res, (err) => {
         if (typeof err === 'undefined')
             return next();
         return next(err);
-    });
-}).post(async (req, res, next) => {
+    })
+).post(async (req, res, next) => {
     const path = req.file.path;
     ocr.flush({ image_dir: path })
         .then((data) => {
@@ -57,13 +59,13 @@ app.use((req, res, next) => {
         return next(405);
     return res.jsonp(res.data);
 })
-app.use((err, req, res, next) => {
-    return res.status(404).jsonp({
+app.use((err, req, res, next) =>
+    res.status(404).jsonp({
         code: -1,
         message: err,
         data: null
-    });
-});
-const server = app.listen(3000, () => {
-    console.log(server.address());
-});
+    })
+);
+const server = app.listen(3000, () =>
+    console.log(server.address())
+);
