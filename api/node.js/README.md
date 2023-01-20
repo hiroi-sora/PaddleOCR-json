@@ -66,7 +66,7 @@ npm install paddleocrjson
 ```js
 const OCR = require('paddleocrjson');
 
-const OCR = require('paddleocrjson/es6'); // ES6
+const OCR = require('paddleocrjson/es5'); // ES5
 
 const ocr = new OCR('PaddleOCR_json.exe', [], {
     cwd: './PaddleOCR-json',
