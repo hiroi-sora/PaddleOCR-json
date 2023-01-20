@@ -21,8 +21,6 @@ const $quqe = (() => {
 class OCR extends worker_threads_1.Worker {
     pid;
     constructor(path, args, options, debug = false) {
-        if (path && / /.test(path))
-            path = JSON.stringify(path);
         super((0, path_1.resolve)(__dirname, 'worker.js'), {
             workerData: { path, args, options, debug },
         });

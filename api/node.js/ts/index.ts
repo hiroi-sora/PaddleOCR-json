@@ -23,7 +23,6 @@ const $quqe = (() => {
 class OCR extends Worker {
     pid: number;
     constructor(path?: string, args?: string[], options?: OCR.Options, debug: boolean = false) {
-        if (path && / /.test(path)) path = JSON.stringify(path);
         super(path_resolve(__dirname, 'worker.js'), {
             workerData: { path, args, options, debug },
         });

@@ -49,10 +49,7 @@ var OCR = /** @class */ (function (_super) {
     __extends(OCR, _super);
     function OCR(path, args, options, debug) {
         if (debug === void 0) { debug = false; }
-        var _this = this;
-        if (path && / /.test(path))
-            path = JSON.stringify(path);
-        _this = _super.call(this, (0, path_1.resolve)(__dirname, 'worker.js'), {
+        var _this = _super.call(this, (0, path_1.resolve)(__dirname, 'worker.js'), {
             workerData: { path: path, args: args, options: options, debug: debug },
         }) || this;
         $quqe(_this).push(function (next) {
