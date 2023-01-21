@@ -141,7 +141,7 @@ const ocr = new OCR('PaddleOCR_json.exe', [], {
     cwd: './PaddleOCR-json',
 }, false);
 
-ocr.postMessage({ image_dir: 'path/to/test/img' })
+ocr.flush({ image_dir: 'path/to/test/img' })
     .then((data) => console.log(data));
     .then(() => ocr.terminate());
 ```

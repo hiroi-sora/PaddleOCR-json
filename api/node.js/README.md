@@ -4,9 +4,13 @@
 <details>
 <summary>Log</summary>
 
+v1.0.8 2023.1.20
+
+ \-\-\-
+
 v1.0.7 2022.11.8
 
- ---
+ \-\-\-
 
 v1.0.6 2022.11.8
 
@@ -22,7 +26,7 @@ v1.0.6 2022.11.8
 
 v1.0.5 2022.10.12
 
- ---
+ \-\-\-
 
 v1.0.4 2022.10.1
 
@@ -47,7 +51,7 @@ JSON输入更改为ascii转义.
 
 v1.0.0 2022.9.10
 
- ---
+ \-\-\-
 
 </details>
 
@@ -62,7 +66,7 @@ npm install paddleocrjson
 ```js
 const OCR = require('paddleocrjson');
 
-const OCR = require('paddleocrjson/es6'); // ES6
+const OCR = require('paddleocrjson/es5'); // ES5
 
 const ocr = new OCR('PaddleOCR_json.exe', [], {
     cwd: './PaddleOCR-json',
