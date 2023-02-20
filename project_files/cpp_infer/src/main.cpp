@@ -40,6 +40,9 @@ using namespace nlohmann;
 using namespace PaddleOCR;
 
 void check_params() {
+  if (FLAGS_ensure_ascii || !FLAGS_use_system_pause || !FLAGS_ensure_chcp) {
+    FLAGS_use_debug = false; // 修改以上三个参数之一，自动退出debug模式 
+  }
   if (FLAGS_use_debug) {
     FLAGS_ensure_ascii = false;
     FLAGS_use_system_pause = true;
