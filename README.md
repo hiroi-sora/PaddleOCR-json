@@ -318,8 +318,12 @@ fn main() {
 ##### `299` 未知异常
 
 - data为字符串：`An unknown error has occurred.`
-- 请提issue。
+- 正常情况下不应该出现此状态码。请提issue。
 
+##### `300` 未知原因，导致识别结果无法转换为json字符串
+
+- data为字符串：`JSON dump failed. Coding error.`
+- 正常情况下不应该出现此状态码。极少数情况可能由传入中文路径引起，本应该报错200或201，但编码问题间接引发了其它未知环节的故障。
 
 
 ##### hotUpdate元素
