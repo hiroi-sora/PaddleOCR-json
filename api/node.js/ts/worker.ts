@@ -78,11 +78,15 @@ if (!isMainThread) {
         );
     }).then((proc) => {
         process.stdout.end(String(proc.pid));
-        parentPort.on('message', (data) =>
-            proc.stdin.write(`${JSON.stringify(cargs(data))}\n`)
-        );
-        proc.stdout.on('data', (chunk) =>
-            parentPort.postMessage(cout(JSON.parse(chunk)))
-        );
+        parentPort.on('message', (data) => {
+            proc.stdin.write(`${JSON.stringify(cargs(data))}\n`);
+        });
+        const cache = [];
+        proc.stdout.on('data', (chunk) => {
+            const str = String(chunk);
+            cache.push(str);
+            if (str[str.length - 1] !== '\n') return;
+            parentPort.postMessage(cout(JSON.parse(cache.join('')))); cache.length = 0;
+        });
     });
 }

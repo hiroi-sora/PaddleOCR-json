@@ -71,10 +71,16 @@ if (!worker_threads_1.isMainThread) {
     }).then(function (proc) {
         process.stdout.end(String(proc.pid));
         worker_threads_1.parentPort.on('message', function (data) {
-            return proc.stdin.write("".concat(JSON.stringify(cargs(data)), "\n"));
+            proc.stdin.write("".concat(JSON.stringify(cargs(data)), "\n"));
         });
+        var cache = [];
         proc.stdout.on('data', function (chunk) {
-            return worker_threads_1.parentPort.postMessage(cout(JSON.parse(chunk)));
+            var str = String(chunk);
+            cache.push(str);
+            if (str[str.length - 1] !== '\n')
+                return;
+            worker_threads_1.parentPort.postMessage(cout(JSON.parse(cache.join(''))));
+            cache.length = 0;
         });
     });
 }

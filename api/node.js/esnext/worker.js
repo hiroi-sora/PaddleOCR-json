@@ -54,7 +54,17 @@ if (!worker_threads_1.isMainThread) {
         proc.on('close', (code) => console.log('close code: ', code)).on('exit', (code) => console.log('exit code: ', code));
     }).then((proc) => {
         process.stdout.end(String(proc.pid));
-        worker_threads_1.parentPort.on('message', (data) => proc.stdin.write(`${JSON.stringify(cargs(data))}\n`));
-        proc.stdout.on('data', (chunk) => worker_threads_1.parentPort.postMessage(cout(JSON.parse(chunk))));
+        worker_threads_1.parentPort.on('message', (data) => {
+            proc.stdin.write(`${JSON.stringify(cargs(data))}\n`);
+        });
+        const cache = [];
+        proc.stdout.on('data', (chunk) => {
+            const str = String(chunk);
+            cache.push(str);
+            if (str[str.length - 1] !== '\n')
+                return;
+            worker_threads_1.parentPort.postMessage(cout(JSON.parse(cache.join(''))));
+            cache.length = 0;
+        });
     });
 }
