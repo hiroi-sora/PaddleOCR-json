@@ -129,7 +129,6 @@ ocr.on('init', (pid) => {
 
 ocr.on('message', (data) => {
     console.log(data);
-    // { code: ..., message: ..., pid: ... , data: ... }
     // { code: ..., message: ..., data: ... }
 });
 ```
