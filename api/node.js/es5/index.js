@@ -47,7 +47,7 @@ var OCR = /** @class */ (function (_super) {
         }) || this;
         $quqe(_this).in(function (next) {
             return _this.stdout.once('data', function (pid) {
-                _super.prototype.emit.call(_this, 'init', _this.pid = Number(pid));
+                _super.prototype.emit.call(_this, 'init', _this.pid = Number(String(pid)));
                 next();
             });
         });

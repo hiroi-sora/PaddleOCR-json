@@ -24,7 +24,7 @@ class OCR extends worker_threads_1.Worker {
             stdout: true,
         });
         $quqe(this).in((next) => this.stdout.once('data', (pid) => {
-            super.emit('init', this.pid = Number(pid));
+            super.emit('init', this.pid = Number(String(pid)));
             next();
         }));
     }
