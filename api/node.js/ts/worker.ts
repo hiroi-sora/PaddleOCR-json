@@ -12,7 +12,7 @@ interface workerData {
 
 const currentPath = process.cwd();
 
-export const __default = {
+const __default = {
     path: 'PaddleOCR_json.exe',
     args: ['--use_debug=0'],
     options: {
@@ -24,7 +24,8 @@ export const __default = {
         windowsHide: true,
     },
     initTag: 'OCR init completed.',
-}
+};
+export { type __default };
 
 function cargs(obj: DArg) {
     obj = Object.assign({}, obj);
@@ -34,7 +35,7 @@ function cargs(obj: DArg) {
         obj.output = path_resolve(currentPath, obj.output);
     return obj;
 }
-function cout(data: { code: number, data: any }) {
+function cout(data: { code: number, data: any; }) {
     return {
         code: data.code,
         message: data.code - 100 ? data.data : '',
@@ -61,31 +62,22 @@ if (!isMainThread) {
             if (!chunk.toString().match(__default.initTag)) return;
             proc.stdout.off('data', stdout);
             return res(proc);
-        });
+        }).on('exit', process.exit);
 
-        proc.on('exit', process.exit);
-
-        if (debug) {
-            proc.stdout.on('data', (chunk) =>
-                console.log(chunk.toString())
-            );
-            proc.stderr.on('data', (data) =>
-                console.log(data.toString())
-            );
-            proc.on('close', (code) =>
-                console.log('close code: ', code)
-            );
-            proc.on('exit', (code) =>
-                console.log('exit code: ', code)
-            );
-        }
+        if (!debug) return;
+        proc.stdout.on('data', (chunk) =>
+            console.log(chunk.toString())
+        );
+        proc.stderr.on('data', (data) =>
+            console.log(data.toString())
+        );
+        proc.on('close', (code) =>
+            console.log('close code: ', code)
+        ).on('exit', (code) =>
+            console.log('exit code: ', code)
+        );
     }).then((proc) => {
-        parentPort.postMessage({
-            code: 0,
-            message: __default.initTag,
-            pid: proc.pid,
-            data: null,
-        });
+        process.stdout.end(String(proc.pid));
         parentPort.on('message', (data) =>
             proc.stdin.write(`${JSON.stringify(cargs(data))}\n`)
         );

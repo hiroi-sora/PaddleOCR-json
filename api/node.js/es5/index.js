@@ -22,28 +22,20 @@ var $quqe = (function () {
         function Queue() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        Queue.prototype.shift = function () {
+        Queue.prototype.out = function () {
             var _this = this;
-            if (this.length)
-                new Promise(function (res) { return _this[0](res); }).then(function () { return (_super.prototype.shift.call(_this), _this.shift()); });
+            if (!this.length)
+                return;
+            new Promise(function (res) { return _this[0](res); })
+                .then(function () { return (_super.prototype.shift.call(_this), _this.out()); });
         };
-        Queue.prototype.push = function (fn) {
-            _super.prototype.push.call(this, fn) - 1 || this.shift();
+        Queue.prototype.in = function (fn) {
+            _super.prototype.push.call(this, fn) - 1 || this.out();
         };
         return Queue;
     }(Array));
-    var map = new /** @class */ (function (_super) {
-        __extends(class_1, _super);
-        function class_1() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        class_1.prototype.get = function (key) {
-            var _this = this;
-            return _super.prototype.get.call(this, key) || (function (quqe) { return (_super.prototype.set.call(_this, key, quqe), quqe); })(new Queue());
-        };
-        return class_1;
-    }(WeakMap))();
-    return map.get.bind(map);
+    var map = new WeakMap();
+    return function (key) { return map.get(key) || (function (quqe) { return (map.set(key, quqe), quqe); })(new Queue()); };
 })();
 var OCR = /** @class */ (function (_super) {
     __extends(OCR, _super);
@@ -51,24 +43,19 @@ var OCR = /** @class */ (function (_super) {
         if (debug === void 0) { debug = false; }
         var _this = _super.call(this, (0, path_1.resolve)(__dirname, 'worker.js'), {
             workerData: { path: path, args: args, options: options, debug: debug },
+            stdout: true,
         }) || this;
-        $quqe(_this).push(function (next) {
-            return _super.prototype.once.call(_this, 'message', function (data) { return (_super.prototype.emit.call(_this, 'init', _this.pid = data.pid), next()); });
+        $quqe(_this).in(function (next) {
+            return _this.stdout.once('data', function (pid) {
+                _super.prototype.emit.call(_this, 'init', _this.pid = Number(pid));
+                next();
+            });
         });
         return _this;
     }
-    OCR.prototype.emit = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        if (args[0] === 'init')
-            return false;
-        return _super.prototype.emit.apply(this, args);
-    };
     OCR.prototype.postMessage = function (obj) {
         var _this = this;
-        $quqe(this).push(function (next) {
+        $quqe(this).in(function (next) {
             _super.prototype.once.call(_this, 'message', next);
             _super.prototype.postMessage.call(_this, obj);
         });
@@ -76,8 +63,11 @@ var OCR = /** @class */ (function (_super) {
     OCR.prototype.flush = function (obj) {
         var _this = this;
         return new Promise(function (res) {
-            return $quqe(_this).push(function (next) {
-                _super.prototype.once.call(_this, 'message', function (data) { return (res(data), next()); });
+            return $quqe(_this).in(function (next) {
+                _super.prototype.once.call(_this, 'message', function (data) {
+                    res(data);
+                    next();
+                });
                 _super.prototype.postMessage.call(_this, obj);
             });
         });

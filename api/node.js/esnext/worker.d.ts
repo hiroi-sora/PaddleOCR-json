@@ -1,4 +1,4 @@
-export declare const __default: {
+declare const __default: {
     path: string;
     args: string[];
     options: {
@@ -11,3 +11,4 @@ export declare const __default: {
     };
     initTag: string;
 };
+export { type __default };

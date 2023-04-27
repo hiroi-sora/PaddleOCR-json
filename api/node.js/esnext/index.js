@@ -3,43 +3,43 @@ const worker_threads_1 = require("worker_threads");
 const path_1 = require("path");
 const $quqe = (() => {
     class Queue extends Array {
-        shift() {
-            if (this.length)
-                new Promise((res) => this[0](res)).then(() => (super.shift(), this.shift()));
+        out() {
+            if (!this.length)
+                return;
+            new Promise((res) => this[0](res))
+                .then(() => (super.shift(), this.out()));
         }
-        push(fn) {
-            super.push(fn) - 1 || this.shift();
+        in(fn) {
+            super.push(fn) - 1 || this.out();
         }
     }
-    const map = new class extends WeakMap {
-        get(key) {
-            return super.get(key) || ((quqe) => (super.set(key, quqe), quqe))(new Queue());
-        }
-    }();
-    return map.get.bind(map);
+    const map = new WeakMap();
+    return (key) => map.get(key) || ((quqe) => (map.set(key, quqe), quqe))(new Queue());
 })();
 class OCR extends worker_threads_1.Worker {
     pid;
     constructor(path, args, options, debug = false) {
         super((0, path_1.resolve)(__dirname, 'worker.js'), {
             workerData: { path, args, options, debug },
+            stdout: true,
         });
-        $quqe(this).push((next) => super.once('message', (data) => (super.emit('init', this.pid = data.pid), next())));
-    }
-    emit(...args) {
-        if (args[0] === 'init')
-            return false;
-        return super.emit(...args);
+        $quqe(this).in((next) => this.stdout.once('data', (pid) => {
+            super.emit('init', this.pid = Number(pid));
+            next();
+        }));
     }
     postMessage(obj) {
-        $quqe(this).push((next) => {
+        $quqe(this).in((next) => {
             super.once('message', next);
             super.postMessage(obj);
         });
     }
     flush(obj) {
-        return new Promise((res) => $quqe(this).push((next) => {
-            super.once('message', (data) => (res(data), next()));
+        return new Promise((res) => $quqe(this).in((next) => {
+            super.once('message', (data) => {
+                res(data);
+                next();
+            });
             super.postMessage(obj);
         }));
     }
