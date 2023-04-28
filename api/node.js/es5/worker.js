@@ -49,12 +49,14 @@ if (!worker_threads_1.isMainThread) {
     new Promise(function (res) {
         var _a = worker_threads_1.workerData, _b = _a.path, path = _b === void 0 ? __default.path : _b, _c = _a.args, args = _c === void 0 ? [] : _c, options = _a.options, _d = _a.debug, debug = _d === void 0 ? false : _d;
         var proc = (0, child_process_1.spawn)(path, args.concat(__default.args), __assign(__assign({}, options), __default.options));
+        process.once('exit', proc.kill.bind(proc));
+        proc.once('exit', process.exit);
         proc.stdout.on('data', function stdout(chunk) {
             if (!chunk.toString().match(__default.initTag))
                 return;
             proc.stdout.off('data', stdout);
             return res(proc);
-        }).on('exit', process.exit);
+        });
         if (!debug)
             return;
         proc.stdout.on('data', function (chunk) {

@@ -8,7 +8,7 @@ const $quqe = (() => {
             new Promise((res: (v?: any) => void) => this[0](res))
                 .then(() => (super.shift(), this.out()));
         }
-        in(fn: (next: () => void) => any): any {
+        in(fn: (next: () => void) => any) {
             super.push(fn) - 1 || this.out();
         }
     }

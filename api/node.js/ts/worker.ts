@@ -57,12 +57,14 @@ if (!isMainThread) {
             ...options,
             ...__default.options,
         });
+        process.once('exit', proc.kill.bind(proc));
+        proc.once('exit', process.exit);
 
         proc.stdout.on('data', function stdout(chunk) {
             if (!chunk.toString().match(__default.initTag)) return;
             proc.stdout.off('data', stdout);
             return res(proc);
-        }).on('exit', process.exit);
+        });
 
         if (!debug) return;
         proc.stdout.on('data', (chunk) =>
