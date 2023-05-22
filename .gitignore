@@ -1,1 +1,4 @@
 *.code-workspace
+
+cpp/build
+cpp/.source
