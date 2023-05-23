@@ -44,11 +44,11 @@ PPOCR::PPOCR() {
   }
 };
 
-std::vector<std::vector<OCRPredictResult>>
+std::vector<std::vector<OCRPredictResult>> // 对一批Mat列表进行OCR  
 PPOCR::ocr(std::vector<cv::Mat> img_list, bool det, bool rec, bool cls) {
   std::vector<std::vector<OCRPredictResult>> ocr_results;
 
-  if (!det) {
+  if (!det) { // 不需要det的流程  
     std::vector<OCRPredictResult> ocr_result;
     ocr_result.resize(img_list.size());
     if (cls && this->classifier_ != nullptr) {
@@ -68,7 +68,7 @@ PPOCR::ocr(std::vector<cv::Mat> img_list, bool det, bool rec, bool cls) {
       ocr_result_tmp.push_back(ocr_result[i]);
       ocr_results.push_back(ocr_result_tmp);
     }
-  } else {
+  } else { // 正常的det+cls+rec流程  
     for (int i = 0; i < img_list.size(); ++i) {
       std::vector<OCRPredictResult> ocr_result =
           this->ocr(img_list[i], true, rec, cls);
@@ -78,6 +78,7 @@ PPOCR::ocr(std::vector<cv::Mat> img_list, bool det, bool rec, bool cls) {
   return ocr_results;
 }
 
+// 对单个Mat进行OCR  
 std::vector<OCRPredictResult> PPOCR::ocr(cv::Mat img, bool det, bool rec,
                                          bool cls) {
 

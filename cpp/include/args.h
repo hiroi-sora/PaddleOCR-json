@@ -66,3 +66,6 @@ DECLARE_bool(rec);
 DECLARE_bool(cls);
 DECLARE_bool(table);
 DECLARE_bool(layout);
+
+// 检测参数合法性
+std::string check_flags();

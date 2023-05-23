@@ -27,6 +27,7 @@
 
 namespace PaddleOCR {
 
+// 读字典 
 std::vector<std::string> Utility::ReadDict(const std::string &path) {
   std::ifstream in(path);
   std::string line;
@@ -43,6 +44,7 @@ std::vector<std::string> Utility::ReadDict(const std::string &path) {
   return m_vec;
 }
 
+// 文本框可视化 
 void Utility::VisualizeBboxes(const cv::Mat &srcimg,
                               const std::vector<OCRPredictResult> &ocr_result,
                               const std::string &save_path) {
@@ -97,7 +99,7 @@ void Utility::VisualizeBboxes(const cv::Mat &srcimg,
   std::cout << "The table visualized image saved in " + save_path << std::endl;
 }
 
-// list all files under a directory
+// 列出目录下所有文件 
 void Utility::GetAllFiles(const char *dir_name,
                           std::vector<std::string> &all_inputs) {
   if (NULL == dir_name) {
@@ -130,6 +132,7 @@ void Utility::GetAllFiles(const char *dir_name,
   }
 }
 
+// 获取旋转裁剪图像 
 cv::Mat Utility::GetRotateCropImage(const cv::Mat &srcimage,
                                     std::vector<std::vector<int>> box) {
   cv::Mat image;
@@ -185,6 +188,7 @@ cv::Mat Utility::GetRotateCropImage(const cv::Mat &srcimage,
   }
 }
 
+// 排序 
 std::vector<int> Utility::argsort(const std::vector<float> &array) {
   const int array_len(array.size());
   std::vector<int> array_index(array_len, 0);
@@ -198,6 +202,7 @@ std::vector<int> Utility::argsort(const std::vector<float> &array) {
   return array_index;
 }
 
+// 提取文件名 
 std::string Utility::basename(const std::string &filename) {
   if (filename.empty()) {
     return "";
@@ -233,6 +238,7 @@ std::string Utility::basename(const std::string &filename) {
   return filename.substr(index + 1, len - index);
 }
 
+// 检查文件存在（string） 
 bool Utility::PathExists(const std::string &path) {
 #ifdef _WIN32
   struct _stat buffer;

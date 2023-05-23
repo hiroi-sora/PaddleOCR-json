@@ -23,64 +23,6 @@
 
 using namespace PaddleOCR;
 
-void check_params() {
-  if (FLAGS_det) {
-    if (FLAGS_det_model_dir.empty() || FLAGS_image_dir.empty()) {
-      std::cout << "Usage[det]: ./ppocr "
-                   "--det_model_dir=/PATH/TO/DET_INFERENCE_MODEL/ "
-                << "--image_dir=/PATH/TO/INPUT/IMAGE/" << std::endl;
-      exit(1);
-    }
-  }
-  if (FLAGS_rec) {
-    std::cout
-        << "In PP-OCRv3, rec_image_shape parameter defaults to '3, 48, 320',"
-           "if you are using recognition model with PP-OCRv2 or an older "
-           "version, "
-           "please set --rec_image_shape='3,32,320"
-        << std::endl;
-    if (FLAGS_rec_model_dir.empty() || FLAGS_image_dir.empty()) {
-      std::cout << "Usage[rec]: ./ppocr "
-                   "--rec_model_dir=/PATH/TO/REC_INFERENCE_MODEL/ "
-                << "--image_dir=/PATH/TO/INPUT/IMAGE/" << std::endl;
-      exit(1);
-    }
-  }
-  if (FLAGS_cls && FLAGS_use_angle_cls) {
-    if (FLAGS_cls_model_dir.empty() || FLAGS_image_dir.empty()) {
-      std::cout << "Usage[cls]: ./ppocr "
-                << "--cls_model_dir=/PATH/TO/REC_INFERENCE_MODEL/ "
-                << "--image_dir=/PATH/TO/INPUT/IMAGE/" << std::endl;
-      exit(1);
-    }
-  }
-  if (FLAGS_table) {
-    if (FLAGS_table_model_dir.empty() || FLAGS_det_model_dir.empty() ||
-        FLAGS_rec_model_dir.empty() || FLAGS_image_dir.empty()) {
-      std::cout << "Usage[table]: ./ppocr "
-                << "--det_model_dir=/PATH/TO/DET_INFERENCE_MODEL/ "
-                << "--rec_model_dir=/PATH/TO/REC_INFERENCE_MODEL/ "
-                << "--table_model_dir=/PATH/TO/TABLE_INFERENCE_MODEL/ "
-                << "--image_dir=/PATH/TO/INPUT/IMAGE/" << std::endl;
-      exit(1);
-    }
-  }
-  if (FLAGS_layout) {
-    if (FLAGS_layout_model_dir.empty() || FLAGS_image_dir.empty()) {
-      std::cout << "Usage[layout]: ./ppocr "
-                << "--layout_model_dir=/PATH/TO/LAYOUT_INFERENCE_MODEL/ "
-                << "--image_dir=/PATH/TO/INPUT/IMAGE/" << std::endl;
-      exit(1);
-    }
-  }
-  if (FLAGS_precision != "fp32" && FLAGS_precision != "fp16" &&
-      FLAGS_precision != "int8") {
-    std::cout << "precison should be 'fp32'(default), 'fp16' or 'int8'. "
-              << std::endl;
-    exit(1);
-  }
-}
-
 void ocr(std::vector<cv::String> &cv_all_img_names) {
   PPOCR ocr = PPOCR();
 
@@ -175,9 +117,14 @@ void structure(std::vector<cv::String> &cv_all_img_names) {
 }
 
 int main(int argc, char **argv) {
-  // Parsing command-line
+  // 读取命令行 
   google::ParseCommandLineFlags(&argc, &argv, true);
-  check_params();
+  // 检查参数合法性 
+  std::string checkMsg = check_flags();
+  if (!checkMsg.empty()) {
+      std::cerr << "[ERROR] " << checkMsg << std::endl;
+      return 1;
+  }
 
   if (!Utility::PathExists(FLAGS_image_dir)) {
     std::cerr << "[ERROR] image path not exist! image_dir: " << FLAGS_image_dir
@@ -196,7 +143,5 @@ int main(int argc, char **argv) {
     ocr(cv_all_img_names);
   } else if (FLAGS_type == "structure") {
     structure(cv_all_img_names);
-  } else {
-    std::cout << "only value in ['ocr','structure'] is supported" << std::endl;
   }
 }
