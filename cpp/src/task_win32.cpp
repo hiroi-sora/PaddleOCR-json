@@ -88,7 +88,7 @@ namespace PaddleOCR
         cv::Mat img = cv::imdecode(arr, flag); // 解码内存数据，变成cv::Mat数据 
         delete[] buf;                          // 释放buf空间 
         fclose(fp);                            // 关闭文件 
-        if (!img.data)
+        if (img.empty())
         {
             set_state(CODE_ERR_PATH_DECODE, MSG_ERR_PATH_DECODE(pathU8)); // 报告状态：解码失败 
         }

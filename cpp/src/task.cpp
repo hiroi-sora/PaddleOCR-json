@@ -3,7 +3,7 @@
 #include "include/args.h"
 #include "include/task.h"
 #include "include/nlohmann/json.hpp" // json库
-
+#include "include/base64.h" // base64库
 namespace PaddleOCR
 {
     // ==================== 工具 ====================
@@ -90,14 +90,46 @@ namespace PaddleOCR
         return json_dump(outJ);
     }
 
+    // 输入base64编码的字符串，返回Mat
+    cv::Mat Task::imread_base64(std::string& b64str, int flag) {
+        std::string decoded_string;
+        try {
+            decoded_string = base64_decode(b64str);
+        }
+        catch (...) {
+            set_state(CODE_ERR_BASE64_DECODE, MSG_ERR_BASE64_DECODE); // 报告状态：解析失败 
+            return cv::Mat();
+        }
+        try {
+            std::vector<uchar> data(decoded_string.begin(), decoded_string.end());
+            cv::Mat img = cv::imdecode(data, flag);
+            if (img.empty()) {
+                set_state(CODE_ERR_BASE64_IM_DECODE, MSG_ERR_BASE64_IM_DECODE); // 报告状态：转Mat失败 
+            }
+            return img;
+        }
+        catch (...) {
+            set_state(CODE_ERR_BASE64_IM_DECODE, MSG_ERR_BASE64_IM_DECODE); // 报告状态：转Mat失败 
+            return cv::Mat();
+        }
+    }
+
     // 输入json字符串，解析并读取Mat 
     cv::Mat Task::imread_json(std::string& str_in) {
         cv::Mat img;
         bool is_image = false; // 当前是否已找到图片 
         std::string logstr = "";
+        // 解析为json对象 
+        auto j = nlohmann::json();
         try {
-            auto j = nlohmann::json::parse(str_in); // 转json对象 
-            for (auto& el : j.items()) { // 遍历键值 
+            j = nlohmann::json::parse(str_in); // 转json对象 
+        }
+        catch (...) {
+            set_state(CODE_ERR_JSON_PARSE, MSG_ERR_JSON_PARSE); // 报告状态：解析失败 
+            return cv::Mat();
+        }
+        for (auto& el : j.items()) { // 遍历键值 
+            try {
                 std::string value = to_string(el.value());
                 int vallen = value.length();
                 if (vallen > 2 && value[0] == '\"' && value[vallen - 1] == '\"') {
@@ -109,20 +141,25 @@ namespace PaddleOCR
                         img = imread_u8(value); // 读取图片 
                         is_image = true;
                     }
-                    // TODO base64
+                    else if (el.key() == "image_base64") { // base64字符串 
+                        img = imread_base64(value); // 读取图片 
+                        FLAGS_image_path = "base64"; // 设置图片路径标记，以便于无文字时的信息输出 
+                        is_image = true;
+                    }
                 }
                 //else {} // TODO: 其它参数热更新
             }
-        }
-        catch (...) {
-            set_state(CODE_ERR_JSON_PARSE, MSG_ERR_JSON_PARSE); // 报告状态：解析失败 
-            return cv::Mat();
+            catch (...) { // 安全起见，出现未知异常时结束本轮任务 
+                set_state(CODE_ERR_JSON_PARSE_KEY, MSG_ERR_JSON_PARSE_KEY(el.key())); // 报告状态：解析键失败 
+                return cv::Mat();
+            }
         }
         if (!is_image) {
             set_state(CODE_ERR_NO_TASK, MSG_ERR_NO_TASK); // 报告状态：未发现有效任务 
         }
         return img;
     }
+
 
     // ==================== 任务流程 ====================
 

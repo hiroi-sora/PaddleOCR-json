@@ -39,12 +39,19 @@ namespace PaddleOCR
 #define MSG_ERR_CLIP_BITMAP "Getting clipboard bitmap bits failed."
 #define CODE_ERR_CLIP_CHANNEL 217 // 剪贴板中位图的通道数不支持 ( nChannels 不为1，3，4 )
 #define MSG_ERR_CLIP_CHANNEL(n) "Clipboard number of image channels is not valid. Number: " + std::to_string(n)
+// base64读图，失败
+#define CODE_ERR_BASE64_DECODE 300 // base64字符串解析为string失败 
+#define MSG_ERR_BASE64_DECODE "Base64 decode failed."
+#define CODE_ERR_BASE64_IM_DECODE 301 //  base64字符串解析成功，但读取到的内容无法被opencv解码 
+#define MSG_ERR_BASE64_IM_DECODE "Base64 data imdecode failed."
 // json相关
-#define CODE_ERR_JSON_DUMP 300 // json对象 转字符串失败 
+#define CODE_ERR_JSON_DUMP 400 // json对象 转字符串失败 
 #define MSG_ERR_JSON_DUMP "Json dump failed."
-#define CODE_ERR_JSON_PARSE 301 // json字符串 转对象失败 
+#define CODE_ERR_JSON_PARSE 401 // json字符串 转对象失败 
 #define MSG_ERR_JSON_PARSE "Json parse failed."
-#define CODE_ERR_NO_TASK 302 // 未发现有效任务 
+#define CODE_ERR_JSON_PARSE_KEY 402 // json对象 解析某个键时失败 
+#define MSG_ERR_JSON_PARSE_KEY(k) "Json parse key [" + k + "] failed."
+#define CODE_ERR_NO_TASK 403 // 未发现有效任务 
 #define MSG_ERR_NO_TASK "No valid tasks."
 
     // ==================== 任务调用类 ====================
@@ -70,16 +77,14 @@ namespace PaddleOCR
         std::string get_ocr_result_json(const std::vector<OCRPredictResult> &); // 传入OCR结果，返回json字符串 
 
         // 输入相关 
-        //    输入json字符串，解析并读取Mat 
-        cv::Mat imread_json(std::string &);
-        //    代替cv imread，接收utf-8字符串传入，返回Mat。失败时设置错误码，并返回空Mat。 
-        cv::Mat imread_u8(std::string path, int flag = cv::IMREAD_COLOR);
+      
+        cv::Mat imread_json(std::string &);  // 输入json字符串，解析json并返回图片Mat 
+        cv::Mat imread_u8(std::string path, int flag = cv::IMREAD_COLOR); // 代替cv imread，输入utf-8字符串，返回Mat。失败时设置错误码，并返回空Mat。 
+        cv::Mat imread_clipboard(int flag = cv::IMREAD_COLOR); // 从当前剪贴板中读取图片 
+        cv::Mat imread_base64(std::string&, int flag = cv::IMREAD_COLOR); // 输入base64编码的字符串，返回Mat 
 #ifdef _WIN32
-        //    代替 cv::imread ，从路径pathW读入一张图片。pathW必须为unicode的wstring
-        cv::Mat imread_wstr(std::wstring pathW, int flags = cv::IMREAD_COLOR);
+        cv::Mat imread_wstr(std::wstring pathW, int flags = cv::IMREAD_COLOR); // 输入unicode wstring字符串，返回Mat。 
 #endif
-        //    从剪贴板中读取图片
-        cv::Mat imread_clipboard(int flag = cv::IMREAD_COLOR);
     };
 
 } // namespace PaddleOCR
