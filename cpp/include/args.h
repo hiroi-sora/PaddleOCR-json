@@ -16,7 +16,7 @@
 
 #include <gflags/gflags.h>
 
-// ¹¤×÷Ä£Ê½ 
+// å·¥ä½œæ¨¡å¼
 DECLARE_string(image_path);
 DECLARE_int32(port);
 
@@ -72,7 +72,7 @@ DECLARE_bool(cls);
 DECLARE_bool(table);
 DECLARE_bool(layout);
 
-// ¶ÁÈ¡ÅäÖÃÎÄ¼ş 
+// è¯»å–é…ç½®æ–‡ä»¶
 std::string read_config();
-// ¼ì²â²ÎÊıºÏ·¨ĞÔ 
+// æ£€æµ‹å‚æ•°åˆæ³•æ€§
 std::string check_flags();

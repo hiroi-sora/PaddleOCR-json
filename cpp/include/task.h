@@ -4,76 +4,77 @@
 #ifndef TASK_H
 #define TASK_H
 
-namespace PaddleOCR {
+namespace PaddleOCR
+{
 
-// ==================== ±êÖ¾Âë ==================== 
-#define CODE_INIT                0   // Ã¿»ØºÏ³õÊ¼Öµ£¬»ØºÏ½áÊøÊ±ÈÔÎªËü´ú±íÊÜ¹Ü¿ØµÄÇøÓòÄÚÎ´·¢ÏÖ´íÎó 
-// Ê¶±ğ³É¹¦
-#define CODE_OK                 100 // ³É¹¦£¬ÇÒÊ¶±ğ³öÎÄ×Ö 
-#define CODE_OK_NONE            101 // ³É¹¦£¬ÇÒÎ´Ê¶±ğµ½ÎÄ×Ö 
-#define MSG_OK_NONE(p)          "No text found in image. Path: \""+p+"\""
-// °´Â·¾¶¶ÁÍ¼£¬Ê§°Ü
-#define CODE_ERR_PATH_EXIST     200 // Í¼Æ¬Â·¾¶²»´æÔÚ 
-#define MSG_ERR_PATH_EXIST(p)   "Image path dose not exist. Path: \""+p+"\""
-#define CODE_ERR_PATH_CONV      201 // Í¼Æ¬Â·¾¶stringÎŞ·¨×ª»»µ½wstring 
-#define MSG_ERR_PATH_CONV(p)    "Image path failed to convert to utf-16 wstring. Path: \""+p+"\""
-#define CODE_ERR_PATH_READ      202 // Í¼Æ¬Â·¾¶´æÔÚ£¬µ«ÎŞ·¨´ò¿ªÎÄ¼ş 
-#define MSG_ERR_PATH_READ(p)    "Image open failed. Path: \""+p+"\""
-#define CODE_ERR_PATH_DECODE    203 // Í¼Æ¬´ò¿ª³É¹¦£¬µ«¶ÁÈ¡µ½µÄÄÚÈİÎŞ·¨±»opencv½âÂë 
-#define MSG_ERR_PATH_DECODE(p)  "Image decode failed. Path: \""+p+"\""
-// ¼ôÌù°å¶ÁÍ¼£¬Ê§°Ü
-#define CODE_ERR_CLIP_OPEN      210 // ¼ôÌù°å´ò¿ªÊ§°Ü ( OpenClipboard ) 
-#define MSG_ERR_CLIP_OPEN       "Clipboard open failed."
-#define CODE_ERR_CLIP_EMPTY     211 // ¼ôÌù°åÎª¿Õ ( GetPriorityClipboardFormat NULL ) 
-#define MSG_ERR_CLIP_EMPTY      "Clipboard is empty."
-#define CODE_ERR_CLIP_FORMAT    212 // ¼ôÌù°åµÄ¸ñÊ½²»Ö§³Ö ( GetPriorityClipboardFormat -1 ) 
-#define MSG_ERR_CLIP_FORMAT     "Clipboard format is not valid."
-#define CODE_ERR_CLIP_DATA      213 // ¼ôÌù°å»ñÈ¡ÄÚÈİ¾ä±úÊ§°Ü£¬Í¨³£ÓÉ±ğµÄ³ÌĞòÕ¼ÓÃ¼ôÌù°åÒıÆğ ( GetClipboardData NULL ) 
-#define MSG_ERR_CLIP_DATA       "Getting clipboard data handle failed."
-#define CODE_ERR_CLIP_FILES     214 // ¼ôÌù°å²éÑ¯µ½µÄÎÄ¼şµÄÊıÁ¿²»Îª1 ( DragQueryFile != 1 ) 
-#define MSG_ERR_CLIP_FILES(n)   "Clipboard number of query files is not valid. Number: "+std::to_string(n)
-#define CODE_ERR_CLIP_GETOBJ    215 // ¼ôÌù°å¼ìË÷Í¼ĞÎ¶ÔÏóĞÅÏ¢Ê§°Ü ( GetObject NULL ) 
-#define MSG_ERR_CLIP_GETOBJ     "Clipboard get bitmap object failed."
-#define CODE_ERR_CLIP_BITMAP    216 // ¼ôÌù°å»ñÈ¡Î»Í¼Êı¾İÊ§°Ü ( GetBitmapBits ¸´ÖÆ×Ö½ÚÎª¿Õ ) 
-#define MSG_ERR_CLIP_BITMAP     "Getting clipboard bitmap bits failed."
-#define CODE_ERR_CLIP_CHANNEL   217 // ¼ôÌù°åÖĞÎ»Í¼µÄÍ¨µÀÊı²»Ö§³Ö ( nChannels ²»Îª1£¬3£¬4 ) 
-#define MSG_ERR_CLIP_CHANNEL(n) "Clipboard number of image channels is not valid. Number: "+std::to_string(n)
-// jsonÏà¹Ø 
-#define CODE_ERR_JSON_DUMP      300 // json×ª×Ö·û´®Ê§°Ü 
-#define MSG_ERR_JSON_DUMP       "Json dump open failed."
+// ==================== æ ‡å¿—ç  ====================
+#define CODE_INIT 0 // æ¯å›åˆåˆå§‹å€¼ï¼Œå›åˆç»“æŸæ—¶ä»ä¸ºå®ƒä»£è¡¨å—ç®¡æ§çš„åŒºåŸŸå†…æœªå‘ç°é”™è¯¯
+// è¯†åˆ«æˆåŠŸ
+#define CODE_OK 100      // æˆåŠŸï¼Œä¸”è¯†åˆ«å‡ºæ–‡å­—
+#define CODE_OK_NONE 101 // æˆåŠŸï¼Œä¸”æœªè¯†åˆ«åˆ°æ–‡å­—
+#define MSG_OK_NONE(p) "No text found in image. Path: \"" + p + "\""
+// æŒ‰è·¯å¾„è¯»å›¾ï¼Œå¤±è´¥
+#define CODE_ERR_PATH_EXIST 200 // å›¾ç‰‡è·¯å¾„ä¸å­˜åœ¨
+#define MSG_ERR_PATH_EXIST(p) "Image path dose not exist. Path: \"" + p + "\""
+#define CODE_ERR_PATH_CONV 201 // å›¾ç‰‡è·¯å¾„stringæ— æ³•è½¬æ¢åˆ°wstring
+#define MSG_ERR_PATH_CONV(p) "Image path failed to convert to utf-16 wstring. Path: \"" + p + "\""
+#define CODE_ERR_PATH_READ 202 // å›¾ç‰‡è·¯å¾„å­˜åœ¨ï¼Œä½†æ— æ³•æ‰“å¼€æ–‡ä»¶
+#define MSG_ERR_PATH_READ(p) "Image open failed. Path: \"" + p + "\""
+#define CODE_ERR_PATH_DECODE 203 // å›¾ç‰‡æ‰“å¼€æˆåŠŸï¼Œä½†è¯»å–åˆ°çš„å†…å®¹æ— æ³•è¢«opencvè§£ç 
+#define MSG_ERR_PATH_DECODE(p) "Image decode failed. Path: \"" + p + "\""
+// å‰ªè´´æ¿è¯»å›¾ï¼Œå¤±è´¥
+#define CODE_ERR_CLIP_OPEN 210 // å‰ªè´´æ¿æ‰“å¼€å¤±è´¥ ( OpenClipboard )
+#define MSG_ERR_CLIP_OPEN "Clipboard open failed."
+#define CODE_ERR_CLIP_EMPTY 211 // å‰ªè´´æ¿ä¸ºç©º ( GetPriorityClipboardFormat NULL )
+#define MSG_ERR_CLIP_EMPTY "Clipboard is empty."
+#define CODE_ERR_CLIP_FORMAT 212 // å‰ªè´´æ¿çš„æ ¼å¼ä¸æ”¯æŒ ( GetPriorityClipboardFormat -1 )
+#define MSG_ERR_CLIP_FORMAT "Clipboard format is not valid."
+#define CODE_ERR_CLIP_DATA 213 // å‰ªè´´æ¿è·å–å†…å®¹å¥æŸ„å¤±è´¥ï¼Œé€šå¸¸ç”±åˆ«çš„ç¨‹åºå ç”¨å‰ªè´´æ¿å¼•èµ· ( GetClipboardData NULL )
+#define MSG_ERR_CLIP_DATA "Getting clipboard data handle failed."
+#define CODE_ERR_CLIP_FILES 214 // å‰ªè´´æ¿æŸ¥è¯¢åˆ°çš„æ–‡ä»¶çš„æ•°é‡ä¸ä¸º1 ( DragQueryFile != 1 )
+#define MSG_ERR_CLIP_FILES(n) "Clipboard number of query files is not valid. Number: " + std::to_string(n)
+#define CODE_ERR_CLIP_GETOBJ 215 // å‰ªè´´æ¿æ£€ç´¢å›¾å½¢å¯¹è±¡ä¿¡æ¯å¤±è´¥ ( GetObject NULL )
+#define MSG_ERR_CLIP_GETOBJ "Clipboard get bitmap object failed."
+#define CODE_ERR_CLIP_BITMAP 216 // å‰ªè´´æ¿è·å–ä½å›¾æ•°æ®å¤±è´¥ ( GetBitmapBits å¤åˆ¶å­—èŠ‚ä¸ºç©º )
+#define MSG_ERR_CLIP_BITMAP "Getting clipboard bitmap bits failed."
+#define CODE_ERR_CLIP_CHANNEL 217 // å‰ªè´´æ¿ä¸­ä½å›¾çš„é€šé“æ•°ä¸æ”¯æŒ ( nChannels ä¸ä¸º1ï¼Œ3ï¼Œ4 )
+#define MSG_ERR_CLIP_CHANNEL(n) "Clipboard number of image channels is not valid. Number: " + std::to_string(n)
+// jsonç›¸å…³
+#define CODE_ERR_JSON_DUMP 300 // jsonè½¬å­—ç¬¦ä¸²å¤±è´¥
+#define MSG_ERR_JSON_DUMP "Json dump open failed."
 
-// ==================== ÈÎÎñµ÷ÓÃÀà ==================== 
-class Task {
+    // ==================== ä»»åŠ¡è°ƒç”¨ç±» ====================
+    class Task
+    {
 
-public:
-	int ocr(); // OCRÍ¼Æ¬ 
+    public:
+        int ocr(); // OCRå›¾ç‰‡
 
-private:
-	PPOCR *ppocr; // OCRÒıÇæÖ¸Õë 
-	int t_code; // ±¾ÂÖÈÎÎñ×´Ì¬Âë 
-	std::string t_msg; // ±¾ÂÖÈÎÎñ×´Ì¬ÏûÏ¢ 
+    private:
+        PPOCR *ppocr;      // OCRå¼•æ“æŒ‡é’ˆ
+        int t_code;        // æœ¬è½®ä»»åŠ¡çŠ¶æ€ç 
+        std::string t_msg; // æœ¬è½®ä»»åŠ¡çŠ¶æ€æ¶ˆæ¯
 
-	// ÈÎÎñÁ÷³Ì
-	int single_image(); // µ¥´ÎÊ¶±ğÄ£Ê½ 
-	int socket_mode(); // Ì×½Ó×ÖÄ£Ê½ 
-	int anonymous_pipe_mode(); // ÄäÃû¹ÜµÀÄ£Ê½ 
+        // ä»»åŠ¡æµç¨‹
+        int single_image();        // å•æ¬¡è¯†åˆ«æ¨¡å¼
+        int socket_mode();         // å¥—æ¥å­—æ¨¡å¼
+        int anonymous_pipe_mode(); // åŒ¿åç®¡é“æ¨¡å¼
 
-	// Êä³öÏà¹Ø 
-	void set_state(int code = CODE_INIT, std::string msg = ""); // ÉèÖÃ×´Ì¬ 
-	std::string get_state_json(int code=CODE_INIT, std::string msg=""); // »ñÈ¡×´Ì¬json×Ö·û´® 
-	std::string get_ocr_result_json(const std::vector<OCRPredictResult>&); // ´«ÈëOCR½á¹û£¬·µ»Øjson×Ö·û´® 
+        // è¾“å‡ºç›¸å…³
+        void set_state(int code = CODE_INIT, std::string msg = "");             // è®¾ç½®çŠ¶æ€
+        std::string get_state_json(int code = CODE_INIT, std::string msg = ""); // è·å–çŠ¶æ€jsonå­—ç¬¦ä¸²
+        std::string get_ocr_result_json(const std::vector<OCRPredictResult> &); // ä¼ å…¥OCRç»“æœï¼Œè¿”å›jsonå­—ç¬¦ä¸²
 
-	// ÊäÈëÏà¹Ø 
-	//    ´úÌæcv imread£¬½ÓÊÕutf-8×Ö·û´®´«Èë£¬·µ»ØMat¡£Ê§°ÜÊ±ÉèÖÃ´íÎóÂë£¬²¢·µ»Ø¿ÕMat¡£ 
-	cv::Mat imread_u8(std::string path, int flag = cv::IMREAD_COLOR);
+        // è¾“å…¥ç›¸å…³
+        //    ä»£æ›¿cv imreadï¼Œæ¥æ”¶utf-8å­—ç¬¦ä¸²ä¼ å…¥ï¼Œè¿”å›Matã€‚å¤±è´¥æ—¶è®¾ç½®é”™è¯¯ç ï¼Œå¹¶è¿”å›ç©ºMatã€‚
+        cv::Mat imread_u8(std::string path, int flag = cv::IMREAD_COLOR);
 #ifdef _WIN32
-	//    ´úÌæ cv::imread £¬´ÓÂ·¾¶pathW¶ÁÈëÒ»ÕÅÍ¼Æ¬¡£pathW±ØĞëÎªunicodeµÄwstring
-	cv::Mat imread_wstr(std::wstring pathW, int flags = cv::IMREAD_COLOR);
+        //    ä»£æ›¿ cv::imread ï¼Œä»è·¯å¾„pathWè¯»å…¥ä¸€å¼ å›¾ç‰‡ã€‚pathWå¿…é¡»ä¸ºunicodeçš„wstring
+        cv::Mat imread_wstr(std::wstring pathW, int flags = cv::IMREAD_COLOR);
 #endif
-	//    ´Ó¼ôÌù°åÖĞ¶ÁÈ¡Í¼Æ¬ 
-	cv::Mat imread_clipboard(int flag = cv::IMREAD_COLOR);
-
-};
+        //    ä»å‰ªè´´æ¿ä¸­è¯»å–å›¾ç‰‡
+        cv::Mat imread_clipboard(int flag = cv::IMREAD_COLOR);
+    };
 
 } // namespace PaddleOCR
 

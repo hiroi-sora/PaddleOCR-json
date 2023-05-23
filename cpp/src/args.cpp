@@ -18,97 +18,103 @@
 
 #include <gflags/gflags.h>
 
-// ¹¤×÷Ä£Ê½ 
-DEFINE_string(image_path, "", "Set image_path to run a single task."); // ÈôÌîĞ´ÁËÍ¼Æ¬Â·¾¶£¬ÔòÖ´ĞĞÒ»´ÎOCR¡£ 
-DEFINE_int32(port, -1, "Set port to enable socket server mode."); // ÈôÌîĞ´ÁË¶Ë¿ÚºÅ£¬Ôò¿ªÆôÌ×½Ó×Ö·şÎñÆ÷¡£·ñÔò£¬ÆôÓÃÄäÃû¹ÜµÀÄ£Ê½¡£ 
+// å·¥ä½œæ¨¡å¼
+DEFINE_string(image_path, "", "Set image_path to run a single task."); // è‹¥å¡«å†™äº†å›¾ç‰‡è·¯å¾„ï¼Œåˆ™æ‰§è¡Œä¸€æ¬¡OCRã€‚
+DEFINE_int32(port, -1, "Set port to enable socket server mode.");      // è‹¥å¡«å†™äº†ç«¯å£å·ï¼Œåˆ™å¼€å¯å¥—æ¥å­—æœåŠ¡å™¨ã€‚å¦åˆ™ï¼Œå¯ç”¨åŒ¿åç®¡é“æ¨¡å¼ã€‚
 
-// common args ³£ÓÃ²ÎÊı 
-DEFINE_bool(use_gpu, false, "Infering with GPU or CPU."); // trueÊ±ÆôÓÃGPU£¨ĞèÒªÍÆÀí¿âÖ§³Ö£© 
-DEFINE_bool(use_tensorrt, false, "Whether use tensorrt."); // trueÊ±ÆôÓÃtensorrt 
-DEFINE_int32(gpu_id, 0, "Device id of GPU to execute."); // GPU id£¬Ê¹ÓÃGPUÊ±ÓĞĞ§ 
-DEFINE_int32(gpu_mem, 4000, "GPU memory when infering with GPU."); // ÉêÇëµÄGPUÄÚ´æ 
-DEFINE_int32(cpu_threads, 10, "Num of threads with CPU."); // CPUÏß³Ì 
-DEFINE_bool(enable_mkldnn, false, "Whether use mkldnn with CPU."); // trueÊ±ÆôÓÃmkldnn 
-DEFINE_string(precision, "fp32", "Precision be one of fp32/fp16/int8"); // Ô¤²âµÄ¾«¶È£¬Ö§³Öfp32, fp16, int8 3ÖÖÊäÈë 
-DEFINE_bool(benchmark, false, "Whether use benchmark."); // trueÊ±¿ªÆôbenchmark£¬¶ÔÔ¤²âËÙ¶È¡¢ÏÔ´æÕ¼ÓÃµÈ½øĞĞÍ³¼Æ 
-DEFINE_string(output, "./output/", "Save benchmark log path."); // ¿ÉÊÓ»¯½á¹û±£´æµÄÂ·¾¶ TODO 
-DEFINE_string(type, "ocr", "Perform ocr or structure, the value is selected in ['ocr','structure']."); // ÈÎÎñÀàĞÍ
-DEFINE_string(config_path, "", "Path of config file."); // ÅäÖÃÎÄ¼şÂ·¾¶ 
-DEFINE_bool(ensure_ascii, false, "Path of config file."); // trueÊ±json¿ªÆôascii×ªÒå 
+// common args å¸¸ç”¨å‚æ•°
+DEFINE_bool(use_gpu, false, "Infering with GPU or CPU.");                                              // trueæ—¶å¯ç”¨GPUï¼ˆéœ€è¦æ¨ç†åº“æ”¯æŒï¼‰
+DEFINE_bool(use_tensorrt, false, "Whether use tensorrt.");                                             // trueæ—¶å¯ç”¨tensorrt
+DEFINE_int32(gpu_id, 0, "Device id of GPU to execute.");                                               // GPU idï¼Œä½¿ç”¨GPUæ—¶æœ‰æ•ˆ
+DEFINE_int32(gpu_mem, 4000, "GPU memory when infering with GPU.");                                     // ç”³è¯·çš„GPUå†…å­˜
+DEFINE_int32(cpu_threads, 10, "Num of threads with CPU.");                                             // CPUçº¿ç¨‹
+DEFINE_bool(enable_mkldnn, false, "Whether use mkldnn with CPU.");                                     // trueæ—¶å¯ç”¨mkldnn
+DEFINE_string(precision, "fp32", "Precision be one of fp32/fp16/int8");                                // é¢„æµ‹çš„ç²¾åº¦ï¼Œæ”¯æŒfp32, fp16, int8 3ç§è¾“å…¥
+DEFINE_bool(benchmark, false, "Whether use benchmark.");                                               // trueæ—¶å¼€å¯benchmarkï¼Œå¯¹é¢„æµ‹é€Ÿåº¦ã€æ˜¾å­˜å ç”¨ç­‰è¿›è¡Œç»Ÿè®¡
+DEFINE_string(output, "./output/", "Save benchmark log path.");                                        // å¯è§†åŒ–ç»“æœä¿å­˜çš„è·¯å¾„ TODO
+DEFINE_string(type, "ocr", "Perform ocr or structure, the value is selected in ['ocr','structure']."); // ä»»åŠ¡ç±»å‹
+DEFINE_string(config_path, "", "Path of config file.");                                                // é…ç½®æ–‡ä»¶è·¯å¾„
+DEFINE_bool(ensure_ascii, false, "Path of config file.");                                              // trueæ—¶jsonå¼€å¯asciiè½¬ä¹‰
 
-// detection related DET¼ì²âÏà¹Ø 
-DEFINE_string(det_model_dir, "", "Path of det inference model."); // detÄ£ĞÍ¿âÂ·¾¶ 
-DEFINE_string(limit_type, "max", "limit_type of input image, the value is selected in ['max','min']."); // ¶ÔÍ¼Æ¬³ß´çÏŞÖÆ²ÉÓÃ³¤±ß»¹ÊÇ¶Ì±ß 
-DEFINE_int32(limit_side_len, 960, "limit_side_len of input image."); // ¶Ô³¤/¶Ì±ßÏŞÖÆÖµ 
-DEFINE_double(det_db_thresh, 0.3, "Threshold of det_db_thresh."); // ÓÃÓÚ¹ıÂËDBÔ¤²âµÄ¶şÖµ»¯Í¼Ïñ£¬ÉèÖÃÎª0.-0.3¶Ô½á¹ûÓ°Ïì²»Ã÷ÏÔ 
-DEFINE_double(det_db_box_thresh, 0.6, "Threshold of det_db_box_thresh."); // DBºó´¦Àí¹ıÂËboxµÄãĞÖµ£¬Èç¹û¼ì²â´æÔÚÂ©¿òÇé¿ö£¬¿É×ÃÇé¼õĞ¡ 
-DEFINE_double(det_db_unclip_ratio, 1.5, "Threshold of det_db_unclip_ratio."); // ±íÊ¾ÎÄ±¾¿òµÄ½ôÖÂ³Ì¶È£¬Ô½Ğ¡ÔòÎÄ±¾¿ò¸ü¿¿½üÎÄ±¾
-DEFINE_bool(use_dilation, false, "Whether use the dilation on output map."); // trueÊ±¶Ô·Ö¸î½á¹û½øĞĞÅòÕÍÒÔ»ñÈ¡¸üÓÅ¼ì²âĞ§¹û
-DEFINE_string(det_db_score_mode, "slow", "Whether use polygon score, the value is selected in ['slow','fast']."); // slow:Ê¹ÓÃ¶à±ßĞÎ¿ò¼ÆËãbbox score£¬fast:Ê¹ÓÃ¾ØĞÎ¿ò¼ÆËã¡£¾ØĞÎ¿ò¼ÆËãËÙ¶È¸ü¿ì£¬¶à±ßĞÎ¿ò¶ÔÍäÇúÎÄ±¾ÇøÓò¼ÆËã¸ü×¼È· 
-DEFINE_bool(visualize, false, "Whether show the detection results."); // trueÊ±ÆôÓÃ½á¹û½øĞĞ¿ÉÊÓ»¯£¬Ô¤²â½á¹û±£´æÔÚoutput×Ö¶ÎÖ¸¶¨µÄÎÄ¼ş¼ĞÏÂºÍÊäÈëÍ¼ÏñÍ¬ÃûµÄÍ¼ÏñÉÏ¡£ 
+// detection related DETæ£€æµ‹ç›¸å…³
+DEFINE_string(det_model_dir, "", "Path of det inference model.");                                                 // detæ¨¡å‹åº“è·¯å¾„
+DEFINE_string(limit_type, "max", "limit_type of input image, the value is selected in ['max','min'].");           // å¯¹å›¾ç‰‡å°ºå¯¸é™åˆ¶é‡‡ç”¨é•¿è¾¹è¿˜æ˜¯çŸ­è¾¹
+DEFINE_int32(limit_side_len, 960, "limit_side_len of input image.");                                              // å¯¹é•¿/çŸ­è¾¹é™åˆ¶å€¼
+DEFINE_double(det_db_thresh, 0.3, "Threshold of det_db_thresh.");                                                 // ç”¨äºè¿‡æ»¤DBé¢„æµ‹çš„äºŒå€¼åŒ–å›¾åƒï¼Œè®¾ç½®ä¸º0.-0.3å¯¹ç»“æœå½±å“ä¸æ˜æ˜¾
+DEFINE_double(det_db_box_thresh, 0.6, "Threshold of det_db_box_thresh.");                                         // DBåå¤„ç†è¿‡æ»¤boxçš„é˜ˆå€¼ï¼Œå¦‚æœæ£€æµ‹å­˜åœ¨æ¼æ¡†æƒ…å†µï¼Œå¯é…Œæƒ…å‡å°
+DEFINE_double(det_db_unclip_ratio, 1.5, "Threshold of det_db_unclip_ratio.");                                     // è¡¨ç¤ºæ–‡æœ¬æ¡†çš„ç´§è‡´ç¨‹åº¦ï¼Œè¶Šå°åˆ™æ–‡æœ¬æ¡†æ›´é è¿‘æ–‡æœ¬
+DEFINE_bool(use_dilation, false, "Whether use the dilation on output map.");                                      // trueæ—¶å¯¹åˆ†å‰²ç»“æœè¿›è¡Œè†¨èƒ€ä»¥è·å–æ›´ä¼˜æ£€æµ‹æ•ˆæœ
+DEFINE_string(det_db_score_mode, "slow", "Whether use polygon score, the value is selected in ['slow','fast']."); // slow:ä½¿ç”¨å¤šè¾¹å½¢æ¡†è®¡ç®—bbox scoreï¼Œfast:ä½¿ç”¨çŸ©å½¢æ¡†è®¡ç®—ã€‚çŸ©å½¢æ¡†è®¡ç®—é€Ÿåº¦æ›´å¿«ï¼Œå¤šè¾¹å½¢æ¡†å¯¹å¼¯æ›²æ–‡æœ¬åŒºåŸŸè®¡ç®—æ›´å‡†ç¡®
+DEFINE_bool(visualize, false, "Whether show the detection results.");                                             // trueæ—¶å¯ç”¨ç»“æœè¿›è¡Œå¯è§†åŒ–ï¼Œé¢„æµ‹ç»“æœä¿å­˜åœ¨outputå­—æ®µæŒ‡å®šçš„æ–‡ä»¶å¤¹ä¸‹å’Œè¾“å…¥å›¾åƒåŒåçš„å›¾åƒä¸Šã€‚
 
-// classification related CLS·½Ïò·ÖÀàÏà¹Ø 
-DEFINE_bool(use_angle_cls, false, "Whether use use_angle_cls."); // trueÊ±ÆôÓÃ·½Ïò·ÖÀàÆ÷ 
-DEFINE_string(cls_model_dir, "", "Path of cls inference model."); // clsÄ£ĞÍ¿âÂ·¾¶ 
-DEFINE_double(cls_thresh, 0.9, "Threshold of cls_thresh."); // ·½Ïò·ÖÀàÆ÷µÄµÃ·ÖãĞÖµ 
-DEFINE_int32(cls_batch_num, 1, "cls_batch_num."); // ·½Ïò·ÖÀàÆ÷batchsize 
+// classification related CLSæ–¹å‘åˆ†ç±»ç›¸å…³
+DEFINE_bool(use_angle_cls, false, "Whether use use_angle_cls.");  // trueæ—¶å¯ç”¨æ–¹å‘åˆ†ç±»å™¨
+DEFINE_string(cls_model_dir, "", "Path of cls inference model."); // clsæ¨¡å‹åº“è·¯å¾„
+DEFINE_double(cls_thresh, 0.9, "Threshold of cls_thresh.");       // æ–¹å‘åˆ†ç±»å™¨çš„å¾—åˆ†é˜ˆå€¼
+DEFINE_int32(cls_batch_num, 1, "cls_batch_num.");                 // æ–¹å‘åˆ†ç±»å™¨batchsize
 
-// recognition related RECÎÄ±¾Ê¶±ğÏà¹Ø 
-DEFINE_string(rec_model_dir, "", "Path of rec inference model."); // recÄ£ĞÍ¿âÂ·¾¶ 
-DEFINE_int32(rec_batch_num, 6, "rec_batch_num."); // ÎÄ×ÖÊ¶±ğÄ£ĞÍbatchsize 
-DEFINE_string(rec_char_dict_path, "../../ppocr/utils/ppocr_keys_v1.txt", "Path of dictionary."); // ×ÖµäÂ·¾¶ 
-DEFINE_int32(rec_img_h, 48, "rec image height"); // ÎÄ×ÖÊ¶±ğÄ£ĞÍÊäÈëÍ¼Ïñ¸ß¶È¡£V3Ä£ĞÍÊÇ48£¬V2Ó¦¸Ã¸ÄÎª32  
-DEFINE_int32(rec_img_w, 320, "rec image width"); // ÎÄ×ÖÊ¶±ğÄ£ĞÍÊäÈëÍ¼Ïñ¿í¶È¡£V3ºÍV2Ò»ÖÂ 
+// recognition related RECæ–‡æœ¬è¯†åˆ«ç›¸å…³
+DEFINE_string(rec_model_dir, "", "Path of rec inference model.");                                // recæ¨¡å‹åº“è·¯å¾„
+DEFINE_int32(rec_batch_num, 6, "rec_batch_num.");                                                // æ–‡å­—è¯†åˆ«æ¨¡å‹batchsize
+DEFINE_string(rec_char_dict_path, "../../ppocr/utils/ppocr_keys_v1.txt", "Path of dictionary."); // å­—å…¸è·¯å¾„
+DEFINE_int32(rec_img_h, 48, "rec image height");                                                 // æ–‡å­—è¯†åˆ«æ¨¡å‹è¾“å…¥å›¾åƒé«˜åº¦ã€‚V3æ¨¡å‹æ˜¯48ï¼ŒV2åº”è¯¥æ”¹ä¸º32
+DEFINE_int32(rec_img_w, 320, "rec image width");                                                 // æ–‡å­—è¯†åˆ«æ¨¡å‹è¾“å…¥å›¾åƒå®½åº¦ã€‚V3å’ŒV2ä¸€è‡´
 
-// layout model related °æÃæ·ÖÎöÏà¹Ø 
-DEFINE_string(layout_model_dir, "", "Path of table layout inference model."); // °æÃæ·ÖÎöÄ£ĞÍinference modelÂ·¾¶ 
-DEFINE_string(layout_dict_path, "../../ppocr/utils/dict/layout_dict/layout_publaynet_dict.txt", "Path of dictionary."); // °æÃæ×ÖµäÂ·¾¶ 
-DEFINE_double(layout_score_threshold, 0.5, "Threshold of score."); // ¼ì²â¿òµÄ·ÖÊıãĞÖµ 
-DEFINE_double(layout_nms_threshold, 0.5, "Threshold of nms."); // nmsµÄãĞÖµ 
-// structure model related ±í¸ñ½á¹¹Ïà¹Ø 
-DEFINE_string(table_model_dir, "", "Path of table struture inference model."); // ±í¸ñÊ¶±ğÄ£ĞÍinference modelÂ·¾¶ 
-DEFINE_int32(table_max_len, 488, "max len size of input image."); // ±í¸ñÊ¶±ğÄ£ĞÍÊäÈëÍ¼Ïñ³¤±ß´óĞ¡ 
+// layout model related ç‰ˆé¢åˆ†æç›¸å…³
+DEFINE_string(layout_model_dir, "", "Path of table layout inference model.");                                           // ç‰ˆé¢åˆ†ææ¨¡å‹inference modelè·¯å¾„
+DEFINE_string(layout_dict_path, "../../ppocr/utils/dict/layout_dict/layout_publaynet_dict.txt", "Path of dictionary."); // ç‰ˆé¢å­—å…¸è·¯å¾„
+DEFINE_double(layout_score_threshold, 0.5, "Threshold of score.");                                                      // æ£€æµ‹æ¡†çš„åˆ†æ•°é˜ˆå€¼
+DEFINE_double(layout_nms_threshold, 0.5, "Threshold of nms.");                                                          // nmsçš„é˜ˆå€¼
+// structure model related è¡¨æ ¼ç»“æ„ç›¸å…³
+DEFINE_string(table_model_dir, "", "Path of table struture inference model."); // è¡¨æ ¼è¯†åˆ«æ¨¡å‹inference modelè·¯å¾„
+DEFINE_int32(table_max_len, 488, "max len size of input image.");              // è¡¨æ ¼è¯†åˆ«æ¨¡å‹è¾“å…¥å›¾åƒé•¿è¾¹å¤§å°
 DEFINE_int32(table_batch_num, 1, "table_batch_num.");
-DEFINE_bool(merge_no_span_structure, true, "Whether merge <td> and </td> to <td></td>"); // trueÊ±½«<td>ºÍ</td>ºÏ²¢µ½<td></td> 
-DEFINE_string(table_char_dict_path, "../../ppocr/utils/dict/table_structure_dict_ch.txt", "Path of dictionary."); // ±í¸ñ×ÖµäÂ·¾¶ 
+DEFINE_bool(merge_no_span_structure, true, "Whether merge <td> and </td> to <td></td>");                          // trueæ—¶å°†<td>å’Œ</td>åˆå¹¶åˆ°<td></td>
+DEFINE_string(table_char_dict_path, "../../ppocr/utils/dict/table_structure_dict_ch.txt", "Path of dictionary."); // è¡¨æ ¼å­—å…¸è·¯å¾„
 
-// ocr forward related Ç°´¦ÀíÏà¹Ø 
+// ocr forward related å‰å¤„ç†ç›¸å…³
 DEFINE_bool(det, true, "Whether use det in forward.");
 DEFINE_bool(rec, true, "Whether use rec in forward.");
 DEFINE_bool(cls, false, "Whether use cls in forward.");
 DEFINE_bool(table, false, "Whether use table structure in forward.");
 DEFINE_bool(layout, false, "Whether use layout analysis in forward.");
 
-// ´ÓÅäÖÃÎÄ¼şÖĞ¶ÁÈ¡ÅäÖÃ£¬·µ»ØÈÕÖ¾×Ö·û´®¡£ 
-std::string read_config() {
-    if (!PaddleOCR::Utility::PathExists(FLAGS_config_path)) {
+// ä»é…ç½®æ–‡ä»¶ä¸­è¯»å–é…ç½®ï¼Œè¿”å›æ—¥å¿—å­—ç¬¦ä¸²ã€‚
+std::string read_config()
+{
+    if (!PaddleOCR::Utility::PathExists(FLAGS_config_path))
+    {
         return ("config_path [" + FLAGS_config_path + "] does not exist. ");
     }
     std::ifstream infile(FLAGS_config_path);
-    if (!infile) {
+    if (!infile)
+    {
         return ("[WARNING] Unable to open config_path [" + FLAGS_config_path + "]. ");
     }
-    std::string msg = "Load config from ["+ FLAGS_config_path+"] : ";
+    std::string msg = "Load config from [" + FLAGS_config_path + "] : ";
     std::string line;
     int num = 0;
-    while (getline(infile, line)) {
+    while (getline(infile, line))
+    {
         int length = line.length();
-        if (length < 3 || line[0] == '#') // Ìø¹ı¿ÕĞĞºÍ×¢ÊÍ
+        if (length < 3 || line[0] == '#') // è·³è¿‡ç©ºè¡Œå’Œæ³¨é‡Š
             continue;
-        int split = 0; // ¼üÖµ¶ÔµÄ·Ö¸îÏß 
-        for (; split < length; split++) {
+        int split = 0; // é”®å€¼å¯¹çš„åˆ†å‰²çº¿
+        for (; split < length; split++)
+        {
             if (line[split] == ' ' || line[split] == '=')
                 break;
         }
-        if (split >= length-1 || split==0) // Ìø¹ı³¤¶È²»×ãµÄ¼üÖµ¶Ô 
+        if (split >= length - 1 || split == 0) // è·³è¿‡é•¿åº¦ä¸è¶³çš„é”®å€¼å¯¹
             continue;
         std::string key = line.substr(0, split);
-        std::string value = line.substr(split+1);
-        // ÉèÖÃÅäÖÃ£¬ÓÅÏÈ¼¶µÍÓÚÃüÁîĞĞ´«Èë²ÎÊı¡£ 
+        std::string value = line.substr(split + 1);
+        // è®¾ç½®é…ç½®ï¼Œä¼˜å…ˆçº§ä½äºå‘½ä»¤è¡Œä¼ å…¥å‚æ•°ã€‚
         std::string res = google::SetCommandLineOptionWithMode(key.c_str(), value.c_str(), google::SET_FLAG_IF_DEFAULT);
-        if (!res.empty()) {
+        if (!res.empty())
+        {
             num++;
-            msg += res.substr(0, res.length()-1);
+            msg += res.substr(0, res.length() - 1);
         }
     }
     infile.close();
@@ -119,48 +125,60 @@ std::string read_config() {
     return msg;
 }
 
-// ¼ì²éÒ»¸öÂ·¾¶pathÊÇ·ñ´æÔÚ£¬½«ĞÅÏ¢Ğ´Èëmsg 
-void check_path(const std::string &path, const std::string &name, std::string &msg) {
+// æ£€æŸ¥ä¸€ä¸ªè·¯å¾„pathæ˜¯å¦å­˜åœ¨ï¼Œå°†ä¿¡æ¯å†™å…¥msg
+void check_path(const std::string &path, const std::string &name, std::string &msg)
+{
     if (path.empty())
-        msg += (name+" is empty. ");
-    else if (!PaddleOCR::Utility::PathExists(path)) {
+        msg += (name + " is empty. ");
+    else if (!PaddleOCR::Utility::PathExists(path))
+    {
         msg += (name + " [" + path + "] does not exist. ");
     }
 }
 
-// ¼ì²â²ÎÊıºÏ·¨ĞÔ¡£³É¹¦·µ»Ø¿Õ×Ö·û´®£¬Ê§°Ü·µ»Ø±¨´íĞÅÏ¢×Ö·û´®¡£ 
-std::string check_flags() {
+// æ£€æµ‹å‚æ•°åˆæ³•æ€§ã€‚æˆåŠŸè¿”å›ç©ºå­—ç¬¦ä¸²ï¼Œå¤±è´¥è¿”å›æŠ¥é”™ä¿¡æ¯å­—ç¬¦ä¸²ã€‚
+std::string check_flags()
+{
     std::string msg = "";
-    if (FLAGS_det) { // ¼ì²édet
+    if (FLAGS_det)
+    { // æ£€æŸ¥det
         check_path(FLAGS_det_model_dir, "det_model_dir", msg);
     }
-    if (FLAGS_rec) { // ¼ì²érec 
+    if (FLAGS_rec)
+    { // æ£€æŸ¥rec
         check_path(FLAGS_rec_model_dir, "rec_model_dir", msg);
     }
-    if (FLAGS_cls && FLAGS_use_angle_cls) { // ¼ì²écls 
+    if (FLAGS_cls && FLAGS_use_angle_cls)
+    { // æ£€æŸ¥cls
         check_path(FLAGS_cls_model_dir, "cls_model_dir", msg);
     }
-    if (FLAGS_table) { // ¼ì²étable 
+    if (FLAGS_table)
+    { // æ£€æŸ¥table
         check_path(FLAGS_table_model_dir, "table_model_dir", msg);
-        if(!FLAGS_det)
+        if (!FLAGS_det)
             check_path(FLAGS_det_model_dir, "det_model_dir", msg);
         if (!FLAGS_rec)
             check_path(FLAGS_rec_model_dir, "rec_model_dir", msg);
     }
-    if (FLAGS_layout) { // ²¼¾Ö 
+    if (FLAGS_layout)
+    { // å¸ƒå±€
         check_path(FLAGS_layout_model_dir, "layout_model_dir", msg);
     }
-    // ¼ì²éÃ¶¾ÙÖµ 
-    if (FLAGS_precision != "fp32" && FLAGS_precision != "fp16" && FLAGS_precision != "int8") {
+    // æ£€æŸ¥æšä¸¾å€¼
+    if (FLAGS_precision != "fp32" && FLAGS_precision != "fp16" && FLAGS_precision != "int8")
+    {
         msg += "precison should be 'fp32'(default), 'fp16' or 'int8', not " + FLAGS_precision + ". ";
     }
-    if (FLAGS_type != "ocr" && FLAGS_type != "structure") {
+    if (FLAGS_type != "ocr" && FLAGS_type != "structure")
+    {
         msg += "type should be 'ocr'(default) or 'structure', not " + FLAGS_type + ". ";
     }
-    if (FLAGS_limit_type != "max" && FLAGS_limit_type != "min") {
+    if (FLAGS_limit_type != "max" && FLAGS_limit_type != "min")
+    {
         msg += "limit_type should be 'max'(default) or 'min', not " + FLAGS_limit_type + ". ";
     }
-    if (FLAGS_det_db_score_mode != "slow" && FLAGS_det_db_score_mode != "fast") {
+    if (FLAGS_det_db_score_mode != "slow" && FLAGS_det_db_score_mode != "fast")
+    {
         msg += "limit_type should be 'slow'(default) or 'fast', not " + FLAGS_det_db_score_mode + ". ";
     }
     return msg;

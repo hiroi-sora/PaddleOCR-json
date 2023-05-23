@@ -2,124 +2,142 @@
 #include "include/paddleocr.h"
 #include "include/args.h"
 #include "include/task.h"
-#include "include/nlohmann/json.hpp" // json¿â 
+#include "include/nlohmann/json.hpp" // jsonåº“
 
-namespace PaddleOCR {
+namespace PaddleOCR
+{
 
-// OCR ÈÎÎñÑ­»·
-int Task::ocr(){
-	// ³õÊ¼»¯ÒıÇæ
-	ppocr = new PPOCR(); // ´´½¨ÒıÇæ¶ÔÏó 
-	std::cout << "OCR init completed." << std::endl;
+    // OCR ä»»åŠ¡å¾ªç¯
+    int Task::ocr()
+    {
+        // åˆå§‹åŒ–å¼•æ“
+        ppocr = new PPOCR(); // åˆ›å»ºå¼•æ“å¯¹è±¡
+        std::cout << "OCR init completed." << std::endl;
 
-	// µ¥ÕÅÍ¼Æ¬Ê¶±ğÄ£Ê½ 
-	if (!FLAGS_image_path.empty()) {
-		return single_image();
-	}
-	//// Ì×½Ó×Ö·şÎñÆ÷Ä£Ê½ 
-	//else if (FLAGS_port != -1) {
-	//	return socket_mode();
-	//}
-	//// ÄäÃû¹ÜµÀÄ£Ê½
-	//else {
-	//	return anonymous_pipe_mode();
-	//}
+        // å•å¼ å›¾ç‰‡è¯†åˆ«æ¨¡å¼
+        if (!FLAGS_image_path.empty())
+        {
+            return single_image();
+        }
+        //// å¥—æ¥å­—æœåŠ¡å™¨æ¨¡å¼
+        // else if (FLAGS_port != -1) {
+        //	return socket_mode();
+        // }
+        //// åŒ¿åç®¡é“æ¨¡å¼
+        // else {
+        //	return anonymous_pipe_mode();
+        // }
 
-	return 0;
-}
+        return 0;
+    }
 
-// ÉèÖÃ×´Ì¬
-void Task::set_state(int code, std::string msg) {
-	t_code = code;
-	t_msg = msg;
-}
+    // è®¾ç½®çŠ¶æ€
+    void Task::set_state(int code, std::string msg)
+    {
+        t_code = code;
+        t_msg = msg;
+    }
 
-// json×ª×Ö·û´® 
-std::string json_dump(nlohmann::json j) {
-	try {
-		std::string str = j.dump(-1, ' ', FLAGS_ensure_ascii);
-		return str;
-	}
-	catch (...) {
-		nlohmann::json j2;
-		j2["code"] = CODE_ERR_JSON_DUMP;
-		j2["data"] = MSG_ERR_JSON_DUMP;
-		std::string str = j2.dump(-1, ' ', FLAGS_ensure_ascii);
-		return str;
-	}
-}
+    // jsonè½¬å­—ç¬¦ä¸²
+    std::string json_dump(nlohmann::json j)
+    {
+        try
+        {
+            std::string str = j.dump(-1, ' ', FLAGS_ensure_ascii);
+            return str;
+        }
+        catch (...)
+        {
+            nlohmann::json j2;
+            j2["code"] = CODE_ERR_JSON_DUMP;
+            j2["data"] = MSG_ERR_JSON_DUMP;
+            std::string str = j2.dump(-1, ' ', FLAGS_ensure_ascii);
+            return str;
+        }
+    }
 
-// »ñÈ¡×´Ì¬json×Ö·û´® 
-std::string Task::get_state_json(int code, std::string msg) {
-	nlohmann::json j;
-	if (code == CODE_INIT && msg.empty()) { // Áô¿Õ£¬Ìî³äµ±Ç°×´Ì¬ 
-		code = t_code;
-		msg = t_msg;
-	}
-	j["code"] = code;
-	j["data"] = msg;
-	return json_dump(j);
-}
+    // è·å–çŠ¶æ€jsonå­—ç¬¦ä¸²
+    std::string Task::get_state_json(int code, std::string msg)
+    {
+        nlohmann::json j;
+        if (code == CODE_INIT && msg.empty())
+        { // ç•™ç©ºï¼Œå¡«å……å½“å‰çŠ¶æ€
+            code = t_code;
+            msg = t_msg;
+        }
+        j["code"] = code;
+        j["data"] = msg;
+        return json_dump(j);
+    }
+    // ./PaddleOCR-json.exe -config_path="models/zh_CN.txt" -image_path="D:/Test/t2.png" -ensure_ascii=0
+    // å°†OCRç»“æœè½¬æ¢ä¸ºjsonå­—ç¬¦ä¸²
+    std::string Task::get_ocr_result_json(const std::vector<OCRPredictResult> &ocr_result)
+    {
+        nlohmann::json outJ;
+        outJ["code"] = 100;
+        outJ["data"] = nlohmann::json::array();
+        bool isEmpty = true;
+        for (int i = 0; i < ocr_result.size(); i++)
+        {
+            nlohmann::json j;
+            j["text"] = ocr_result[i].text;
+            j["score"] = ocr_result[i].score;
+            std::vector<std::vector<int>> b = ocr_result[i].box;
+            // æ— åŒ…å›´ç›’
+            if (b.empty())
+            {
+                if (FLAGS_det) // å¼€äº†detä»æ— åŒ…å›´ç›’ï¼Œè·³è¿‡æœ¬ç»„
+                    continue;
+                else // æœªå¼€detï¼Œå¡«å……ç©ºåŒ…å›´ç›’
+                    for (int bi = 0; bi < 4; bi++)
+                        b.push_back(std::vector<int>{-1, -1});
+            }
+            // å¯ç”¨äº†recä»æ²¡æœ‰æ–‡å­—ï¼Œè·³è¿‡æœ¬ç»„
+            if (FLAGS_rec && (j["score"] <= 0 || j["text"] == ""))
+            {
+                continue;
+            }
+            else
+            {
+                j["box"] = {{b[0][0], b[0][1]}, {b[1][0], b[1][1]}, {b[2][0], b[2][1]}, {b[3][0], b[3][1]}};
+            }
+            outJ["data"].push_back(j);
+            isEmpty = false;
+        }
+        // ç»“æœ1ï¼šè¯†åˆ«æˆåŠŸï¼Œæ— æ–‡å­—ï¼ˆrecæœªæ£€å‡ºï¼‰
+        if (isEmpty)
+        {
+            return "";
+        }
+        // ç»“æœ2ï¼šè¯†åˆ«æˆåŠŸï¼Œæœ‰æ–‡å­—
+        return json_dump(outJ);
+    }
 
-// ½«OCR½á¹û×ª»»Îªjson×Ö·û´® 
-std::string Task::get_ocr_result_json(const std::vector<OCRPredictResult>& ocr_result) {
-	nlohmann::json outJ;
-	outJ["code"] = 100;
-	outJ["data"] = nlohmann::json::array();
-	bool isEmpty = true;
-	for (int i = 0; i < ocr_result.size(); i++) {
-		nlohmann::json j;
-		j["text"] = ocr_result[i].text;
-		j["score"] = ocr_result[i].score;
-		std::vector<std::vector<int>> b = ocr_result[i].box;
-		// ÎŞ°üÎ§ºĞ
-		if (b.empty()) {
-			if (FLAGS_det) // ¿ªÁËdetÈÔÎŞ°üÎ§ºĞ£¬Ìø¹ı±¾×é 
-				continue;
-			else // Î´¿ªdet£¬Ìî³ä¿Õ°üÎ§ºĞ 
-				for (int bi = 0; bi < 4; bi++)
-					b.push_back(std::vector<int> {-1, -1});
-		}
-		// ÆôÓÃÁËrecÈÔÃ»ÓĞÎÄ×Ö£¬Ìø¹ı±¾×é 
-		if (FLAGS_rec && (j["score"] <= 0 || j["text"] == "")) {
-			continue;
-		}
-		else {
-			j["box"] = { {b[0][0], b[0][1]}, {b[1][0], b[1][1]},
-			  {b[2][0], b[2][1] }, { b[3][0], b[3][1] } };
-		}
-		outJ["data"].push_back(j);
-		isEmpty = false;
-	}
-	// ½á¹û1£ºÊ¶±ğ³É¹¦£¬ÎŞÎÄ×Ö£¨recÎ´¼ì³ö£© 
-	if (isEmpty) {
-		return "";
-	}
-	// ½á¹û2£ºÊ¶±ğ³É¹¦£¬ÓĞÎÄ×Ö 
-	return json_dump(outJ);
-}
-
-// µ¥ÕÅÍ¼Æ¬Ê¶±ğÄ£Ê½ 
-int Task::single_image() {
-	set_state();
-	cv::Mat img = imread_u8(FLAGS_image_path);
-	if (img.empty()) { // ¶ÁÍ¼Ê§°Ü 
-		std::cout << get_state_json() << std::endl;
-		return 0;
-	}
-	// Ö´ĞĞOCR 
-	std::vector<OCRPredictResult> res_ocr = ppocr->ocr(img, FLAGS_det, FLAGS_rec, FLAGS_cls);
-	// »ñÈ¡½á¹û 
-	std::string res_json = get_ocr_result_json(res_ocr);
-	// ½á¹û1£ºÊ¶±ğ³É¹¦£¬ÎŞÎÄ×Ö£¨recÎ´¼ì³ö£© 
-	if (res_json.empty()) {
-		std::cout << get_state_json(CODE_OK_NONE, MSG_OK_NONE(FLAGS_image_path)) << std::endl;
-	}
-	// ½á¹û2£ºÊ¶±ğ³É¹¦£¬ÓĞÎÄ×Ö 
-	else {
-		std::cout << res_json << std::endl;
-	}
-	return 0;
-}
+    // å•å¼ å›¾ç‰‡è¯†åˆ«æ¨¡å¼
+    int Task::single_image()
+    {
+        set_state();
+        cv::Mat img = imread_u8(FLAGS_image_path);
+        if (img.empty())
+        { // è¯»å›¾å¤±è´¥
+            std::cout << get_state_json() << std::endl;
+            return 0;
+        }
+        // æ‰§è¡ŒOCR
+        std::vector<OCRPredictResult> res_ocr = ppocr->ocr(img, FLAGS_det, FLAGS_rec, FLAGS_cls);
+        // è·å–ç»“æœ
+        std::string res_json = get_ocr_result_json(res_ocr);
+        // ç»“æœ1ï¼šè¯†åˆ«æˆåŠŸï¼Œæ— æ–‡å­—ï¼ˆrecæœªæ£€å‡ºï¼‰
+        if (res_json.empty())
+        {
+            std::cout << get_state_json(CODE_OK_NONE, MSG_OK_NONE(FLAGS_image_path)) << std::endl;
+        }
+        // ç»“æœ2ï¼šè¯†åˆ«æˆåŠŸï¼Œæœ‰æ–‡å­—
+        else
+        {
+            std::cout << res_json << std::endl;
+        }
+        return 0;
+    }
 
 }
