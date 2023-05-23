@@ -28,6 +28,7 @@ DECLARE_bool(benchmark);
 DECLARE_string(output);
 DECLARE_string(image_dir);
 DECLARE_string(type);
+DECLARE_string(config_path);
 // detection related
 DECLARE_string(det_model_dir);
 DECLARE_string(limit_type);
@@ -67,5 +68,7 @@ DECLARE_bool(cls);
 DECLARE_bool(table);
 DECLARE_bool(layout);
 
-// 检测参数合法性
+// 读取配置文件 
+std::string read_config();
+// 检测参数合法性 
 std::string check_flags();

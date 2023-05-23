@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <string>
+#include <fstream>
 #include <include/utility.h>
 
 #include <gflags/gflags.h>
@@ -29,6 +30,7 @@ DEFINE_bool(benchmark, false, "Whether use benchmark."); // trueÊ±¿ªÆôbenchmark£
 DEFINE_string(output, "./output/", "Save benchmark log path."); // ¿ÉÊÓ»¯½á¹û±£´æµÄÂ·¾¶ 
 DEFINE_string(image_dir, "", "Dir of input image."); // TODO 
 DEFINE_string(type, "ocr", "Perform ocr or structure, the value is selected in ['ocr','structure']."); // ÈÎÎñÀàĞÍ
+DEFINE_string(config_path, "", "Path of config file."); // ÅäÖÃÎÄ¼şÂ·¾¶ 
 
 // detection related DET¼ì²âÏà¹Ø 
 DEFINE_string(det_model_dir, "", "Path of det inference model."); // detÄ£ĞÍ¿âÂ·¾¶ 
@@ -71,7 +73,47 @@ DEFINE_bool(det, true, "Whether use det in forward.");
 DEFINE_bool(rec, true, "Whether use rec in forward.");
 DEFINE_bool(cls, false, "Whether use cls in forward.");
 DEFINE_bool(table, false, "Whether use table structure in forward.");
-DEFINE_bool(layout, false, "Whether use layout analysis in forward."); 
+DEFINE_bool(layout, false, "Whether use layout analysis in forward.");
+
+// ´ÓÅäÖÃÎÄ¼şÖĞ¶ÁÈ¡ÅäÖÃ£¬·µ»ØÈÕÖ¾×Ö·û´®¡£ 
+std::string read_config() {
+    if (!PaddleOCR::Utility::PathExists(FLAGS_config_path)) {
+        return ("config_path [" + FLAGS_config_path + "] does not exist. ");
+    }
+    std::ifstream infile(FLAGS_config_path);
+    if (!infile) {
+        return ("[WARNING] Unable to open config_path [" + FLAGS_config_path + "]. ");
+    }
+    std::string msg = "Load config from ["+ FLAGS_config_path+"] : ";
+    std::string line;
+    int num = 0;
+    while (getline(infile, line)) {
+        int length = line.length();
+        if (length < 3 || line[0] == '#') // Ìø¹ı¿ÕĞĞºÍ×¢ÊÍ
+            continue;
+        int split = 0; // ¼üÖµ¶ÔµÄ·Ö¸îÏß 
+        for (; split < length; split++) {
+            if (line[split] == ' ' || line[split] == '=')
+                break;
+        }
+        if (split >= length-1 || split==0) // Ìø¹ı³¤¶È²»×ãµÄ¼üÖµ¶Ô 
+            continue;
+        std::string key = line.substr(0, split);
+        std::string value = line.substr(split+1);
+        // ÉèÖÃÅäÖÃ£¬ÓÅÏÈ¼¶µÍÓÚÃüÁîĞĞ´«Èë²ÎÊı¡£ 
+        std::string res = google::SetCommandLineOptionWithMode(key.c_str(), value.c_str(), google::SET_FLAG_IF_DEFAULT);
+        if (!res.empty()) {
+            num++;
+            msg += res.substr(0, res.length()-1);
+        }
+    }
+    infile.close();
+    if (num == 0)
+        msg += "No valid config found.";
+    else
+        msg += ". ";
+    return msg;
+}
 
 // ¼ì²éÒ»¸öÂ·¾¶pathÊÇ·ñ´æÔÚ£¬½«ĞÅÏ¢Ğ´Èëmsg 
 void check_path(const std::string &path, const std::string &name, std::string &msg) {

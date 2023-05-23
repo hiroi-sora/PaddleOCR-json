@@ -119,6 +119,11 @@ void structure(std::vector<cv::String> &cv_all_img_names) {
 int main(int argc, char **argv) {
   // 读取命令行 
   google::ParseCommandLineFlags(&argc, &argv, true);
+  // 读取配置文件
+  std::string configMsg = read_config();
+  if (!configMsg.empty()) {
+      std::cerr << configMsg << std::endl;
+  }
   // 检查参数合法性 
   std::string checkMsg = check_flags();
   if (!checkMsg.empty()) {
@@ -126,11 +131,6 @@ int main(int argc, char **argv) {
       return 1;
   }
 
-  if (!Utility::PathExists(FLAGS_image_dir)) {
-    std::cerr << "[ERROR] image path not exist! image_dir: " << FLAGS_image_dir
-              << std::endl;
-    exit(1);
-  }
 
   std::vector<cv::String> cv_all_img_names;
   cv::glob(FLAGS_image_dir, cv_all_img_names);
