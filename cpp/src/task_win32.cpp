@@ -18,7 +18,7 @@ namespace PaddleOCR
 
     // ==================== 工具函数 ====================
 
-    // 多字节ANSI字符数组转宽字符数组
+    // 多字节ANSI字符数组转宽字符数组 
     wchar_t *char_2_wchar(char *c)
     {
         setlocale(LC_ALL, "");                   // 程序的区域设置为windows系统当前区域
@@ -29,7 +29,7 @@ namespace PaddleOCR
         return wc;
     }
 
-    // 专门用于消息的wstring转string，转换失败时返回默认提示文字
+    // 专门用于消息的wstring转string，转换失败时返回默认提示文字 
     std::string msg_wstr_2_ustr(std::wstring &msg)
     {
         try
@@ -65,32 +65,32 @@ namespace PaddleOCR
     // 代替 cv::imread ，从路径pathW读入一张图片。pathW必须为unicode的wstring
     cv::Mat Task::imread_wstr(std::wstring pathW, int flag)
     {
-        std::string pathU8 = msg_wstr_2_ustr(pathW); // 再转回utf-8，以备输出错误。
-        // ↑ 由于这个函数要被剪贴板CF_UNICODETEXT等复用，可能调用方只能提供wstring，所以多此一举转换一次。
+        std::string pathU8 = msg_wstr_2_ustr(pathW); // 再转回utf-8，以备输出错误。 
+        // ↑ 由于这个函数要被剪贴板CF_UNICODETEXT等复用，可能调用方只能提供wstring，所以多此一举转换一次。 
         if (!is_exists_wstr(pathW))
-        {                                                               // 路径不存在
-            set_state(CODE_ERR_PATH_EXIST, MSG_ERR_PATH_EXIST(pathU8)); // 报告状态：路径不存在且无法输出
+        {                                                               // 路径不存在 
+            set_state(CODE_ERR_PATH_EXIST, MSG_ERR_PATH_EXIST(pathU8)); // 报告状态：路径不存在且无法输出 
             return cv::Mat();
         }
-        FILE *fp = _wfopen((wchar_t *)pathW.c_str(), L"rb"); // wpath强制类型转换到whar_t，尝试打开文件
+        FILE *fp = _wfopen((wchar_t *)pathW.c_str(), L"rb"); // wpath强制类型转换到whar_t，尝试打开文件 
         if (!fp)
-        {                                                             // 打开失败
-            set_state(CODE_ERR_PATH_READ, MSG_ERR_PATH_READ(pathU8)); // 报告状态：无法读取
+        {                                                             // 打开失败 
+            set_state(CODE_ERR_PATH_READ, MSG_ERR_PATH_READ(pathU8)); // 报告状态：无法读取 
             return cv::Mat();
         }
         // 将文件读到内存
-        fseek(fp, 0, SEEK_END);                // 设置流 fp 的文件位置为 SEEK_END 文件的末尾
-        long sz = ftell(fp);                   // 获取流 fp 的当前文件位置，即总大小（字节）
-        char *buf = new char[sz];              // 存放文件字节内容
-        fseek(fp, 0, SEEK_SET);                // 设置流 fp 的文件位置为 SEEK_SET 文件的开头
-        long n = fread(buf, 1, sz, fp);        // 从给定流 fp 读取数据到 buf 所指向的数组中，返回成功读取的元素总数
-        cv::_InputArray arr(buf, sz);          // 转换为OpenCV数组
-        cv::Mat img = cv::imdecode(arr, flag); // 解码内存数据，变成cv::Mat数据
-        delete[] buf;                          // 释放buf空间
-        fclose(fp);                            // 关闭文件
+        fseek(fp, 0, SEEK_END);                // 设置流 fp 的文件位置为 SEEK_END 文件的末尾 
+        long sz = ftell(fp);                   // 获取流 fp 的当前文件位置，即总大小（字节） 
+        char *buf = new char[sz];              // 存放文件字节内容 
+        fseek(fp, 0, SEEK_SET);                // 设置流 fp 的文件位置为 SEEK_SET 文件的开头 
+        long n = fread(buf, 1, sz, fp);        // 从给定流 fp 读取数据到 buf 所指向的数组中，返回成功读取的元素总数 
+        cv::_InputArray arr(buf, sz);          // 转换为OpenCV数组 
+        cv::Mat img = cv::imdecode(arr, flag); // 解码内存数据，变成cv::Mat数据 
+        delete[] buf;                          // 释放buf空间 
+        fclose(fp);                            // 关闭文件 
         if (!img.data)
         {
-            set_state(CODE_ERR_PATH_DECODE, MSG_ERR_PATH_DECODE(pathU8)); // 报告状态：解码失败
+            set_state(CODE_ERR_PATH_DECODE, MSG_ERR_PATH_DECODE(pathU8)); // 报告状态：解码失败 
         }
         return img;
     }

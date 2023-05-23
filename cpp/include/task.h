@@ -40,8 +40,12 @@ namespace PaddleOCR
 #define CODE_ERR_CLIP_CHANNEL 217 // 剪贴板中位图的通道数不支持 ( nChannels 不为1，3，4 )
 #define MSG_ERR_CLIP_CHANNEL(n) "Clipboard number of image channels is not valid. Number: " + std::to_string(n)
 // json相关
-#define CODE_ERR_JSON_DUMP 300 // json转字符串失败
-#define MSG_ERR_JSON_DUMP "Json dump open failed."
+#define CODE_ERR_JSON_DUMP 300 // json对象 转字符串失败 
+#define MSG_ERR_JSON_DUMP "Json dump failed."
+#define CODE_ERR_JSON_PARSE 301 // json字符串 转对象失败 
+#define MSG_ERR_JSON_PARSE "Json parse failed."
+#define CODE_ERR_NO_TASK 302 // 未发现有效任务 
+#define MSG_ERR_NO_TASK "No valid tasks."
 
     // ==================== 任务调用类 ====================
     class Task
@@ -51,22 +55,24 @@ namespace PaddleOCR
         int ocr(); // OCR图片
 
     private:
-        PPOCR *ppocr;      // OCR引擎指针
-        int t_code;        // 本轮任务状态码
-        std::string t_msg; // 本轮任务状态消息
+        PPOCR *ppocr;      // OCR引擎指针 
+        int t_code;        // 本轮任务状态码 
+        std::string t_msg; // 本轮任务状态消息 
 
         // 任务流程
-        int single_image();        // 单次识别模式
-        int socket_mode();         // 套接字模式
-        int anonymous_pipe_mode(); // 匿名管道模式
+        int single_image_mode();   // 单次识别模式 
+        int socket_mode();         // 套接字模式 
+        int anonymous_pipe_mode(); // 匿名管道模式 
 
-        // 输出相关
-        void set_state(int code = CODE_INIT, std::string msg = "");             // 设置状态
-        std::string get_state_json(int code = CODE_INIT, std::string msg = ""); // 获取状态json字符串
-        std::string get_ocr_result_json(const std::vector<OCRPredictResult> &); // 传入OCR结果，返回json字符串
+        // 输出相关 
+        void set_state(int code = CODE_INIT, std::string msg = "");             // 设置状态 
+        std::string get_state_json(int code = CODE_INIT, std::string msg = ""); // 获取状态json字符串 
+        std::string get_ocr_result_json(const std::vector<OCRPredictResult> &); // 传入OCR结果，返回json字符串 
 
-        // 输入相关
-        //    代替cv imread，接收utf-8字符串传入，返回Mat。失败时设置错误码，并返回空Mat。
+        // 输入相关 
+        //    输入json字符串，解析并读取Mat 
+        cv::Mat imread_json(std::string &);
+        //    代替cv imread，接收utf-8字符串传入，返回Mat。失败时设置错误码，并返回空Mat。 
         cv::Mat imread_u8(std::string path, int flag = cv::IMREAD_COLOR);
 #ifdef _WIN32
         //    代替 cv::imread ，从路径pathW读入一张图片。pathW必须为unicode的wstring

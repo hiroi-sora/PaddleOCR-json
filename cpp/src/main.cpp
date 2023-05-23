@@ -29,7 +29,7 @@ void ocr(std::vector<cv::String> &cv_all_img_names)
     PPOCR ocr = PPOCR();
 
     if (FLAGS_benchmark)
-    { // 启用统计
+    { // 启用统计 
         ocr.reset_timer();
     }
 
