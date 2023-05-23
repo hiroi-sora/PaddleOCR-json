@@ -20,13 +20,14 @@
 #include <include/args.h>
 #include <include/paddleocr.h>
 #include <include/paddlestructure.h>
+#include <include/task.h>
 
 using namespace PaddleOCR;
 
 void ocr(std::vector<cv::String> &cv_all_img_names) {
   PPOCR ocr = PPOCR();
 
-  if (FLAGS_benchmark) {
+  if (FLAGS_benchmark) { // 启用统计 
     ocr.reset_timer();
   }
 
@@ -131,17 +132,20 @@ int main(int argc, char **argv) {
       return 1;
   }
 
-
-  std::vector<cv::String> cv_all_img_names;
-  cv::glob(FLAGS_image_dir, cv_all_img_names);
-  std::cout << "total images num: " << cv_all_img_names.size() << std::endl;
-
-  if (!Utility::PathExists(FLAGS_output)) {
-    Utility::CreateDir(FLAGS_output);
+  // 启动任务
+  Task task = Task();
+  if (FLAGS_type == "ocr") {  // OCR图片模式 
+      return task.ocr();
   }
-  if (FLAGS_type == "ocr") {
-    ocr(cv_all_img_names);
-  } else if (FLAGS_type == "structure") {
-    structure(cv_all_img_names);
+  // TODO: 图表识别模式 
+  else if (FLAGS_type == "structure") {
+      std::cerr << "[ERROR] structure not support. " << std::endl;
+        //structure(cv_all_img_names);
   }
+
+
+      //ocr(cv_all_img_names);
+  //std::vector<cv::String> cv_all_img_names;
+  //cv::glob(FLAGS_image_path, cv_all_img_names);
+  //std::cout << "total images num: " << cv_all_img_names.size() << std::endl;
 }
