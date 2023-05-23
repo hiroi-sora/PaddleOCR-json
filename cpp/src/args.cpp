@@ -34,6 +34,7 @@ DEFINE_bool(benchmark, false, "Whether use benchmark."); // trueÊ±¿ªÆôbenchmark£
 DEFINE_string(output, "./output/", "Save benchmark log path."); // ¿ÉÊÓ»¯½á¹û±£´æµÄÂ·¾¶ TODO 
 DEFINE_string(type, "ocr", "Perform ocr or structure, the value is selected in ['ocr','structure']."); // ÈÎÎñÀàĞÍ
 DEFINE_string(config_path, "", "Path of config file."); // ÅäÖÃÎÄ¼şÂ·¾¶ 
+DEFINE_bool(ensure_ascii, false, "Path of config file."); // trueÊ±json¿ªÆôascii×ªÒå 
 
 // detection related DET¼ì²âÏà¹Ø 
 DEFINE_string(det_model_dir, "", "Path of det inference model."); // detÄ£ĞÍ¿âÂ·¾¶ 

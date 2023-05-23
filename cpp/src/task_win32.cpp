@@ -5,9 +5,9 @@
 
 #include <windows.h>
 
-#include <include/paddleocr.h>
-#include <include/args.h>
-#include <include/task.h>
+#include "include/paddleocr.h"
+#include "include/args.h"
+#include "include/task.h"
 
 // ±àÂë×ª»»
 #include<codecvt>
