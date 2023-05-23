@@ -16,6 +16,10 @@
 
 #include <gflags/gflags.h>
 
+// 工作模式 
+DECLARE_string(image_path);
+DECLARE_int32(port);
+
 // common args
 DECLARE_bool(use_gpu);
 DECLARE_bool(use_tensorrt);
@@ -26,7 +30,6 @@ DECLARE_bool(enable_mkldnn);
 DECLARE_string(precision);
 DECLARE_bool(benchmark);
 DECLARE_string(output);
-DECLARE_string(image_dir);
 DECLARE_string(type);
 DECLARE_string(config_path);
 // detection related

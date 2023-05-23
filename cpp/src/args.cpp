@@ -18,6 +18,10 @@
 
 #include <gflags/gflags.h>
 
+// 工作模式 
+DEFINE_string(image_path, "", "Set image_path to run a single task."); // 若填写了图片路径，则执行一次OCR。 
+DEFINE_int32(port, -1, "Set port to enable socket server mode."); // 若填写了端口号，则开启套接字服务器。否则，启用匿名管道模式。 
+
 // common args 常用参数 
 DEFINE_bool(use_gpu, false, "Infering with GPU or CPU."); // true时启用GPU（需要推理库支持） 
 DEFINE_bool(use_tensorrt, false, "Whether use tensorrt."); // true时启用tensorrt 
@@ -27,8 +31,7 @@ DEFINE_int32(cpu_threads, 10, "Num of threads with CPU."); // CPU线程
 DEFINE_bool(enable_mkldnn, false, "Whether use mkldnn with CPU."); // true时启用mkldnn 
 DEFINE_string(precision, "fp32", "Precision be one of fp32/fp16/int8"); // 预测的精度，支持fp32, fp16, int8 3种输入 
 DEFINE_bool(benchmark, false, "Whether use benchmark."); // true时开启benchmark，对预测速度、显存占用等进行统计 
-DEFINE_string(output, "./output/", "Save benchmark log path."); // 可视化结果保存的路径 
-DEFINE_string(image_dir, "", "Dir of input image."); // TODO 
+DEFINE_string(output, "./output/", "Save benchmark log path."); // 可视化结果保存的路径 TODO 
 DEFINE_string(type, "ocr", "Perform ocr or structure, the value is selected in ['ocr','structure']."); // 任务类型
 DEFINE_string(config_path, "", "Path of config file."); // 配置文件路径 
 
