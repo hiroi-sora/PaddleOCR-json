@@ -309,7 +309,7 @@ namespace PaddleOCR
                     break;
                 }
                 str_in.append(buffer, n); // 将本次接收到的数据追加到存放处末尾 
-                if (n < sizeof(buffer) || buffer[n - 1] == '\0') { // 认为数据已全部接收完毕 
+                if (n < sizeof(buffer) || buffer[n - 1] == '\0' || buffer[n - 1] == '\n') { // 认为数据已全部接收完毕 
                     break;
                 }
             }
