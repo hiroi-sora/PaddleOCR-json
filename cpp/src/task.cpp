@@ -116,7 +116,8 @@ namespace PaddleOCR
     // 输入json字符串，解析并读取Mat 
     cv::Mat Task::imread_json(std::string& str_in) {
         if (str_in == "exit") { // 退出指令 
-            exit(0);
+            is_exit = true;
+            return cv::Mat();
         }
         cv::Mat img;
         bool is_image = false; // 当前是否已找到图片 
@@ -132,7 +133,8 @@ namespace PaddleOCR
         }
         for (auto& el : j.items()) { // 遍历键值 
             if (el.key() == "exit") { // 退出指令 
-                exit(0);
+                is_exit = true;
+                return cv::Mat();
             }
             try {
                 std::string value = to_string(el.value());
@@ -168,6 +170,28 @@ namespace PaddleOCR
 
     // ==================== 任务流程 ====================
 
+    std::string Task::run_ocr(std::string str_in) {
+        cv::Mat img = imread_json(str_in);
+        if (is_exit) { // 退出 
+            return "";
+        }
+        if (img.empty()) { // 读图失败 
+            return get_state_json();
+        }
+        // 执行OCR 
+        std::vector<OCRPredictResult> res_ocr = ppocr->ocr(img, FLAGS_det, FLAGS_rec, FLAGS_cls);
+        // 获取结果 
+        std::string res_json = get_ocr_result_json(res_ocr);
+        // 结果1：识别成功，无文字（rec未检出）
+        if (res_json.empty()) {
+            return get_state_json(CODE_OK_NONE, MSG_OK_NONE(FLAGS_image_path));
+        }
+        // 结果2：识别成功，有文字 
+        else {
+            return res_json;
+        }
+    }
+
     // 入口
     int Task::ocr()
     {
@@ -181,7 +205,7 @@ namespace PaddleOCR
         }
         // 套接字服务器模式
          else if (FLAGS_port != -1) {
-            std::cout << "OCR socket mode. Port: " << FLAGS_port << std::endl;
+            std::cout << "OCR socket mode. Addr:" << FLAGS_addr  << ", Port: " << FLAGS_port << std::endl;
             flag = 2;
          }
         // 匿名管道模式
@@ -231,28 +255,16 @@ namespace PaddleOCR
     // 匿名管道模式 
     int Task::anonymous_pipe_mode() {
         while (1) {
-            set_state();
+            set_state(); // 初始化状态 
             // 读取一行输入 
             std::string str_in;
             getline(std::cin, str_in);
-            cv::Mat img = imread_json(str_in);
-            if (img.empty())
-            { // 读图失败 
-                std::cout << get_state_json() << std::endl;
-                continue;
+            // 获取ocr结果并输出 
+            std::string str_out = run_ocr(str_in);
+            if (is_exit) { // 退出 
+                return 0;
             }
-            // 执行OCR 
-            std::vector<OCRPredictResult> res_ocr = ppocr->ocr(img, FLAGS_det, FLAGS_rec, FLAGS_cls);
-            // 获取结果 
-            std::string res_json = get_ocr_result_json(res_ocr);
-            // 结果1：识别成功，无文字（rec未检出）
-            if (res_json.empty()) {
-                std::cout << get_state_json(CODE_OK_NONE, MSG_OK_NONE(FLAGS_image_path)) << std::endl;
-            }
-            // 结果2：识别成功，有文字 
-            else {
-                std::cout << res_json << std::endl;
-            }
+            std::cout << str_out << std::endl;
         }
         return 0;
     }

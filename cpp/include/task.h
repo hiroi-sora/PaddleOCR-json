@@ -64,11 +64,13 @@ namespace PaddleOCR
         int ocr(); // OCR图片
 
     private:
+        bool is_exit = false; // 为true时退出任务循环 
         PPOCR *ppocr;      // OCR引擎指针 
         int t_code;        // 本轮任务状态码 
         std::string t_msg; // 本轮任务状态消息 
 
         // 任务流程
+        std::string run_ocr(std::string); // 输入用户传入值（字符串），返回结果json字符串
         int single_image_mode();   // 单次识别模式 
         int socket_mode();         // 套接字模式 
         int anonymous_pipe_mode(); // 匿名管道模式 
