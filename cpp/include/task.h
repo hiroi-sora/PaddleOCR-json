@@ -4,6 +4,8 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include "include/nlohmann/json.hpp" // json库
+
 namespace PaddleOCR
 {
 
@@ -77,7 +79,7 @@ namespace PaddleOCR
         std::string get_ocr_result_json(const std::vector<OCRPredictResult> &); // 传入OCR结果，返回json字符串 
 
         // 输入相关 
-      
+        std::string json_dump(nlohmann::json); // json对象转字符串 
         cv::Mat imread_json(std::string &);  // 输入json字符串，解析json并返回图片Mat 
         cv::Mat imread_u8(std::string path, int flag = cv::IMREAD_COLOR); // 代替cv imread，输入utf-8字符串，返回Mat。失败时设置错误码，并返回空Mat。 
         cv::Mat imread_clipboard(int flag = cv::IMREAD_COLOR); // 从当前剪贴板中读取图片 

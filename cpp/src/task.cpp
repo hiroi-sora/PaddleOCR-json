@@ -2,14 +2,13 @@
 #include "include/paddleocr.h"
 #include "include/args.h"
 #include "include/task.h"
-#include "include/nlohmann/json.hpp" // json库
 #include "include/base64.h" // base64库
 namespace PaddleOCR
 {
     // ==================== 工具 ====================
 
     // json对象转字符串
-    std::string json_dump(nlohmann::json j)
+    std::string Task::json_dump(nlohmann::json j)
     {
         try
         {
@@ -116,6 +115,9 @@ namespace PaddleOCR
 
     // 输入json字符串，解析并读取Mat 
     cv::Mat Task::imread_json(std::string& str_in) {
+        if (str_in == "exit") { // 退出指令 
+            exit(0);
+        }
         cv::Mat img;
         bool is_image = false; // 当前是否已找到图片 
         std::string logstr = "";
@@ -129,6 +131,9 @@ namespace PaddleOCR
             return cv::Mat();
         }
         for (auto& el : j.items()) { // 遍历键值 
+            if (el.key() == "exit") { // 退出指令 
+                exit(0);
+            }
             try {
                 std::string value = to_string(el.value());
                 int vallen = value.length();
@@ -168,22 +173,33 @@ namespace PaddleOCR
     {
         // 初始化引擎
         ppocr = new PPOCR(); // 创建引擎对象
-        std::cout << "OCR init completed." << std::endl;
-
+        int flag;
         // 单张图片识别模式
-        if (!FLAGS_image_path.empty())
-        {
-            return single_image_mode();
+        if (!FLAGS_image_path.empty()){
+            std::cout << "OCR single image mode. Path: " << FLAGS_image_path << std::endl;
+            flag = 1;
         }
-        //// 套接字服务器模式
-        // else if (FLAGS_port != -1) {
-        //	return socket_mode();
-        // }
+        // 套接字服务器模式
+         else if (FLAGS_port != -1) {
+            std::cout << "OCR socket mode. Port: " << FLAGS_port << std::endl;
+            flag = 2;
+         }
         // 匿名管道模式
         else {
+            std::cout << "OCR anonymous pipe mode." << std::endl;
+            flag = 3;
+        }
+        std::cout << "OCR init completed." << std::endl;
+
+        switch (flag)
+        {
+        case 1:
+            return single_image_mode();
+        case 2:
+            return socket_mode();
+        case 3:
             return anonymous_pipe_mode();
         }
-
         return 0;
     }
 
@@ -240,6 +256,8 @@ namespace PaddleOCR
         }
         return 0;
     }
+
+    // 套接字服务器模式，在平台内定义 
 }
 
 // ./PaddleOCR-json.exe -config_path="models/zh_CN.txt" -image_path="D:/Test/t2.png" -ensure_ascii=0

@@ -235,6 +235,10 @@ namespace PaddleOCR
         return cv::Mat();
     }
 
+    int Task::socket_mode() {
+        return 0;
+    }
+
 } // namespace PaddleOCR
 
 #endif
