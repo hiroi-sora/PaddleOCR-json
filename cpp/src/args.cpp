@@ -21,6 +21,7 @@
 // 工作模式
 DEFINE_string(image_path, "", "Set image_path to run a single task."); // 若填写了图片路径，则执行一次OCR。
 DEFINE_int32(port, -1, "Set port to enable socket server mode.");      // 若填写了端口号，则开启套接字服务器。否则，启用匿名管道模式。
+DEFINE_string(addr, "loopback", "Socket server addr, the value is selected in ['loopback','any']."); // 套接字服务器的地址模式，本地环回/任何可用。 
 
 // common args 常用参数
 DEFINE_bool(use_gpu, false, "Infering with GPU or CPU.");                                              // true时启用GPU（需要推理库支持）
@@ -137,49 +138,43 @@ void check_path(const std::string &path, const std::string &name, std::string &m
 }
 
 // 检测参数合法性。成功返回空字符串，失败返回报错信息字符串。
-std::string check_flags()
-{
+std::string check_flags() {
+
     std::string msg = "";
-    if (FLAGS_det)
-    { // 检查det
+    if (FLAGS_det) { // 检查det
         check_path(FLAGS_det_model_dir, "det_model_dir", msg);
     }
-    if (FLAGS_rec)
-    { // 检查rec
+    if (FLAGS_rec) { // 检查rec
         check_path(FLAGS_rec_model_dir, "rec_model_dir", msg);
     }
-    if (FLAGS_cls && FLAGS_use_angle_cls)
-    { // 检查cls
+    if (FLAGS_cls && FLAGS_use_angle_cls) { // 检查cls
         check_path(FLAGS_cls_model_dir, "cls_model_dir", msg);
     }
-    if (FLAGS_table)
-    { // 检查table
+    if (FLAGS_table) { // 检查table
         check_path(FLAGS_table_model_dir, "table_model_dir", msg);
         if (!FLAGS_det)
             check_path(FLAGS_det_model_dir, "det_model_dir", msg);
         if (!FLAGS_rec)
             check_path(FLAGS_rec_model_dir, "rec_model_dir", msg);
     }
-    if (FLAGS_layout)
-    { // 布局
+    if (FLAGS_layout) { // 布局
         check_path(FLAGS_layout_model_dir, "layout_model_dir", msg);
     }
     // 检查枚举值
-    if (FLAGS_precision != "fp32" && FLAGS_precision != "fp16" && FLAGS_precision != "int8")
-    {
+    if (FLAGS_precision != "fp32" && FLAGS_precision != "fp16" && FLAGS_precision != "int8") {
         msg += "precison should be 'fp32'(default), 'fp16' or 'int8', not " + FLAGS_precision + ". ";
     }
-    if (FLAGS_type != "ocr" && FLAGS_type != "structure")
-    {
+    if (FLAGS_type != "ocr" && FLAGS_type != "structure") {
         msg += "type should be 'ocr'(default) or 'structure', not " + FLAGS_type + ". ";
     }
-    if (FLAGS_limit_type != "max" && FLAGS_limit_type != "min")
-    {
+    if (FLAGS_limit_type != "max" && FLAGS_limit_type != "min") {
         msg += "limit_type should be 'max'(default) or 'min', not " + FLAGS_limit_type + ". ";
     }
-    if (FLAGS_det_db_score_mode != "slow" && FLAGS_det_db_score_mode != "fast")
-    {
+    if (FLAGS_det_db_score_mode != "slow" && FLAGS_det_db_score_mode != "fast") {
         msg += "limit_type should be 'slow'(default) or 'fast', not " + FLAGS_det_db_score_mode + ". ";
+    }
+    if (FLAGS_addr != "loopback" && FLAGS_addr != "any") {
+        msg += "addr should be 'loopback'(default) or 'any', not " + FLAGS_addr + ". ";
     }
     return msg;
 }

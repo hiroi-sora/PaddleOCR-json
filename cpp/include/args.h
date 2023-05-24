@@ -19,6 +19,7 @@
 // 工作模式
 DECLARE_string(image_path);
 DECLARE_int32(port);
+DECLARE_string(addr);
 
 // common args
 DECLARE_bool(use_gpu);

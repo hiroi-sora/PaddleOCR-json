@@ -3,15 +3,16 @@
 
 #ifdef _WIN32
 
-#include <windows.h>
-
 #include "include/paddleocr.h"
 #include "include/args.h"
 #include "include/task.h"
-
+// 剪贴板和套接字 
+#include <windows.h>
 // 编码转换
 #include <codecvt>
 std::wstring_convert<std::codecvt_utf8<wchar_t>> conv_Ustr_Wstr; // string utf-8 与 wstring utf-16 的双向转换器
+// 套接字 
+#pragma comment(lib, "ws2_32.lib")
 
 namespace PaddleOCR
 {
@@ -62,6 +63,8 @@ namespace PaddleOCR
         return false;
     }
 
+    // ==================== 类的实现 ====================
+
     // 代替 cv::imread ，从路径pathW读入一张图片。pathW必须为unicode的wstring
     cv::Mat Task::imread_wstr(std::wstring pathW, int flag)
     {
@@ -95,7 +98,6 @@ namespace PaddleOCR
         return img;
     }
 
-    // ==================== 类的实现 ====================
 
     // 代替cv imread，接收utf-8字符串传入，返回Mat。
     cv::Mat Task::imread_u8(std::string pathU8, int flag)
@@ -236,6 +238,97 @@ namespace PaddleOCR
     }
 
     int Task::socket_mode() {
+        // 初始化Winsock库
+        WSADATA wsa_data; // winsock结构 
+        if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
+            std::cout << "Failed to initialize Winsock." << std::endl;
+            return -1;
+        }
+        // 创建套接字，协议族为TCP/IP
+        SOCKET server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (server_fd == INVALID_SOCKET) {
+            std::cout << "Failed to create socket." << std::endl;
+            WSACleanup();
+            return -1;
+        }
+        // 配置地址和端口号
+        struct sockaddr_in addr;
+        addr.sin_family = AF_INET; // 地址族：IPv4 
+        addr.sin_addr.s_addr = (FLAGS_addr=="loopback" ? htonl(INADDR_LOOPBACK) : INADDR_ANY); // IP地址模式：本地环回/任何可用 
+        addr.sin_port = htons(FLAGS_port); // 端口号 
+        // 绑定地址和端口号到套接字句柄server_fd
+        if (bind(server_fd, (struct sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) {
+            std::cout << "Failed to bind address." << std::endl;
+            closesocket(server_fd);
+            WSACleanup();
+            return -1;
+        }
+        // 将套接字server_fd设为监听状态，允许10个客户端排队 
+        if (listen(server_fd, 10) == SOCKET_ERROR) {
+            std::cout << "Failed to set listen." << std::endl;
+            closesocket(server_fd);
+            WSACleanup();
+            return -1;
+        }
+        // 获取服务端实际ip和端口 
+        char* server_ip = inet_ntoa(addr.sin_addr);
+        int server_port = ntohs(addr.sin_port);
+        std::cout << "Socket init completed. Server IP address: " << server_ip << ":" << server_port << std::endl;
+
+        // 循环等待接收连接
+        while (true) {
+            // 接受连接请求
+            struct sockaddr_in client_addr;
+            int client_addr_len = sizeof(client_addr);
+            SOCKET client_fd = accept(server_fd, (sockaddr*)&client_addr, &client_addr_len);
+            if (client_fd == INVALID_SOCKET) {
+                std::cout << "Failed to accept connection." << std::endl;
+                continue;
+            }
+            // 获取客户端实际ip和端口 
+            char* client_ip = inet_ntoa(client_addr.sin_addr);
+            int client_port = ntohs(client_addr.sin_port);
+            std::cout << "Client connected. IP address: " << client_ip << ":" << client_port << std::endl;
+
+            // 接收数据 
+            char buffer[BUFSIZ];
+            int n = recv(client_fd, buffer, sizeof(buffer), 0);
+            if (n <= 0) { // 可能客户端断开连接 
+                std::cout << "Failed to receive data." << std::endl;
+                closesocket(client_fd);
+                continue;
+            }
+            std::string str_in = buffer;
+            std::cout << "str_in: " << str_in << std::endl;
+
+            // =============== OCR开始 =============== 
+            set_state(); // 初始化状态 
+            // 获取ocr结果 
+            std::string str_out = run_ocr(str_in);
+            if (is_exit) { // 退出 
+                // 关闭连接
+                closesocket(client_fd);
+                break;
+            }
+            // =============== OCR完毕 =============== 
+
+            // 发送数据
+            std::cout << str_out << std::endl;
+            int m = send(client_fd, str_out.c_str(), strlen(str_out.c_str()), 0);
+            if (m <= 0) {
+                std::cout << "Failed to send data." << std::endl;
+            }
+
+            // 关闭连接
+            closesocket(client_fd);
+        }
+
+        // 关闭套接字
+        closesocket(server_fd);
+
+        // 清理Winsock库资源
+        WSACleanup();
+
         return 0;
     }
 
