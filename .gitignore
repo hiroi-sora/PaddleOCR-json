@@ -2,3 +2,5 @@
 
 cpp/build
 cpp/.source
+
+*__pycache__*
