@@ -290,16 +290,26 @@ namespace PaddleOCR
             int client_port = ntohs(client_addr.sin_port);
             std::cout << "Client connected. IP address: " << client_ip << ":" << client_port << std::endl;
 
-            // 接收数据 
-            char buffer[BUFSIZ];
-            int n = recv(client_fd, buffer, sizeof(buffer), 0);
-            if (n <= 0) { // 可能客户端断开连接 
+            // 接收任意长度数据 
+            std::string str_in; // 接收数据存放处 
+            char buffer[1024]; // 缓冲区 
+            int n = 0;
+            while (true) {
+                n = recv(client_fd, buffer, sizeof(buffer), 0);
+                if (n <= 0) { // 可能客户端断开连接或连接错误 
+                    break;
+                }
+                str_in.append(buffer, n); // 将本次接收到的数据追加到存放处末尾 
+                if (n < sizeof(buffer) || buffer[n - 1] == '\0') { // 认为数据已全部接收完毕 
+                    break;
+                }
+            }
+            if (n <= 0) {
                 std::cout << "Failed to receive data." << std::endl;
                 closesocket(client_fd);
                 continue;
             }
-            std::string str_in = buffer;
-            std::cout << "str_in: " << str_in << std::endl;
+            std::cout << "Get string. Length: " << str_in.length() << std::endl;
 
             // =============== OCR开始 =============== 
             set_state(); // 初始化状态 
