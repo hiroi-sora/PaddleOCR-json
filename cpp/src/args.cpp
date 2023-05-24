@@ -20,7 +20,7 @@
 
 // 工作模式
 DEFINE_string(image_path, "", "Set image_path to run a single task."); // 若填写了图片路径，则执行一次OCR。
-DEFINE_int32(port, -1, "Set port to enable socket server mode.");      // 若填写了端口号，则开启套接字服务器。否则，启用匿名管道模式。
+DEFINE_int32(port, -1, "Set to 0 enable random port, set to 1~65535 enables specified port.");      // 填写0随机端口号，填1^65535指定端口号。默认则启用匿名管道模式。
 DEFINE_string(addr, "loopback", "Socket server addr, the value is selected in ['loopback','any']."); // 套接字服务器的地址模式，本地环回/任何可用。 
 
 // common args 常用参数
@@ -38,7 +38,7 @@ DEFINE_string(config_path, "", "Path of config file.");                         
 DEFINE_bool(ensure_ascii, false, "Path of config file.");                                              // true时json开启ascii转义
 
 // detection related DET检测相关
-DEFINE_string(det_model_dir, "", "Path of det inference model.");                                                 // det模型库路径
+DEFINE_string(det_model_dir, "models/ch_PP-OCRv3_det_infer", "Path of det inference model.");                                                 // det模型库路径
 DEFINE_string(limit_type, "max", "limit_type of input image, the value is selected in ['max','min'].");           // 对图片尺寸限制采用长边还是短边
 DEFINE_int32(limit_side_len, 960, "limit_side_len of input image.");                                              // 对长/短边限制值
 DEFINE_double(det_db_thresh, 0.3, "Threshold of det_db_thresh.");                                                 // 用于过滤DB预测的二值化图像，设置为0.-0.3对结果影响不明显
@@ -50,24 +50,24 @@ DEFINE_bool(visualize, false, "Whether show the detection results.");           
 
 // classification related CLS方向分类相关
 DEFINE_bool(use_angle_cls, false, "Whether use use_angle_cls.");  // true时启用方向分类器
-DEFINE_string(cls_model_dir, "", "Path of cls inference model."); // cls模型库路径
+DEFINE_string(cls_model_dir, "models/ch_ppocr_mobile_v2.0_cls_infer", "Path of cls inference model.");
 DEFINE_double(cls_thresh, 0.9, "Threshold of cls_thresh.");       // 方向分类器的得分阈值
 DEFINE_int32(cls_batch_num, 1, "cls_batch_num.");                 // 方向分类器batchsize
 
 // recognition related REC文本识别相关
-DEFINE_string(rec_model_dir, "", "Path of rec inference model.");                                // rec模型库路径
+DEFINE_string(rec_model_dir, "models/ch_PP-OCRv3_rec_infer", "Path of rec inference model.");
 DEFINE_int32(rec_batch_num, 6, "rec_batch_num.");                                                // 文字识别模型batchsize
-DEFINE_string(rec_char_dict_path, "../../ppocr/utils/ppocr_keys_v1.txt", "Path of dictionary."); // 字典路径
+DEFINE_string(rec_char_dict_path, "models/dict_chinese.txt", "Path of dictionary."); // 字典路径
 DEFINE_int32(rec_img_h, 48, "rec image height");                                                 // 文字识别模型输入图像高度。V3模型是48，V2应该改为32
 DEFINE_int32(rec_img_w, 320, "rec image width");                                                 // 文字识别模型输入图像宽度。V3和V2一致
 
 // layout model related 版面分析相关
-DEFINE_string(layout_model_dir, "", "Path of table layout inference model.");                                           // 版面分析模型inference model路径
+DEFINE_string(layout_model_dir, "", "Path of table layout inference model.");
 DEFINE_string(layout_dict_path, "../../ppocr/utils/dict/layout_dict/layout_publaynet_dict.txt", "Path of dictionary."); // 版面字典路径
 DEFINE_double(layout_score_threshold, 0.5, "Threshold of score.");                                                      // 检测框的分数阈值
 DEFINE_double(layout_nms_threshold, 0.5, "Threshold of nms.");                                                          // nms的阈值
 // structure model related 表格结构相关
-DEFINE_string(table_model_dir, "", "Path of table struture inference model."); // 表格识别模型inference model路径
+DEFINE_string(table_model_dir, "", "Path of table struture inference model.");
 DEFINE_int32(table_max_len, 488, "max len size of input image.");              // 表格识别模型输入图像长边大小
 DEFINE_int32(table_batch_num, 1, "table_batch_num.");
 DEFINE_bool(merge_no_span_structure, true, "Whether merge <td> and </td> to <td></td>");                          // true时将<td>和</td>合并到<td></td>
@@ -127,12 +127,13 @@ std::string read_config()
 }
 
 // 检查一个路径path是否存在，将信息写入msg
-void check_path(const std::string &path, const std::string &name, std::string &msg)
+void check_path(const std::string& path, const std::string& name, std::string& msg)
 {
-    if (path.empty())
+    if (path.empty()){
         msg += (name + " is empty. ");
-    else if (!PaddleOCR::Utility::PathExists(path))
-    {
+    }
+    else if (!PaddleOCR::Utility::PathExists(path)) {
+   
         msg += (name + " [" + path + "] does not exist. ");
     }
 }
