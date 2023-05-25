@@ -24,51 +24,6 @@
 
 using namespace PaddleOCR;
 
-void ocr(std::vector<cv::String> &cv_all_img_names)
-{
-    PPOCR ocr = PPOCR();
-
-    if (FLAGS_benchmark)
-    { // 启用统计 
-        ocr.reset_timer();
-    }
-
-    std::vector<cv::Mat> img_list;
-    std::vector<cv::String> img_names;
-    for (int i = 0; i < cv_all_img_names.size(); ++i)
-    {
-        cv::Mat img = cv::imread(cv_all_img_names[i], cv::IMREAD_COLOR);
-        if (!img.data)
-        {
-            std::cerr << "[ERROR] image read failed! image path: "
-                      << cv_all_img_names[i] << std::endl;
-            continue;
-        }
-        img_list.push_back(img);
-        img_names.push_back(cv_all_img_names[i]);
-    }
-
-    std::vector<std::vector<OCRPredictResult>> ocr_results =
-        ocr.ocr(img_list, FLAGS_det, FLAGS_rec, FLAGS_cls);
-
-    for (int i = 0; i < img_names.size(); ++i)
-    {
-        std::cout << "predict img: " << cv_all_img_names[i] << std::endl;
-        Utility::print_result(ocr_results[i]);
-        if (FLAGS_visualize && FLAGS_det)
-        {
-            std::string file_name = Utility::basename(img_names[i]);
-            cv::Mat srcimg = img_list[i];
-            Utility::VisualizeBboxes(srcimg, ocr_results[i],
-                                     FLAGS_output + "/" + file_name);
-        }
-    }
-    if (FLAGS_benchmark)
-    {
-        ocr.benchmark_log(cv_all_img_names.size());
-    }
-}
-
 void structure(std::vector<cv::String> &cv_all_img_names)
 {
     PaddleOCR::PaddleStructure engine = PaddleOCR::PaddleStructure();
@@ -165,9 +120,4 @@ int main(int argc, char **argv)
         std::cerr << "[ERROR] structure not support. " << std::endl;
         // structure(cv_all_img_names);
     }
-
-    // ocr(cv_all_img_names);
-    // std::vector<cv::String> cv_all_img_names;
-    // cv::glob(FLAGS_image_path, cv_all_img_names);
-    // std::cout << "total images num: " << cv_all_img_names.size() << std::endl;
 }

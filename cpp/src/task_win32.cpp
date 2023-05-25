@@ -102,18 +102,15 @@ namespace PaddleOCR
     // 代替cv imread，接收utf-8字符串传入，返回Mat。
     cv::Mat Task::imread_u8(std::string pathU8, int flag)
     {
-        if (pathU8 == u8"clipboard")
-        { // 若为剪贴板任务
+        if (pathU8 == u8"clipboard") { // 若为剪贴板任务 
             return imread_clipboard(flag);
         }
         // string u8 转 wchar_t
         std::wstring wpath;
-        try
-        {
+        try {
             wpath = conv_Ustr_Wstr.from_bytes(pathU8); // 利用转换器转换
         }
-        catch (...)
-        {
+        catch (...) {
             set_state(CODE_ERR_PATH_CONV, MSG_ERR_PATH_CONV(pathU8)); // 报告状态：转wstring失败
             return cv::Mat();
         }
