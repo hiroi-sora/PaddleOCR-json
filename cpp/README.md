@@ -1,6 +1,6 @@
-# PaddleOCR-json V2 构建指南
+# PaddleOCR-json V1.3 构建指南
 
-本文档帮助如何在Windows上编译 PaddleOCR-json V2 （对应PPOCR v2.6）。面向小白，用的最简单的步骤。大佬可酌情调整。
+本文档帮助如何在Windows上编译 PaddleOCR-json V1.3 （对应PPOCR v2.6）。面向小白，用的最简单的步骤。大佬可酌情调整。
 
 本文参考了 PPOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/docs/windows_vs2019_build.md#12-%E4%B8%8B%E8%BD%BD-paddlepaddle-c-%E9%A2%84%E6%B5%8B%E5%BA%93%E5%92%8C-opencv) ，但建议以本文为准。
 
