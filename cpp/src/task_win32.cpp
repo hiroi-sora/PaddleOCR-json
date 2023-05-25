@@ -263,8 +263,8 @@ namespace PaddleOCR
             WSACleanup();
             return -1;
         }
-        // 将套接字server_fd设为监听状态，允许10个客户端排队 
-        if (listen(server_fd, 10) == SOCKET_ERROR) {
+        // 将套接字server_fd设为监听状态，只允许1个客户端排队连接 
+        if (listen(server_fd, 1) == SOCKET_ERROR) {
             std::cerr << "Failed to set listen." << std::endl;
             closesocket(server_fd);
             WSACleanup();
