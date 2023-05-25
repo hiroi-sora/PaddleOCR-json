@@ -1,4 +1,4 @@
-# PaddleOCR-json V2 编译指南
+# PaddleOCR-json V2 构建指南
 
 本文档帮助如何在Windows上编译 PaddleOCR-json V2 （对应PPOCR v2.6）。面向小白，用的最简单的步骤。大佬可酌情调整。
 
@@ -81,20 +81,24 @@ PADDLE_LIB:
 
 ![](docs/imgs/b5.png)
 
-3. 按F5编译。如果输出`生成：成功2个，失败0个……`，弹窗`无法启动程序：……系统找不到指定的文件` 是正常的。但你应该能在 `build/Release` 下找到生成的 `ppocr.exe` 。请继续下面的步骤。
+3. 调整项目字符集。在解决方案管理器的ppocr上，右键→高级→`字符集`改为`使用Unicode字符集`。
 
-4. 拷贝必要的运行库。在 `source` 中的 `paddle_inference_cpu_avx_mkl` 及 `opencv` 目录中，拷贝以下文件到 `build/Release` 文件夹下。
+![](docs/imgs/b9.png)
+
+4. 按F5编译。如果输出`生成：成功2个，失败0个……`，弹窗`无法启动程序：……系统找不到指定的文件` 是正常的。但你应该能在 `build/Release` 下找到生成的 `ppocr.exe` 。请继续下面的步骤。
+
+5. 拷贝必要的运行库。在 `source` 中的 `paddle_inference_cpu_avx_mkl` 及 `opencv` 目录中，拷贝以下文件到 `build/Release` 文件夹下。
 
 - `paddle_inference_cpu_avx_mkl/paddle/lib/paddle_inference.dll`
 - `paddle_inference_cpu_avx_mkl/third_party/install/onnxruntime/lib/onnxruntime.dll`
 - `paddle_inference_cpu_avx_mkl/third_party/install/paddle2onnx/lib/paddle2onnx.dll`
 - `opencv/build/x64/vc16/bin/opencv_world470.dll`
 
-4. 在`build/Release`下，Shift+右键，在此处打开终端（或PowerShell），输入 `./ppocr.exe` 。如果输出下列文字，就正常。
+6. 在`build/Release`下，Shift+右键，在此处打开终端（或PowerShell），输入 `./ppocr.exe` 。如果输出下列文字，就正常。
 
 `Usage[det]: ./ppocr --det_model_dir=/PATH/TO/DET_INFERENCE_MODEL/ --image_dir=/PATH/TO/INPUT/IMAGE/`
 
-5. 回到 Visual Studio 中，再进行一些配置。  
+7. 回到 Visual Studio 中，再进行一些配置。  
 - 首先在 `ALL BUILD` 上，右键→属性→常规，**输出目录** 原本是 `$(SolutionDir)$(Platform)/$(Configuration)/` ，现在改成exe生成的目录，即为 `$(ProjectDir)/Release` 。  
 - 其次修改工作目录，调试→工作目录，原来是`$(ProjectDir)` ，将它改为 `$(ProjectDir)/Release`。
 - 然后修改生成文件名： 常规→目标文件名，改成 `PaddleOCR-json` 或你喜欢的名字。
@@ -104,4 +108,6 @@ PADDLE_LIB:
 ![](docs/imgs/b7.png)
 ![](docs/imgs/b8.png)
 
-6. 尝试按F5重新编译。如果成功生成，并且有一个命令行窗口一闪而过，那就说明配置正确了。
+8. 尝试按F5重新编译。如果成功生成，并且有一个命令行窗口一闪而过，那就说明配置正确了。
+
+如果你需要移植其他平台，可以参考文档 [移植指南](docs/移植指南.md)
