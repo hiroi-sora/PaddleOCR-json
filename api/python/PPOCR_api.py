@@ -132,7 +132,7 @@ class PPOCR_socket(PPOCR_pipe):
             argument = {}
         argument["port"] = 0 # 随机端口号
         argument["addr"] = "loopback" # 本地环回地址
-        super().__init__(exePath, argument)
+        super().__init__(exePath, argument) # 父类构造函数
         # 再获取一行输出，检查是否成功启动服务器
         if not self.ret.poll() == None:  # 子进程已退出，初始化失败
             raise Exception(f"Socket init fail.")
@@ -141,8 +141,11 @@ class PPOCR_socket(PPOCR_pipe):
             splits = initStr.split(":")
             self.ip = splits[0].split("Socket init completed. ")[1]
             self.port = int(splits[1])   # 提取端口号
+            self.ret.stdout.close() # 关闭管道重定向，防止缓冲区填满导致堵塞
             print(f"套接字服务器初始化成功。{self.ip}:{self.port}")
             return
+        # 异常
+        self.exit()
         raise Exception(f"Socket init fail.")
 
     def runDict(self, writeDict: dict):
@@ -182,11 +185,11 @@ class PPOCR_socket(PPOCR_pipe):
         except Exception as e:
             return {"code": 905, "data": f"识别器输出值反序列化JSON失败。异常信息：[{e}]。原始内容：[{getStr}]"}
 
-def GetOcrApi(exePath: str, ipcMode: str = "socket", argument: dict = None):
+def GetOcrApi(exePath: str, argument: dict = None, ipcMode: str = "pipe"):
     """获取识别器API对象。\n
     `exePath`: 识别器`PaddleOCR_json.exe`的路径。\n
-    `ipcMode`: 进程通信模式，可选值为套接字模式`socket` 或 管道模式`pipe`。\n
-    `argument`: 启动参数，字典`{"键":值}`。参数说明见 https://github.com/hiroi-sora/PaddleOCR-json
+    `argument`: 启动参数，字典`{"键":值}`。参数说明见 https://github.com/hiroi-sora/PaddleOCR-json\n
+    `ipcMode`: 进程通信模式，可选值为套接字模式`socket` 或 管道模式`pipe`。用法上完全一致。
     """
     if ipcMode == "socket":
         return PPOCR_socket(exePath, argument)
