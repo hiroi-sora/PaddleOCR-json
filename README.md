@@ -384,7 +384,7 @@ fn main() {
 
 ### 项目构建指南
 
-方式1. [传统构建](https://github.com/hiroi-sora/PaddleOCR-json/blob/main_old_builds/docs/%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA%E6%8C%87%E5%8D%97.md)
+方式1. [传统构建](https://github.com/hiroi-sora/PaddleOCR-json/blob/backups/1.2.1/old_builds/docs/%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA%E6%8C%87%E5%8D%97.md)
 
 方式2(推荐). [使用 CMake 快速构建](docs/项目构建指南.md)
 
