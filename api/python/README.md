@@ -30,6 +30,10 @@ from PPOCR_api import GetOcrApi
 | argument | None   | dict | 启动参数字典。可以用这个参数指定配置文件、指定识别语言。       |
 | ipcMode  | "pipe" | str  | 进程间通信方式，可选值为套接字模式`socket` 或 管道模式`pipe`。 |
 
+**返回值：** 
+
+初始化成功，返回引擎API对象。初始化失败，抛出异常。
+
 **示例1：** 最简单的情况
 
 ```python
@@ -204,6 +208,7 @@ from PPOCR_visualize import visualize
 
 首先得成功执行一次OCR，获取文本块列表（即`['data']`部分）
 ```python
+testImg = "D:/test.png"
 getObj = ocr.run(testImg)
 if not getObj["code"] == 100:
     print('识别失败！！')
@@ -211,9 +216,9 @@ if not getObj["code"] == 100:
 textBlocks = getObj["data"]  # 提取文本块数据
 ```
 
-### 简单展示结果
+### 展示结果图片
 
-只需一行代码，传入文本块和原图片的路径
+只需一行代码，传入文本块和原图片的路径，打开图片浏览窗口
 ```python
 visualize(textBlocks, testImg).show()
 ```
