@@ -1,3 +1,6 @@
+稳定版：[v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds)
+测试版：v1.3.0_Alpha
+
 # PaddleOCR-json v1.3.0
 
 这是一个基于 [PaddleOCR v2.6 C++](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) 的开源离线OCR组件，可快速让你的程序拥有OCR能力。它通常作为一个子进程被上层程序调用，也可以作为一个单独的进程通过TCP调用。本项目提供了Python等语言的API，你可以无视技术细节，通过两行代码使用它。
@@ -24,7 +27,7 @@
 
 ## 准备工作
 
-下载 [PaddleOCR-json v1.3.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.3.0) 并解压，即可。
+下载 [PaddleOCR-json v1.3.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.3.0_Alpha.1) 并解压，即可。
 
 ### 简单试用
 
@@ -68,7 +71,7 @@ Python API 有丰富的附加模块：便于开发者调试观察的可视化模
 
 ### 其他API
 
-`PowerShell`、`Node.js`、`Java`、`Rust` API尚未兼容 v1.3 测试版本。如有需要，请用 v1.2 版本。
+`PowerShell`、`Node.js`、`Java`、`Rust` 等API尚未兼容 v1.3 测试版本。如有需要，请用 [v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds) 版本。
 
 ### 更多语言API
 
@@ -231,13 +234,12 @@ Python API 有丰富的附加模块：便于开发者调试观察的可视化模
 
 版本号链接可前往对应备份分支。
 
-#### [v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.2.1) `2022.9.28` 
-- 修复了一些BUG。
-- 解决非中文windows难以读取中文路径的问题，拥抱utf-8，彻底摆脱对gbk等区域性编码的依赖。
-- 新功能：直接读取并识别剪贴板内存中的图片。
-- 错误代码和提示更详细。
+#### v1.3.0 Alpha `2023.5.26` 
+- 重构代码，条理更清晰，易于移植。
+- 新功能：Base64传图片。
+- 新功能：套接字服务器模式。
 
-#### [v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.2.1) `2022.9.28` 
+#### [v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds) `2022.9.28` 
 - 修复了一些BUG。
 - 解决非中文windows难以读取中文路径的问题，拥抱utf-8，彻底摆脱对gbk等区域性编码的依赖。
 - 新功能：直接读取并识别剪贴板内存中的图片。
