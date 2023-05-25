@@ -144,13 +144,14 @@ namespace PaddleOCR
                 }
                 // 提取图片 
                 if (!is_image) {
-                    if (el.key() == "image_dir" || el.key() == "image_path") { // 图片路径
+                    if (el.key() == "image_path") { // 图片路径
+                        FLAGS_image_path = value;
                         img = imread_u8(value); // 读取图片 
                         is_image = true;
                     }
                     else if (el.key() == "image_base64") { // base64字符串 
-                        img = imread_base64(value); // 读取图片 
                         FLAGS_image_path = "base64"; // 设置图片路径标记，以便于无文字时的信息输出 
+                        img = imread_base64(value); // 读取图片 
                         is_image = true;
                     }
                 }

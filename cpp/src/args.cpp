@@ -33,9 +33,9 @@ DEFINE_bool(enable_mkldnn, true, "Whether use mkldnn with CPU.");               
 DEFINE_string(precision, "fp32", "Precision be one of fp32/fp16/int8");                                // 预测的精度，支持fp32, fp16, int8 3种输入
 DEFINE_bool(benchmark, false, "Whether use benchmark.");                                               // true时开启benchmark，对预测速度、显存占用等进行统计
 DEFINE_string(output, "./output/", "Save benchmark log path.");                                        // 可视化结果保存的路径 TODO
-DEFINE_string(type, "ocr", "Perform ocr or structure, the value is selected in ['ocr','structure']."); // 任务类型
+DEFINE_string(type, "ocr", "Perform ocr or structure, the value is selected in ['ocr','structure']."); // 任务类型（暂不可用）
 DEFINE_string(config_path, "", "Path of config file.");                                                // 配置文件路径
-DEFINE_bool(ensure_ascii, false, "Path of config file.");                                              // true时json开启ascii转义
+DEFINE_bool(ensure_ascii, true, "Enable JSON ascii escape.");                                          // true时json开启ascii转义
 
 // detection related DET检测相关
 DEFINE_string(det_model_dir, "models/ch_PP-OCRv3_det_infer", "Path of det inference model.");                                                 // det模型库路径
