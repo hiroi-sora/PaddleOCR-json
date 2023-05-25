@@ -1,5 +1,5 @@
-稳定版：[v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds)
-测试版：v1.3.0_Alpha
+稳定版：[v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds)  
+测试版：v1.3.0_Alpha  
 
 # PaddleOCR-json v1.3.0
 
@@ -27,7 +27,7 @@
 
 ## 准备工作
 
-下载 [PaddleOCR-json v1.3.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.3.0_Alpha.1) 并解压，即可。
+下载 [PaddleOCR-json v1.3.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.3.0_alpha.1) 并解压，即可。
 
 ### 简单试用
 
