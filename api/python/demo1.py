@@ -5,7 +5,6 @@
 from PPOCR_api import GetOcrApi
 
 import os
-import base64
 
 # 测试图片路径
 TestImagePath = f"{os.path.dirname(os.path.abspath(__file__))}\\test.jpg"
