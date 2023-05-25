@@ -161,6 +161,9 @@ std::string check_flags() {
     if (FLAGS_layout) { // 布局
         check_path(FLAGS_layout_model_dir, "layout_model_dir", msg);
     }
+    if (!FLAGS_config_path.empty()) { // 配置文件目录非空时检查存在 
+        check_path(FLAGS_config_path, "config_path", msg);
+    }
     // 检查枚举值
     if (FLAGS_precision != "fp32" && FLAGS_precision != "fp16" && FLAGS_precision != "int8") {
         msg += "precison should be 'fp32'(default), 'fp16' or 'int8', not " + FLAGS_precision + ". ";
