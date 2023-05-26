@@ -10,6 +10,7 @@
 - 取消了 `use_system_pause`, `ensure_chcp`, `use_debug` 这三个跟调试相关的参数。默认不会暂停程序。
 - `ensure_ascii` 的默认值改为 `true` ，默认开启ascii转义。
 - 不再支持以 `image_dir` 传入图片路径，请使用 `image_path` 。
+- 不再支持单独传入一行图片路径，必须使用json `{"image_path": "路径"}` 的格式。
 - 新增两个跟服务器模式有关的参数：地址 `addr` 和端口 `port` 。
 - 新增结束进程的指令： `exit` 。可以通过传入 `{"exit":""}` 或直接传入 `exit` 来结束引擎进程。当然手动kill掉也是可以的。
 
