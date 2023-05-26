@@ -134,9 +134,9 @@ class PPOCR_socket(PPOCR_pipe):
         argument["addr"] = "loopback" # 本地环回地址
         super().__init__(exePath, argument) # 父类构造函数
         # 再获取一行输出，检查是否成功启动服务器
+        initStr = self.ret.stdout.readline().decode("utf-8", errors="ignore")
         if not self.ret.poll() == None:  # 子进程已退出，初始化失败
             raise Exception(f"Socket init fail.")
-        initStr = self.ret.stdout.readline().decode("utf-8", errors="ignore")
         if "Socket init completed. " in initStr:  # 初始化成功
             splits = initStr.split(":")
             self.ip = splits[0].split("Socket init completed. ")[1]
