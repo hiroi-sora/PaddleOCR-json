@@ -61,8 +61,6 @@ ocr = GetOcrApi("……\PaddleOCR-json.exe")
 # 识别图片，传入图片路径
 getObj = ocr.run(r'………\测试.png')
 print(f'图片识别完毕，状态码：{getObj["code"]} 结果：\n{getObj["data"]}\n')
-
-ocr.stop()  # 结束引擎子进程
 ```
 
 Python API 有丰富的附加模块：便于开发者调试观察的可视化模块；和[Umi-OCR](https://github.com/hiroi-sora/Umi-OCR)带来的文本块后处理（段落合并）技术。详细使用方法见 [资源目录](api/python)
