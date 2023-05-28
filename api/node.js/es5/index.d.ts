@@ -2,13 +2,17 @@
 import { Worker } from 'worker_threads';
 declare class OCR extends Worker {
     pid: number;
-    constructor(path?: string, args?: string[], options?: OCR.Options);
+    addr: string | undefined;
+    port: number | undefined;
+    exitCode: number | null;
+    constructor(path?: string, args?: string[], options?: OCR.Options, debug?: boolean);
     postMessage(obj: OCR.DArg): void;
     flush(obj: OCR.DArg): Promise<OCR.coutReturnType>;
 }
 declare namespace OCR {
     interface DArg {
-        image_dir?: string | null;
+        image_path?: string | null;
+        image_base64?: string;
         limit_side_len?: number;
         limit_type?: string;
         visualize?: boolean;

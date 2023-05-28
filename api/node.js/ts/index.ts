@@ -1,65 +1,71 @@
 import { Worker } from 'worker_threads';
 import { resolve as path_resolve } from 'path';
 
-const $quqe = (() => {
-    class Queue extends Array<(next: () => void) => any> {
-        out() {
-            if (!this.length) return;
-            new Promise((res: (v?: any) => void) => this[0](res))
-                .then(() => (super.shift(), this.out()));
-        }
-        in(fn: (next: () => void) => any) {
-            super.push(fn) - 1 || this.out();
-        }
+class Queue extends Array<(next: () => void) => any> {
+    out() {
+        if (!this.length) return;
+        new Promise((res: (v?: any) => void) => this[0](res))
+            .then(() => (super.shift(), this.out()));
     }
-    const map = new WeakMap<OCR, Queue>();
-    return (key: OCR) => {
-        let value = map.get(key);
-        if (value) return value;
-        value = new Queue();
-        map.set(key, value);
-        return value;
-    };
-})();
+    in(fn: (next: () => void) => any) {
+        super.push(fn) - 1 || this.out();
+        return true;
+    }
+}
+const quqeMap = new WeakMap<OCR, Queue>();
 
 class OCR extends Worker {
     pid: number;
-    constructor(path?: string, args?: string[], options?: OCR.Options) {
+    addr: string | undefined;
+    port: number | undefined;
+    exitCode: number | null = null;
+    constructor(path?: string, args?: string[], options?: OCR.Options, debug?: boolean) {
         super(path_resolve(__dirname, 'worker.js'), {
-            workerData: { path, args, options },
+            workerData: { path, args, options, debug },
             stdout: true,
         });
-        $quqe(this).in((next) => {
-            this.stdout.read()
-            this.stdout.once('data', (pid) => {
-                super.emit('init', this.pid = Number(String(pid)));
+        const quqe = new Queue();
+        quqeMap.set(this, quqe);
+        quqe.in((next) => {
+            this.stdout.read();
+            this.stdout.once('data', (data) => {
+                const [, pid, , addr, port] = String(data).match(/^pid=(\d+), socket=((\d+\.\d+\.\d+\.\d+):(\d+))?/);
+                this.pid = Number(pid);
+                this.addr = addr;
+                this.port = Number(port);
+                super.emit('init', this.pid);
                 next();
             });
         });
+        super.once('exit', (code) => {
+            this.exitCode = code;
+            quqeMap.delete(this);
+        });
     }
     postMessage(obj: OCR.DArg) {
-        $quqe(this).in((next) => {
+        quqeMap.get(this)?.in((next) => {
             super.once('message', next);
             super.postMessage(obj);
         });
     }
     flush(obj: OCR.DArg) {
-        return new Promise((res: (v: OCR.coutReturnType) => void) =>
-            $quqe(this).in((next) => {
+        return new Promise((res: (v: OCR.coutReturnType) => void) => {
+            quqeMap.get(this).in((next) => {
                 super.once('message', (data: OCR.coutReturnType) => {
                     res(data);
                     next();
                 });
                 super.postMessage(obj);
-            })
-        );
+            });
+        });
     }
 }
 
 namespace OCR {
 
     export interface DArg {
-        image_dir?: string | null;
+        image_path?: string | null;
+        image_base64?: string;
         limit_side_len?: number;
         limit_type?: string;
         visualize?: boolean;

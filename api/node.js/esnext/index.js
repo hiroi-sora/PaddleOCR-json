@@ -1,57 +1,63 @@
 "use strict";
 const worker_threads_1 = require("worker_threads");
 const path_1 = require("path");
-const $quqe = (() => {
-    class Queue extends Array {
-        out() {
-            if (!this.length)
-                return;
-            new Promise((res) => this[0](res))
-                .then(() => (super.shift(), this.out()));
-        }
-        in(fn) {
-            super.push(fn) - 1 || this.out();
-        }
+class Queue extends Array {
+    out() {
+        if (!this.length)
+            return;
+        new Promise((res) => this[0](res))
+            .then(() => (super.shift(), this.out()));
     }
-    const map = new WeakMap();
-    return (key) => {
-        let value = map.get(key);
-        if (value)
-            return value;
-        value = new Queue();
-        map.set(key, value);
-        return value;
-    };
-})();
+    in(fn) {
+        super.push(fn) - 1 || this.out();
+        return true;
+    }
+}
+const quqeMap = new WeakMap();
 class OCR extends worker_threads_1.Worker {
     pid;
-    constructor(path, args, options) {
+    addr;
+    port;
+    exitCode = null;
+    constructor(path, args, options, debug) {
         super((0, path_1.resolve)(__dirname, 'worker.js'), {
-            workerData: { path, args, options },
+            workerData: { path, args, options, debug },
             stdout: true,
         });
-        $quqe(this).in((next) => {
+        const quqe = new Queue();
+        quqeMap.set(this, quqe);
+        quqe.in((next) => {
             this.stdout.read();
-            this.stdout.once('data', (pid) => {
-                super.emit('init', this.pid = Number(String(pid)));
+            this.stdout.once('data', (data) => {
+                const [, pid, , addr, port] = String(data).match(/^pid=(\d+), socket=((\d+\.\d+\.\d+\.\d+):(\d+))?/);
+                this.pid = Number(pid);
+                this.addr = addr;
+                this.port = Number(port);
+                super.emit('init', this.pid);
                 next();
             });
         });
+        super.once('exit', (code) => {
+            this.exitCode = code;
+            quqeMap.delete(this);
+        });
     }
     postMessage(obj) {
-        $quqe(this).in((next) => {
+        quqeMap.get(this)?.in((next) => {
             super.once('message', next);
             super.postMessage(obj);
         });
     }
     flush(obj) {
-        return new Promise((res) => $quqe(this).in((next) => {
-            super.once('message', (data) => {
-                res(data);
-                next();
+        return new Promise((res) => {
+            quqeMap.get(this).in((next) => {
+                super.once('message', (data) => {
+                    res(data);
+                    next();
+                });
+                super.postMessage(obj);
             });
-            super.postMessage(obj);
-        }));
+        });
     }
 }
 module.exports = OCR;

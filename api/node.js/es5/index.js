@@ -16,53 +16,56 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var worker_threads_1 = require("worker_threads");
 var path_1 = require("path");
-var $quqe = (function () {
-    var Queue = /** @class */ (function (_super) {
-        __extends(Queue, _super);
-        function Queue() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        Queue.prototype.out = function () {
-            var _this = this;
-            if (!this.length)
-                return;
-            new Promise(function (res) { return _this[0](res); })
-                .then(function () { return (_super.prototype.shift.call(_this), _this.out()); });
-        };
-        Queue.prototype.in = function (fn) {
-            _super.prototype.push.call(this, fn) - 1 || this.out();
-        };
-        return Queue;
-    }(Array));
-    var map = new WeakMap();
-    return function (key) {
-        var value = map.get(key);
-        if (value)
-            return value;
-        value = new Queue();
-        map.set(key, value);
-        return value;
+var Queue = /** @class */ (function (_super) {
+    __extends(Queue, _super);
+    function Queue() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Queue.prototype.out = function () {
+        var _this = this;
+        if (!this.length)
+            return;
+        new Promise(function (res) { return _this[0](res); })
+            .then(function () { return (_super.prototype.shift.call(_this), _this.out()); });
     };
-})();
+    Queue.prototype.in = function (fn) {
+        _super.prototype.push.call(this, fn) - 1 || this.out();
+        return true;
+    };
+    return Queue;
+}(Array));
+var quqeMap = new WeakMap();
 var OCR = /** @class */ (function (_super) {
     __extends(OCR, _super);
-    function OCR(path, args, options) {
+    function OCR(path, args, options, debug) {
         var _this = _super.call(this, (0, path_1.resolve)(__dirname, 'worker.js'), {
-            workerData: { path: path, args: args, options: options },
+            workerData: { path: path, args: args, options: options, debug: debug },
             stdout: true,
         }) || this;
-        $quqe(_this).in(function (next) {
+        _this.exitCode = null;
+        var quqe = new Queue();
+        quqeMap.set(_this, quqe);
+        quqe.in(function (next) {
             _this.stdout.read();
-            _this.stdout.once('data', function (pid) {
-                _super.prototype.emit.call(_this, 'init', _this.pid = Number(String(pid)));
+            _this.stdout.once('data', function (data) {
+                var _a = String(data).match(/^pid=(\d+), socket=((\d+\.\d+\.\d+\.\d+):(\d+))?/), pid = _a[1], addr = _a[3], port = _a[4];
+                _this.pid = Number(pid);
+                _this.addr = addr;
+                _this.port = Number(port);
+                _super.prototype.emit.call(_this, 'init', _this.pid);
                 next();
             });
+        });
+        _super.prototype.once.call(_this, 'exit', function (code) {
+            _this.exitCode = code;
+            quqeMap.delete(_this);
         });
         return _this;
     }
     OCR.prototype.postMessage = function (obj) {
         var _this = this;
-        $quqe(this).in(function (next) {
+        var _a;
+        (_a = quqeMap.get(this)) === null || _a === void 0 ? void 0 : _a.in(function (next) {
             _super.prototype.once.call(_this, 'message', next);
             _super.prototype.postMessage.call(_this, obj);
         });
@@ -70,7 +73,7 @@ var OCR = /** @class */ (function (_super) {
     OCR.prototype.flush = function (obj) {
         var _this = this;
         return new Promise(function (res) {
-            return $quqe(_this).in(function (next) {
+            quqeMap.get(_this).in(function (next) {
                 _super.prototype.once.call(_this, 'message', function (data) {
                     res(data);
                     next();

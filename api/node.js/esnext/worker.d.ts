@@ -1,6 +1,6 @@
 declare const __default: {
     path: string;
-    args: string[];
+    args: any[];
     options: {
         argv0: any;
         stdio: "pipe";
@@ -9,6 +9,8 @@ declare const __default: {
         windowsVerbatimArguments: any;
         windowsHide: boolean;
     };
-    initTag: string;
+    initTag: RegExp;
+    socketTag: RegExp;
+    socketMatch: RegExp;
 };
 export { type __default };

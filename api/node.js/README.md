@@ -4,6 +4,12 @@
 <details>
 <summary>Log</summary>
 
+v1.1.0 2023.5.2
+
+适配 v1.3
+
+(v1.2 回退 paddleocrjson@1.0.11-a)
+
 v1.0.8 2023.1.20
 
  \-\-\-
@@ -70,7 +76,7 @@ const OCR = require('paddleocrjson/es5'); // ES5
 
 const ocr = new OCR('PaddleOCR_json.exe', [], {
     cwd: './PaddleOCR-json',
-});
+}, /* debug */true);
 
 ocr.postMessage({ image_dir: 'path/to/test/img' })
     .then((data) => console.log(data));
