@@ -4,7 +4,6 @@ const worker_threads_1 = require("worker_threads");
 const path_1 = require("path");
 const net_1 = require("net");
 const child_process_1 = require("child_process");
-const currentPath = process.cwd();
 const __default = {
     path: 'PaddleOCR-json.exe',
     args: [],
@@ -21,6 +20,7 @@ const __default = {
     socketMatch: /^Socket init completed\. (\d+\.\d+\.\d+\.\d+:\d+)/,
 };
 function cargs(obj) {
+    const currentPath = process.cwd();
     obj = Object.assign({}, obj);
     if (obj.image_path === null)
         obj.image_path = 'clipboard';

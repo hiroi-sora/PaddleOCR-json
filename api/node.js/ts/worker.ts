@@ -11,8 +11,6 @@ interface workerData {
     debug?: boolean;
 }
 
-const currentPath = process.cwd();
-
 const __default = {
     path: 'PaddleOCR-json.exe',
     args: [],
@@ -31,6 +29,9 @@ const __default = {
 export { type __default };
 
 function cargs(obj: DArg) {
+
+    const currentPath = process.cwd();
+    
     obj = Object.assign({}, obj);
     if (obj.image_path === null)
         obj.image_path = 'clipboard';
