@@ -1,10 +1,21 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const worker_threads_1 = require("worker_threads");
-const path_1 = require("path");
-const child_process_1 = require("child_process");
-const currentPath = process.cwd();
-const __default = {
+var worker_threads_1 = require("worker_threads");
+var path_1 = require("path");
+var child_process_1 = require("child_process");
+var currentPath = process.cwd();
+var __default = {
     path: 'PaddleOCR_json.exe',
     args: ['--use_debug=0'],
     options: {
@@ -34,14 +45,11 @@ function cout(data) {
         data: data.code - 100 ? null : data.data,
     };
 }
-const end = 'at' in String ? (str) => str.at(-1) : (str) => str[str.length - 1];
+var end = 'at' in String ? function (str) { return str.at(-1); } : function (str) { return str[str.length - 1]; };
 if (!worker_threads_1.isMainThread) {
-    new Promise((res) => {
-        const { path = __default.path, args = [], options, } = worker_threads_1.workerData;
-        const proc = (0, child_process_1.spawn)(path, args.concat(__default.args), {
-            ...options,
-            ...__default.options,
-        });
+    new Promise(function (res) {
+        var _a = worker_threads_1.workerData, _b = _a.path, path = _b === void 0 ? __default.path : _b, _c = _a.args, args = _c === void 0 ? [] : _c, options = _a.options;
+        var proc = (0, child_process_1.spawn)(path, args.concat(__default.args), __assign(__assign({}, options), __default.options));
         process.once('exit', proc.kill.bind(proc));
         proc.once('exit', process.exit);
         proc.stdout.on('data', function stdout(chunk) {
@@ -50,17 +58,17 @@ if (!worker_threads_1.isMainThread) {
             proc.stdout.off('data', stdout);
             return res(proc);
         });
-    }).then((proc) => {
-        process.stdout.write(`${proc.pid}\n`);
+    }).then(function (proc) {
+        process.stdout.write("".concat(proc.pid, "\n"));
         process.stdout.clearLine;
         proc.stdout.pipe(process.stdout);
         proc.stderr.pipe(process.stderr);
-        worker_threads_1.parentPort.on('message', (data) => {
-            proc.stdin.write(`${JSON.stringify(cargs(data))}\n`);
+        worker_threads_1.parentPort.on('message', function (data) {
+            proc.stdin.write("".concat(JSON.stringify(cargs(data)), "\n"));
         });
-        const cache = [];
-        proc.stdout.on('data', (chunk) => {
-            const str = String(chunk);
+        var cache = [];
+        proc.stdout.on('data', function (chunk) {
+            var str = String(chunk);
             cache.push(str);
             if (end(str) !== '\n')
                 return;

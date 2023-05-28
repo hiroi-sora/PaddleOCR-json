@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "CommonJS",
+        "outDir": "./es5",
+        "declarationDir": "./es5",
+        "rootDir": "./ts",
+        "esModuleInterop": true,
+        "declaration": true,
+    }
+}
