@@ -6,7 +6,7 @@
 
 v1.1.0 2023.5.2
 
-适配 v1.3
+适配 [hiroi-sora/PaddleOCR-json v1.3.0 Alpha.1](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.3.0_alpha.1)
 
 (v1.2 回退 paddleocrjson@1.0.11-a)
 
@@ -82,7 +82,7 @@ ocr.postMessage({ image_path: 'path/to/test/img' })
     .then((data) => console.log(data));
     .then(() => ocr.terminate());
 
-// debug
+// debug = true
 ocr.stdout.on('data', (chunk) =>{
     console.log(chunk.toString());
 });
@@ -108,7 +108,6 @@ ocr.on('exit', (code) =>{
 #### new OCR(path, args, options, debug)
 
 ```js
-const OCR = require('paddleocrjson');
 const ocr = new OCR('PaddleOCR_json.exe', [], {
     cwd: './PaddleOCR-json',
 }, false);
@@ -140,8 +139,6 @@ ocr.flush({
 
 例如:
 ```js
-const ocr = new OCR();
-
 ocr.on('init', (pid, addr, port) => {
     console.log('OCR init completed.');
     console.log('pid:', pid);
