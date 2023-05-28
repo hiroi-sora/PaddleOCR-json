@@ -52,7 +52,7 @@ var OCR = /** @class */ (function (_super) {
                 _this.pid = Number(pid);
                 _this.addr = addr;
                 _this.port = Number(port);
-                _super.prototype.emit.call(_this, 'init', _this.pid);
+                _super.prototype.emit.call(_this, 'init', _this.pid, _this.addr, _this.port);
                 next();
             });
         });

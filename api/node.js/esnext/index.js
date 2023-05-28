@@ -33,7 +33,7 @@ class OCR extends worker_threads_1.Worker {
                 this.pid = Number(pid);
                 this.addr = addr;
                 this.port = Number(port);
-                super.emit('init', this.pid);
+                super.emit('init', this.pid, this.addr, this.port);
                 next();
             });
         });

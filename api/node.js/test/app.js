@@ -39,8 +39,8 @@ app.route('/').get((req, res, next) =>
         return next(err);
     })
 ).post(async (req, res, next) => {
-    const path = req.file.path;
-    ocr.flush({ image_dir: path })
+    const image_path = req.file.path;
+    ocr.flush({ image_path })
         .then((data) => {
             res.data = data;
             //console.log(data);
@@ -48,7 +48,7 @@ app.route('/').get((req, res, next) =>
         }).catch(() => {
             return next(500);
         }).finally(() => {
-            fs.unlink(path).then();
+            fs.unlink(image_path).then();
         });
     return;
 });
@@ -58,7 +58,7 @@ app.use((req, res, next) => {
     if (typeof res.data === 'undefined')
         return next(405);
     return res.jsonp(res.data);
-})
+});
 app.use((err, req, res, next) =>
     res.status(404).jsonp({
         code: -1,

@@ -14,7 +14,7 @@ interface workerData {
 const currentPath = process.cwd();
 
 const __default = {
-    path: 'PaddleOCR_json.exe',
+    path: 'PaddleOCR-json.exe',
     args: [],
     options: {
         argv0: undefined,

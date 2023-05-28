@@ -33,7 +33,7 @@ class OCR extends Worker {
                 this.pid = Number(pid);
                 this.addr = addr;
                 this.port = Number(port);
-                super.emit('init', this.pid);
+                super.emit('init', this.pid, this.addr, this.port);
                 next();
             });
         });
@@ -70,6 +70,7 @@ namespace OCR {
         limit_type?: string;
         visualize?: boolean;
         output?: string;
+        /* ... */
     }
 
     export interface coutReturnType {

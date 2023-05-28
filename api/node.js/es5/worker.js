@@ -17,7 +17,7 @@ var net_1 = require("net");
 var child_process_1 = require("child_process");
 var currentPath = process.cwd();
 var __default = {
-    path: 'PaddleOCR_json.exe',
+    path: 'PaddleOCR-json.exe',
     args: [],
     options: {
         argv0: undefined,
