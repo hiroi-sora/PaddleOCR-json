@@ -27,12 +27,13 @@ class OCR extends Worker {
         const quqe = new Queue();
         quqeMap.set(this, quqe);
         quqe.in((next) => {
-            this.stdout.read();
             this.stdout.once('data', (data) => {
-                const [, pid, , addr, port] = String(data).match(/^pid=(\d+), socket=((\d+\.\d+\.\d+\.\d+):(\d+))?/);
+                const [, pid, socket, addr, port] = String(data).match(/^pid=(\d+)(, a=(\d+\.\d+\.\d+\.\d+:\d+))?/);
                 this.pid = Number(pid);
-                this.addr = addr;
-                this.port = Number(port);
+                if (socket) {
+                    this.addr = addr;
+                    this.port = Number(port);
+                }
                 super.emit('init', this.pid, this.addr, this.port);
                 next();
             });

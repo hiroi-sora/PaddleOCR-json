@@ -46,12 +46,13 @@ var OCR = /** @class */ (function (_super) {
         var quqe = new Queue();
         quqeMap.set(_this, quqe);
         quqe.in(function (next) {
-            _this.stdout.read();
             _this.stdout.once('data', function (data) {
-                var _a = String(data).match(/^pid=(\d+), socket=((\d+\.\d+\.\d+\.\d+):(\d+))?/), pid = _a[1], addr = _a[3], port = _a[4];
+                var _a = String(data).match(/^pid=(\d+)(, a=(\d+\.\d+\.\d+\.\d+:\d+))?/), pid = _a[1], socket = _a[2], addr = _a[3], port = _a[4];
                 _this.pid = Number(pid);
-                _this.addr = addr;
-                _this.port = Number(port);
+                if (socket) {
+                    _this.addr = addr;
+                    _this.port = Number(port);
+                }
                 _super.prototype.emit.call(_this, 'init', _this.pid, _this.addr, _this.port);
                 next();
             });

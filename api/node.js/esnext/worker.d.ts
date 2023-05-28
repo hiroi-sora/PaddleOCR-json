@@ -9,8 +9,9 @@ declare const __default: {
         windowsVerbatimArguments: any;
         windowsHide: boolean;
     };
-    initTag: RegExp;
-    socketTag: RegExp;
+    initTag: string;
+    socketTag: string;
+    pipeTag: string;
     socketMatch: RegExp;
 };
 export { type __default };

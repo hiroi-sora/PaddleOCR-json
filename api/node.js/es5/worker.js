@@ -26,9 +26,10 @@ var __default = {
         windowsVerbatimArguments: undefined,
         windowsHide: true,
     },
-    initTag: /^OCR init completed\./,
-    socketTag: /^OCR socket mode\./,
-    socketMatch: /^Socket init completed\. (\d+\.\d+\.\d+\.\d+:\d+)/,
+    initTag: 'OCR init completed.',
+    socketTag: 'OCR socket mode.',
+    pipeTag: 'OCR anonymous pipe mode.',
+    socketMatch: /^Socket init completed. (\d+\.\d+\.\d+\.\d+:\d+)/,
 };
 function cargs(obj) {
     var currentPath = process.cwd();
@@ -51,45 +52,43 @@ function cout(data) {
 var end = 'at' in String ? function (str) { return str.at(-1); } : function (str) { return str[str.length - 1]; };
 if (!worker_threads_1.isMainThread) {
     var _a = worker_threads_1.workerData, _b = _a.path, path = _b === void 0 ? __default.path : _b, _c = _a.args, args = _c === void 0 ? [] : _c, options = _a.options, debug_1 = _a.debug;
-    var socket_1;
+    var mode_1 = 0;
     var proc_1 = (0, child_process_1.spawn)(path, args.concat(__default.args), __assign(__assign({}, options), __default.options));
     process.once('exit', proc_1.kill.bind(proc_1));
     proc_1.once('exit', process.exit);
-    new Promise(function (res) {
-        var socketMode = false;
-        proc_1.stdout.on('data', function stdout(chunk) {
-            var _a;
+    new Promise(function (res) { return proc_1.stdout.on('data', function stdout(chunk) {
+        var data = chunk.toString();
+        if (!mode_1) {
+            data.match(__default.pipeTag) && (mode_1 = 1);
+            data.match(__default.socketTag) && (mode_1 = 2);
+        }
+        if (!data.match(__default.initTag))
+            return;
+        proc_1.stdout.off('data', stdout);
+        return res();
+    }); }).then(function () { return new Promise(function (res) {
+        if (mode_1 === 1) {
+            process.stdout.write("pid=".concat(proc_1.pid, ", pipe=true\n"));
+            return res();
+        }
+        proc_1.stdout.once('data', function (chunk) {
             var data = chunk.toString();
-            if (!socketMode && data.match(__default.socketTag))
-                socketMode = true;
-            if (socketMode) {
-                socket_1 = (_a = data.match(__default.socketMatch)) === null || _a === void 0 ? void 0 : _a[1];
-                if (!socket_1)
-                    return;
-            }
-            else {
-                if (!data.match(__default.initTag))
-                    return;
-            }
-            proc_1.stdout.off('data', stdout), res();
+            var socket = data.match(__default.socketMatch)[1].split(':');
+            process.stdout.write("pid=".concat(proc_1.pid, ", addr=").concat(socket[0], ", port=").concat(socket[1], "\n"));
+            return res([socket[0], Number(socket[1])]);
         });
-    }).then(function () {
-        process.stdout.write("pid=".concat(proc_1.pid, ", socket=").concat(socket_1 !== null && socket_1 !== void 0 ? socket_1 : '', "\n"));
-        process.stdout.clearLine;
+    }); }).then(function (socket) {
         if (debug_1) {
             proc_1.stdout.pipe(process.stdout);
             proc_1.stderr.pipe(process.stderr);
         }
-        else {
-            process.stdout.end();
+        else if (socket) {
             proc_1.stdout.destroy();
             proc_1.stderr.destroy();
         }
-        if (socket_1) {
+        if (socket) {
             var client_1 = new net_1.Socket();
-            var _a = (function (socket) {
-                return [socket[0], Number(socket[1])];
-            })(socket_1.split(':')), addr_1 = _a[0], port_1 = _a[1];
+            var addr_1 = socket[0], port_1 = socket[1];
             worker_threads_1.parentPort.on('message', function (data) {
                 client_1.connect(port_1, addr_1, function () {
                     client_1.end(JSON.stringify(cargs(data)));
