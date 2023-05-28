@@ -1,3 +1,7 @@
+# PaddleOCR-json Python API
+
+使用这份API，可以方便地调用 PaddleOCR-json 。比起Python原生的PaddleOCR库，PaddleOCR-json拥有更好的性能。你可以同时享受C++推理库的高效率和Python的简易开发。
+
 Python API 拥有三大模块：
 - 基础OCR接口
 - 结果可视化模块，将OCR结果绘制到图像上并展示或保存。
@@ -5,85 +9,206 @@ Python API 拥有三大模块：
 
 # 基础OCR接口
 
-### 导入
-
 ```python
-from PPOCR_api import PPOCR
+from PPOCR_api import GetOcrApi
 ```
 
-### 初始化
+### 调用OCR的流程分为三步：
+1. 初始化OCR引擎进程
+2. 通过OCR引擎，执行一次或多次识图任务
+3. 关闭OCR引擎进程
 
-初始化识别器对象，传入 PaddleOCR_json.exe 的路径
+### 第一步：初始化
+
+**接口：** `GetOcrApi()`
+
+**参数：** 
+
+| 名称     | 默认值 | 类型 | 描述                                                           |
+| -------- | ------ | ---- | -------------------------------------------------------------- |
+| exePath  | 必填   | str  | 引擎exe的路径，如`D:/PaddleOCR-json.exe`                       |
+| argument | None   | dict | 启动参数字典。可以用这个参数指定配置文件、指定识别语言。       |
+| ipcMode  | "pipe" | str  | 进程间通信方式，可选值为套接字模式`socket` 或 管道模式`pipe`。 |
+
+**返回值：** 
+
+初始化成功，返回引擎API对象。初始化失败，抛出异常。
+
+**示例1：** 最简单的情况
 
 ```python
-ocr = PPOCR(r'…………\PaddleOCR_json.exe')
+ocr = GetOcrApi(r"…………\PaddleOCR_json.exe")
 ```
 
-支持传入启动参数
+**示例2：** 指定使用繁体中文识别库（需要先在引擎models目录内放入识别库文件）
+
+注意，config_path的路径如果是相对路径，则根为PaddleOCR-json.exe所在的路径，而不是Python脚本的路径。
 
 ```python
-argument = {'limit_side_len': 3500}
-ocr = PPOCR(r'…………\PaddleOCR_json.exe' ,argument)
+argument = {'config_path': "models/config_chinese_cht.txt"}
+ocr = GetOcrApi(r"…………\PaddleOCR_json.exe", argument)
 ```
 
-### 识别图片，传入图片路径
+**示例3：** 指定使用套接字通信方式
+
+使用管道通信(默认)和套接字通信，在使用上而言是透明的，即调用方法完全一致。
+
+性能上有微弱的区别，管道的效率略高一点，而套接字TCP在大型数据传输时（如30MB以上的Base64图片数据）可能稳定性略好一些。对于普通用户，使用默认设定即可。
 
 ```python
-testImg = r'………\测试.png'
-getObj = ocr.run(testImg)
-
-if getObj["code"] == 100:      # 成功
-    print(getObj["data"])
-elif getObj["code"] == 101:    # 成功，但无文字
-    print('图片中为找到文字')
-else:                          # 失败
-    print(f'识别失败，状态码{getObj["code"]}')
-    print(f'异常信息{getObj["data"]}')
+ocr = GetOcrApi(r"…………\PaddleOCR_json.exe", ipcMode="socket")
 ```
 
-### 热更新参数
+### 第二步：识别图片
 
-可以跟识别图片放在一起：
+Python API 提供了丰富的接口，可以用各种姿势调用OCR。
+
+#### 1. 识别本地图片
+
+**方法：** `run()`
+
+**说明：** 对一张本地图片进行OCR
+
+**参数：** 
+
+| 名称    | 默认值 | 类型 | 描述                                 |
+| ------- | ------ | ---- | ------------------------------------ |
+| imgPath | 必填   | str  | 识别图片的路径，如`D:/test/test.png` |
+
+**返回值字典：** 
+
+| 键   | 类型 | 描述                                                    |
+| ---- | ---- | ------------------------------------------------------- |
+| code | int  | 状态码。识别成功且有文字为100。其他情况详见主页README。 |
+| data | str  | 识别成功时，data为OCR结果列表。                         |
+| data | list | 识别失败时，data为错误信息字符串。                      |
+
+**示例：** 
+
 ```python
-testImg = r'………\长截图.png'
-# 调高压缩阈限，增加对长图的识别率
-updateDict = {'limit_side_len': 3500}
-getObj = ocr.run(testImg, updateDict)
-
-print(f'热更新日志：{getObj["hotUpdate"]}')
+res = ocr.run("test.png")
+print("识别结果：\n", res)
 ```
 
-也可以单独执行：
+#### 2. 识别剪贴板图片
+
+**方法：** `runClipboard()`
+
+**说明：** 对当前剪贴板首位的图片进行OCR
+
+**无参数** 
+
+**返回值字典：同上** 
+
+**示例：** 
+
 ```python
-# 调回正常的压缩阈值960，以免影响后续正常图片的识别速度
-ocr.run('', argument={'limit_side_len': 960})
+res = ocr.runClipboard()
+print("剪贴板识别结果：\n", res)
 ```
 
-### 剪贴板识别功能
+#### 3. 识别图片字节流
 
-剪贴板中可以是位图（截图、网页复制），也可以是单个文件句柄（文件管理器中复制）。
+**方法：** `runBytes()`
+
+**说明：** 对一个图片字节流进行OCR。可以通过这个接口识别 PIL Image 或者屏幕截图或者网络下载的图片，全程走内存，而无需先保存到硬盘。
+
+**参数：** 
+
+| 名称       | 默认值 | 类型  | 描述       |
+| ---------- | ------ | ----- | ---------- |
+| imageBytes | 必填   | bytes | 字节流对象 |
+
+**返回值字典：同上** 
+
+**示例：** 
+
 ```python
-getObj = ocr.runClipboard()
+with open("test.png", 'rb') as f: # 获取图片字节流
+    imageBytes = f.read() # 实际使用中，可以联网下载或者截图获取字节流
+res = ocr.runBytes(imageBytes)
+print("字节流识别结果：\n", res)
+```
+
+#### 4. 识别图片Base64编码字符串
+
+**方法：** `runBase64()`
+
+**说明：** 对一个Base64编码字符串进行OCR。
+
+**参数：** 
+
+| 名称        | 默认值 | 类型 | 描述               |
+| ----------- | ------ | ---- | ------------------ |
+| imageBase64 | 必填   | str  | Base64编码的字符串 |
+
+**返回值字典：同上** 
+
+#### 5. 格式化输出OCR结果
+
+**方法：** `printResult()`
+
+**说明：** 用于调试，打印一个OCR结果。
+
+**参数：** 
+
+| 名称 | 默认值 | 类型 | 描述              |
+| ---- | ------ | ---- | ----------------- |
+| res  | 必填   | dict | 一次OCR的返回结果 |
+
+**无返回值** 
+
+**示例：** 
+
+```python
+res = ocr.run("test.png")
+print("格式化输出：")
+ocr.printResult(res)
 ```
 
 使用示例详见 [demo1.py](demo1.py)
 
-# 结果可视化
+### 第三步：关闭OCR引擎进程
+
+一般情况下，在程序结束或者释放ocr对象时会自动关闭引擎子进程，无需手动管理。
+
+如果希望手动关闭引擎进程，可以使用 `exit()` 方法。
+
+**示例：** 
+
+```python
+ocr.exit()
+```
+
+如果需要更换识别语言，则重新创建ocr对象即可，旧的对象析构时也会自动关闭旧引擎进程。
+
+**示例：** 
+
+```python
+argument = {'config_path': "语言1.txt"}
+ocr = GetOcrApi(r"…………\PaddleOCR_json.exe", argument)
+# TODO: 识别语言1
+
+argument = {'config_path': "语言2.txt"}
+ocr = GetOcrApi(r"…………\PaddleOCR_json.exe", argument)
+# TODO: 识别语言2
+```
+
+# 结果可视化模块
 
 纯Python实现，不依赖PPOCR引擎的C++ opencv可视化模块，避免中文兼容性问题。
 
-### 导入
+需要PIL图像处理库：`pip install pillow`
 
 ```python
 from PPOCR_visualize import visualize
 ```
 
-需要PIL图像处理库：`pip install pillow`
-
 ### 获取文本块
 
 首先得成功执行一次OCR，获取文本块列表（即`['data']`部分）
 ```python
+testImg = "D:/test.png"
 getObj = ocr.run(testImg)
 if not getObj["code"] == 100:
     print('识别失败！！')
@@ -91,9 +216,9 @@ if not getObj["code"] == 100:
 textBlocks = getObj["data"]  # 提取文本块数据
 ```
 
-### 简单展示结果
+### 展示结果图片
 
-只需一行代码，传入文本块和原图片的路径
+只需一行代码，传入文本块和原图片的路径，打开图片浏览窗口
 ```python
 visualize(textBlocks, testImg).show()
 ```
@@ -151,22 +276,19 @@ img.show() # 显示
 
 使用示例详见 [demo2.py](demo2.py)
 
-# 文本后处理 tbpu
+# 文本后处理 tbpu 
 
-tbpu : text block processing unit
-
-由 [Umi-OCR](https://github.com/hiroi-sora/Umi-OCR) 下放的技术。
-
-OCR返回的结果中，一项包含文字、包围盒、置信度的元素，称为一个“文本块” - text block 。
-
-文块不一定是完整的一句话或一个段落。反之，一般是零散的文字。一个OCR结果常由多个文块组成。文块后处理就是：将传入的多个文块进行处理，比如合并、排序、删除文块。
-
-### 导入
+(text block processing unit)
 
 ```python
 import tbpu
 ```
 
+由 [Umi-OCR](https://github.com/hiroi-sora/Umi-OCR) 带来的技术。
+
+OCR返回的结果中，一项包含文字、包围盒、置信度的元素，称为一个“文本块” - text block 。
+
+文块不一定是完整的一句话或一个段落。反之，一般是零散的文字。一个OCR结果常由多个文块组成。文块后处理就是：将传入的多个文块进行处理，比如合并、排序、删除文块。
 
 ### 方案列表
 

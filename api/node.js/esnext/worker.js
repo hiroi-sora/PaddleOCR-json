@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.__default = void 0;
 const worker_threads_1 = require("worker_threads");
 const path_1 = require("path");
 const child_process_1 = require("child_process");
 const currentPath = process.cwd();
-const __default = {
+exports.__default = {
     path: 'PaddleOCR_json.exe',
     args: ['--use_debug=0'],
     options: {
@@ -36,37 +37,32 @@ function cout(data) {
 }
 if (!worker_threads_1.isMainThread) {
     new Promise((res) => {
-        const { path = __default.path, args = [], options, debug = false, } = worker_threads_1.workerData;
-        const proc = (0, child_process_1.spawn)(path, args.concat(__default.args), {
+        const { path = exports.__default.path, args = [], options, debug = false, } = worker_threads_1.workerData;
+        const proc = (0, child_process_1.spawn)(path, args.concat(exports.__default.args), {
             ...options,
-            ...__default.options,
+            ...exports.__default.options,
         });
-        process.once('exit', proc.kill.bind(proc));
-        proc.once('exit', process.exit);
         proc.stdout.on('data', function stdout(chunk) {
-            if (!chunk.toString().match(__default.initTag))
+            if (!chunk.toString().match(exports.__default.initTag))
                 return;
             proc.stdout.off('data', stdout);
             return res(proc);
         });
-        if (!debug)
-            return;
-        proc.stdout.on('data', (chunk) => console.log(chunk.toString()));
-        proc.stderr.on('data', (data) => console.log(data.toString()));
-        proc.on('close', (code) => console.log('close code: ', code)).on('exit', (code) => console.log('exit code: ', code));
+        proc.on('exit', process.exit);
+        if (debug) {
+            proc.stdout.on('data', (chunk) => console.log(chunk.toString()));
+            proc.stderr.on('data', (data) => console.log(data.toString()));
+            proc.on('close', (code) => console.log('close code: ', code));
+            proc.on('exit', (code) => console.log('exit code: ', code));
+        }
     }).then((proc) => {
-        process.stdout.end(String(proc.pid));
-        worker_threads_1.parentPort.on('message', (data) => {
-            proc.stdin.write(`${JSON.stringify(cargs(data))}\n`);
+        worker_threads_1.parentPort.postMessage({
+            code: 0,
+            message: exports.__default.initTag,
+            pid: proc.pid,
+            data: null,
         });
-        const cache = [];
-        proc.stdout.on('data', (chunk) => {
-            const str = String(chunk);
-            cache.push(str);
-            if (str[str.length - 1] !== '\n')
-                return;
-            worker_threads_1.parentPort.postMessage(cout(JSON.parse(cache.join(''))));
-            cache.length = 0;
-        });
+        worker_threads_1.parentPort.on('message', (data) => proc.stdin.write(`${JSON.stringify(cargs(data))}\n`));
+        proc.stdout.on('data', (chunk) => worker_threads_1.parentPort.postMessage(cout(JSON.parse(chunk))));
     });
 }
