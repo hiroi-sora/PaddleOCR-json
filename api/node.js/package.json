@@ -1,6 +1,6 @@
 {
     "name": "paddleocrjson",
-    "version": "1.1.0-a",
+    "version": "1.1.0-b",
     "description": "基于 https://github.com/hiroi-sora/PaddleOCR-json 的node.js api",
     "homepage": "https://github.com/PunchlY/PaddleOCR-json-node-api/blob/main/api/node.js",
     "repository": {
