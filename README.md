@@ -88,7 +88,7 @@ const ocr = new OCR('PaddleOCR-json.exe', [/* '-port=9985', '-addr=loopback' */]
     cwd: './PaddleOCR-json',
 }, false);
 
-ocr.postMessage({ image_path: 'path/to/test/img' })
+ocr.flush({ image_path: 'path/to/test/img' })
     .then((data) => console.log(data));
     .then(() => ocr.terminate());
 ```
