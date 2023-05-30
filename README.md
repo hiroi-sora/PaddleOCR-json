@@ -1,5 +1,6 @@
 稳定版：[v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds)  
 测试版：v1.3.0_Alpha  
+[v1.3 参数改动说明](https://github.com/hiroi-sora/PaddleOCR-json/blob/main/docs/update-v1.3.md)
 
 # PaddleOCR-json v1.3.0
 
