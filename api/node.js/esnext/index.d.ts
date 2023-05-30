@@ -6,19 +6,24 @@ declare class OCR extends Worker {
     port: number | undefined;
     exitCode: number | null;
     constructor(path?: string, args?: string[], options?: OCR.Options, debug?: boolean);
-    postMessage(obj: OCR.DArg): void;
-    flush(obj: OCR.DArg): Promise<OCR.coutReturnType>;
+    postMessage(obj: OCR.Arg): void;
+    flush(obj: OCR.Arg): Promise<OCR.coutReturnType>;
 }
 declare namespace OCR {
-    interface DArg {
-        image_path?: string | null;
-        image_base64?: string;
+    interface BaseArg {
         limit_side_len?: number;
         limit_type?: string;
         visualize?: boolean;
         output?: string;
     }
-    interface coutReturnType {
+    interface Arg_Path extends BaseArg {
+        image_path?: string | null;
+    }
+    interface Arg_Base64 extends BaseArg {
+        image_base64?: string;
+    }
+    export type Arg = Arg_Base64 | Arg_Path;
+    export interface coutReturnType {
         code: number;
         message: string;
         data: {
@@ -27,6 +32,7 @@ declare namespace OCR {
             text: string;
         }[] | null;
     }
-    type Options = Omit<import('child_process').SpawnOptionsWithStdioTuple<'pipe', 'pipe', 'pipe'>, keyof typeof import('./worker').__default.options>;
+    export type Options = Omit<import('child_process').SpawnOptionsWithStdioTuple<'pipe', 'pipe', 'pipe'>, keyof typeof import('./worker').__default.options>;
+    export {};
 }
 export = OCR;

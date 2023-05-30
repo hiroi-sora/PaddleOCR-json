@@ -34,10 +34,12 @@ var __default = {
 function cargs(obj) {
     var currentPath = process.cwd();
     obj = Object.assign({}, obj);
-    if (obj.image_path === null)
-        obj.image_path = 'clipboard';
-    else if (obj.image_path)
-        obj.image_path = (0, path_1.resolve)(currentPath, obj.image_path);
+    if ('image_path' in obj) {
+        if (obj.image_path === null)
+            obj.image_path = 'clipboard';
+        else if (obj.image_path)
+            obj.image_path = (0, path_1.resolve)(currentPath, obj.image_path);
+    }
     if (obj.output !== undefined)
         obj.output = (0, path_1.resolve)(currentPath, obj.output);
     return obj;

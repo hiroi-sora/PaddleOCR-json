@@ -2,7 +2,7 @@ import { isMainThread, parentPort, workerData } from 'worker_threads';
 import { resolve as path_resolve } from 'path';
 import { Socket } from 'net';
 import { spawn } from 'child_process';
-import type { DArg, coutReturnType, Options } from './index';
+import type { Arg, coutReturnType, Options } from './index';
 
 interface workerData {
     path: string;
@@ -29,15 +29,17 @@ const __default = {
 };
 export { type __default };
 
-function cargs(obj: DArg) {
+function cargs(obj: Arg) {
 
     const currentPath = process.cwd();
 
     obj = Object.assign({}, obj);
-    if (obj.image_path === null)
-        obj.image_path = 'clipboard';
-    else if (obj.image_path)
-        obj.image_path = path_resolve(currentPath, obj.image_path);
+    if ('image_path' in obj) {
+        if (obj.image_path === null)
+            obj.image_path = 'clipboard';
+        else if (obj.image_path)
+            obj.image_path = path_resolve(currentPath, obj.image_path);
+    }
     if (obj.output !== undefined)
         obj.output = path_resolve(currentPath, obj.output);
     return obj;

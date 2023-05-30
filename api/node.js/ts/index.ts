@@ -43,13 +43,13 @@ class OCR extends Worker {
             quqeMap.delete(this);
         });
     }
-    postMessage(obj: OCR.DArg) {
+    postMessage(obj: OCR.Arg) {
         quqeMap.get(this)?.in((next) => {
             super.once('message', next);
             super.postMessage(obj);
         });
     }
-    flush(obj: OCR.DArg) {
+    flush(obj: OCR.Arg) {
         return new Promise((res: (v: OCR.coutReturnType) => void) => {
             quqeMap.get(this).in((next) => {
                 super.once('message', (data: OCR.coutReturnType) => {
@@ -64,15 +64,22 @@ class OCR extends Worker {
 
 namespace OCR {
 
-    export interface DArg {
-        image_path?: string | null;
-        image_base64?: string;
+    interface BaseArg {
         limit_side_len?: number;
         limit_type?: string;
         visualize?: boolean;
         output?: string;
         /* ... */
     }
+
+    interface Arg_Path extends BaseArg {
+        image_path?: string | null;
+    }
+    interface Arg_Base64 extends BaseArg {
+        image_base64?: string;
+    }
+
+    export type Arg = Arg_Base64 | Arg_Path;
 
     export interface coutReturnType {
         code: number;
