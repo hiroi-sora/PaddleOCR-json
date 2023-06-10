@@ -234,6 +234,7 @@ namespace PaddleOCR
         return cv::Mat();
     }
 
+    // 套接字模式 
     int Task::socket_mode() {
         // 初始化Winsock库
         WSADATA wsa_data; // winsock结构 
@@ -248,7 +249,7 @@ namespace PaddleOCR
             WSACleanup();
             return -1;
         }
-        // 配置地址和端口号
+        // 配置地址和端口号 
         struct sockaddr_in addr;
         addr.sin_family = AF_INET; // 地址族：IPv4 
         addr.sin_addr.s_addr = (FLAGS_addr=="loopback" ? htonl(INADDR_LOOPBACK) : INADDR_ANY); // IP地址模式：本地环回/任何可用 
@@ -306,7 +307,7 @@ namespace PaddleOCR
                     break;
                 }
                 str_in.append(buffer, n); // 将本次接收到的数据追加到存放处末尾 
-                if (n < sizeof(buffer) || buffer[n - 1] == '\0' || buffer[n - 1] == '\n') { // 认为数据已全部接收完毕 
+                if (buffer[n - 1] == '\0' || buffer[n - 1] == '\n') { // 到达末尾符，认为数据已全部接收完毕 
                     break;
                 }
             }
