@@ -1,5 +1,6 @@
 稳定版：[v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds)  
 测试版：v1.3.0_Alpha  
+[v1.3 参数改动说明](https://github.com/hiroi-sora/PaddleOCR-json/blob/main/docs/update-v1.3.md)
 
 # PaddleOCR-json v1.3.0
 
@@ -67,9 +68,36 @@ Python API 有丰富的附加模块：便于开发者调试观察的可视化模
 
 </details>
 
+### 2. Node.js API
+
+[资源目录](api/node.js)
+
+<details>
+<summary>使用示例</summary>
+
+```
+npm install paddleocrjson
+```
+
+```js
+const OCR = require('paddleocrjson');
+
+// const OCR = require('paddleocrjson/es5'); // ES5
+
+const ocr = new OCR('PaddleOCR-json.exe', [/* '-port=9985', '-addr=loopback' */], {
+    cwd: './PaddleOCR-json',
+}, false);
+
+ocr.flush({ image_path: 'path/to/test/img' })
+    .then((data) => console.log(data));
+    .then(() => ocr.terminate());
+```
+
+</details>
+
 ### 其他API
 
-`PowerShell`、`Node.js`、`Java`、`Rust` 等API尚未兼容 v1.3 测试版本。如有需要，请用 [v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds) 版本。
+`PowerShell`、`Java`、`Rust` 等API尚未兼容 v1.3 测试版本。如有需要，请用 [v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds) 版本。
 
 ### 更多语言API
 
