@@ -82,16 +82,11 @@ class PPOCR {
         }
     }
 
-    # 识别图片
-    [PSCustomObject] run( [string]$imgPath ) {
-        # 对一张图片文字识别。
-        # :exePath: 图片路径。
-        # :return:  @{'code': 识别码; 'data': 内容列表或错误信息字符串}
+    [PSCustomObject] runDict( [string]$writeDict ) {
         if ($this.stdSender) {
             $nowTime = Get-Date -Format "HHmmssffff"
             $this.eventJson = "OCRjson" + $this.processID + $nowTime # 更新事件标识符
-            $imgPath_new = '{"image_path": "'+ (asc $imgPath.Replace("\","\\")) +'"}'  #更新图片路径为json格式,转义\\,asc函数替换中文
-            $this.stdSender.StandardInput.WriteLine($imgPath_new); # 向管道写入图片路径
+            $this.stdSender.StandardInput.WriteLine($writeDict); # 向管道写入
             Wait-Event -SourceIdentifier $this.eventJson # 阻塞，等待取得json
             try {
                 $getdict = $this.imgJson | ConvertFrom-Json
@@ -105,6 +100,25 @@ class PPOCR {
             # 输入流不存在，可能为未初始化完毕
             return @{ code = 400; data = "子进程输入流不存在" }
         }
+    }
+
+
+    # 识别图片
+    [PSCustomObject] run( [string]$imgPath ) {
+        # 对一张图片文字识别。
+        # :imgPath: 图片路径。
+        $writeDict = '{"image_path": "'+ (asc $imgPath.Replace("\","\\")) +'"}'  #更新图片路径为json格式,转义\\,asc函数替换中文
+        return $this.runDict($writeDict); # 向管道写入图片路径
+    }
+    
+    [PSCustomObject] runClipboard() {
+        $writeDict = '{"image_path": "clipboard"}'  
+        return $this.runDict($writeDict);
+    }
+
+    [PSCustomObject] runBase64( [string]$imgBase64 ) {
+        $writeDict = '{"image_path": "'+$imgBase64+'"}'  
+        return $this.runDict($writeDict);
     }
 
     # 结束子进程
