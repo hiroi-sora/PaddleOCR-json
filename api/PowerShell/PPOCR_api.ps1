@@ -107,24 +107,26 @@ class PPOCR {
     [PSCustomObject] run( [string]$imgPath ) {
         # 对一张图片文字识别。
         # :imgPath: 图片路径。
-        $writeDict = '{"image_path": "'+ (asc $imgPath.Replace("\","\\")) +'"}'  #更新图片路径为json格式,转义\\,asc函数替换中文
+        $writeDict = @{ image_path = asc $imgPath } | ConvertTo-Json -Compress #更新图片路径为json格式,asc函数替换中文
         return $this.runDict($writeDict); # 向管道写入图片路径
     }
     
     [PSCustomObject] runClipboard() {
-        $writeDict = '{"image_path": "clipboard"}'  
-        return $this.runDict($writeDict);
+        return $this.run("clipboard");
     }
 
     [PSCustomObject] runBase64( [string]$imgBase64 ) {
-        $writeDict = '{"image_path": "'+$imgBase64+'"}'  
+        $writeDict = @{ image_base64 = $imgBase64 } | ConvertTo-Json -Compress
         return $this.runDict($writeDict);
+    }
+    
+    [PSCustomObject] runByte( $imgByte ) {
+        $imgBase64 = [convert]::ToBase64String($imgByte)
+        return $this.runBase64($imgBase64);
     }
 
     # 结束子进程
     [void] stop() {
-        #$this.process.Kill()  # 关闭子进程
-        # Remove-Variable $this
         $this.stdSender.StandardInput.WriteLine('{"exit":""}')
         Write-Host "识别器进程结束。"
     }
