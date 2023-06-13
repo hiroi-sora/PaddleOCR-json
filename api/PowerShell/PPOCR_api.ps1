@@ -107,7 +107,7 @@ class PPOCR {
     [PSCustomObject] run( [string]$imgPath ) {
         # 对一张图片文字识别。
         # :imgPath: 图片路径。
-        $writeDict = @{ image_path = asc $imgPath } | ConvertTo-Json -Compress #更新图片路径为json格式,asc函数替换中文
+        $writeDict = asc (@{ image_path = $imgPath } | ConvertTo-Json -Compress) #更新图片路径为json格式,asc函数替换中文
         return $this.runDict($writeDict); # 向管道写入图片路径
     }
     
