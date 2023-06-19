@@ -233,9 +233,29 @@ ocr.flush({ image_path: 'path/to/test/img' })
 | use_angle_cls | false  | 启用方向分类，必须与cls值相同。                       |
 | enable_mkldnn | true   | 启用CPU推理加速，关掉可以减少内存占用，但会降低速度。 |
 
-`config_path` 需要配合多国语言扩展包使用。如果没有导入语言包，那么此项留空，默认使用自带的简中/英文通用识别库。
+更多参数详见 [args.cpp](project_files/cpp_infer/src/args.cpp) 。（不支持其中GPU相关、表格识别相关的参数。-）
 
-此外，更多参数详见 [args.cpp](project_files/cpp_infer/src/args.cpp) 。不支持GPU相关、表格识别相关的参数。
+### 切换识别语言：
+
+`v1.3`版本的Release压缩包中，默认附带了 `简中,繁中,英,日,韩,俄,德,法` 的语言库与配置文件，在 `models` 目录下。
+
+`models` 目录中，每一个 `config_xxx.txt` 是一组语言配置文件（如英文是`congfig_en.txt`）。只需将这个文件的路径传入 `config_path` 参数，即可切换为对应的语言。以 Python API 为例：
+
+```python
+argument = {'config_path': "models/congfig_en.txt"}
+ocr = GetOcrApi(r"D:/Test/PaddleOCR_json.exe", argument)
+```
+
+如果 config_path 留空，则 PaddleOCR-json 默认加载并使用简体中文识别库。
+
+#### 删除语言库：
+
+若你希望删除吃灰的语言库文件以便减少软件体积，可以删除 `models` 目录中含有对应语言前缀和 **rec_infer** 后缀的文件夹。比如你希望删除日语`japan`相关的库，只需删除该文件夹：  
+`japan_PP-OCRv3_rec_infer`
+
+一组语言的rec库大约占用10MB空间（未压缩）。若删除到仅剩1组语言，可以节省约60MB空间。
+
+请不要删除cls_infer及det_infer后缀的文件夹，这是所有语言公用的检测/方向分类库。
 
 ### [详细使用指南](docs/详细使用指南.md)
 
