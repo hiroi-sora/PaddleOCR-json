@@ -11,6 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+// 版本信息
+#define PROJECT_VER "v1.3.0"
+#define PROJECT_NAME "PaddleOCR-json " PROJECT_VER
+
 #include "opencv2/core.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
@@ -92,6 +97,7 @@ void structure(std::vector<cv::String> &cv_all_img_names)
 
 int main(int argc, char **argv)
 {
+    std::cout << PROJECT_NAME << std::endl; // 版本提示
     // 读取命令行
     google::ParseCommandLineFlags(&argc, &argv, true);
     // 读取配置文件
