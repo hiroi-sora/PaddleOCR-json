@@ -285,7 +285,7 @@ ocr = GetOcrApi(enginePath, argument)
 
 版本号链接可前往对应备份分支。
 
-#### [v1.3.0](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.3.0) `2023.6.19` 
+#### [v1.3.0](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.3.0) `2023.6.19` 
 - 修复了一些BUG。
 
 #### v1.3.0 Alpha `2023.5.26` 
