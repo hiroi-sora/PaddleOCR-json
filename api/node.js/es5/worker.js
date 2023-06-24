@@ -73,6 +73,7 @@ if (!worker_threads_1.isMainThread) {
             process.stdout.write("pid=".concat(proc_1.pid, ", pipe=true\n"));
             return res();
         }
+        proc_1.stderr.once('data', function () { return null; });
         proc_1.stdout.once('data', function (chunk) {
             var data = chunk.toString();
             var socket = data.match(__default.socketMatch)[1].split(':');
@@ -93,7 +94,7 @@ if (!worker_threads_1.isMainThread) {
             var addr_1 = socket[0], port_1 = socket[1];
             worker_threads_1.parentPort.on('message', function (data) {
                 client_1.connect(port_1, addr_1, function () {
-                    client_1.end(JSON.stringify(cargs(data)));
+                    client_1.end("".concat(JSON.stringify(cargs(data)), "\n"));
                 });
             });
             client_1.on('data', function (chunk) {
