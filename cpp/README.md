@@ -12,6 +12,7 @@
 
 - [Visual Studio 2019](https://learn.microsoft.com/zh-cn/visualstudio/releases/2019/release-notes) (Community)
 - [Cmake](https://cmake.org/download/) (Windows x64 Installer)
+- [Git](https://git-scm.com/download/win) (64-bit Git for Windows Setup)
 
 ### 1.2 需要下载的资源：
 
@@ -67,9 +68,17 @@ PADDLE_LIB:
 
 ![](docs/imgs/b3.png)
 
-点击左下角第一个按钮Configure应用配置，等待几秒，看到输出 `Configuring done` 即可。
+点击左下角 **第一个按钮Configure** 应用配置，等待几秒，看到输出 `Configuring done` 即可。
 
-1. 点击左下角 **第二个按钮Generate** 即可生成Visual Studio 项目的sln文件。看到输出 `Generating done` 即可。那么，你会看到 `PaddleOCR-json/cpp/build` 下生成了 `ppocr.sln` 及一堆文件。别急着打开！先完成下述步骤。
+点击左下角 **第二个按钮Generate** 即可生成Visual Studio 项目的sln文件。看到输出 `Generating done` 即可。那么，你会看到 `PaddleOCR-json/cpp/build` 下生成了 `ppocr.sln` 及一堆文件。别急着打开！先按本文档完成后续步骤。
+
+#### 构建失败？
+
+如果报错中含有 `Could NOT find Git (missing: GIT_EXECUTABLE)` ，原因是电脑上未安装Git，请先安装（尽量装在默认目录下）。
+
+如果报错中含有 `unable to access 'https://github.com/LDOUBLEV/AutoLog.git/': gnutls_handshake() failed: The TLS connection was non-properly terminated.` ，原因是网络问题，请挂全局科学上网。如果没有科学，那么可尝试将 `deploy/cpp_infer/external-cmake/auto-log.cmake` 中的github地址改为 `https://gitee.com/Double_V/AutoLog` 。
+
+其他原因，请确认您操作的步骤与本文一致，尤其是点击按钮的先后顺序。
 
 ## 3. 配置项目
 
