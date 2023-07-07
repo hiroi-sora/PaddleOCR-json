@@ -1,18 +1,11 @@
 import { Worker } from 'worker_threads';
 import { resolve as path_resolve } from 'path';
 
-class Queue extends Array<(next: () => void) => any> {
-    out() {
-        if (!this.length) return;
-        new Promise((res: (v?: any) => void) => this[0](res))
-            .then(() => (super.shift(), this.out()));
-    }
-    in(fn: (next: () => void) => any) {
-        super.push(fn) - 1 || this.out();
-        return true;
-    }
+interface Queue<T> extends AsyncGenerator<T, null, (resolve: (value?: T) => void, reject: (reason?: any) => void) => void> { }
+async function* Queue<T>(value?: T): Queue<T> {
+    while (true) value = await new Promise(yield value);
 }
-const quqeMap = new WeakMap<OCR, Queue>();
+const quqeMap = new WeakMap<OCR, Queue<OCR.coutReturnType>>();
 
 class OCR extends Worker {
     pid: number;
@@ -24,9 +17,10 @@ class OCR extends Worker {
             workerData: { path, args, options, debug },
             stdout: true,
         });
-        const quqe = new Queue();
+        const quqe = Queue<OCR.coutReturnType>();
         quqeMap.set(this, quqe);
-        quqe.in((next) => {
+        quqe.next();
+        quqe.next((res) => {
             this.stdout.once('data', (data) => {
                 const [, pid, socket, addr, port] = String(data).match(/^pid=(\d+)(, a=(\d+\.\d+\.\d+\.\d+:\d+))?/);
                 this.pid = Number(pid);
@@ -35,30 +29,20 @@ class OCR extends Worker {
                     this.port = Number(port);
                 }
                 super.emit('init', this.pid, this.addr, this.port);
-                next();
+                res();
             });
         });
         super.once('exit', (code) => {
             this.exitCode = code;
-            quqeMap.delete(this);
+            quqeMap.get(this).return(null);
         });
     }
-    postMessage(obj: OCR.Arg) {
-        quqeMap.get(this)?.in((next) => {
-            super.once('message', next);
+    postMessage(obj: OCR.Arg) { OCR.prototype.flush.call(this, obj); }
+    async flush(obj: OCR.Arg) {
+        return (await quqeMap.get(this).next((res) => {
+            super.once('message', res);
             super.postMessage(obj);
-        });
-    }
-    flush(obj: OCR.Arg) {
-        return new Promise((res: (v: OCR.coutReturnType) => void) => {
-            quqeMap.get(this).in((next) => {
-                super.once('message', (data: OCR.coutReturnType) => {
-                    res(data);
-                    next();
-                });
-                super.postMessage(obj);
-            });
-        });
+        })).value;
     }
 }
 

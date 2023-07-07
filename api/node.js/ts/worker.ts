@@ -84,6 +84,7 @@ if (!isMainThread) {
             process.stdout.write(`pid=${proc.pid}, pipe=true\n`);
             return res();
         }
+        proc.stderr.once('data', () => null);
         proc.stdout.once('data', (chunk) => {
             const data: string = chunk.toString();
             const socket = data.match(__default.socketMatch)[1].split(':');
@@ -104,7 +105,7 @@ if (!isMainThread) {
             const [addr, port] = socket;
             parentPort.on('message', (data) => {
                 client.connect(port, addr, () => {
-                    client.end(JSON.stringify(cargs(data)));
+                    client.end(`${JSON.stringify(cargs(data))}\n`);
                 });
             });
             client.on('data', (chunk) => {

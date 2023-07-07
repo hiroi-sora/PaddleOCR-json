@@ -1,17 +1,9 @@
 "use strict";
 const worker_threads_1 = require("worker_threads");
 const path_1 = require("path");
-class Queue extends Array {
-    out() {
-        if (!this.length)
-            return;
-        new Promise((res) => this[0](res))
-            .then(() => (super.shift(), this.out()));
-    }
-    in(fn) {
-        super.push(fn) - 1 || this.out();
-        return true;
-    }
+async function* Queue(value) {
+    while (true)
+        value = await new Promise(yield value);
 }
 const quqeMap = new WeakMap();
 class OCR extends worker_threads_1.Worker {
@@ -24,9 +16,10 @@ class OCR extends worker_threads_1.Worker {
             workerData: { path, args, options, debug },
             stdout: true,
         });
-        const quqe = new Queue();
+        const quqe = Queue();
         quqeMap.set(this, quqe);
-        quqe.in((next) => {
+        quqe.next();
+        quqe.next((res) => {
             this.stdout.once('data', (data) => {
                 const [, pid, socket, addr, port] = String(data).match(/^pid=(\d+)(, a=(\d+\.\d+\.\d+\.\d+:\d+))?/);
                 this.pid = Number(pid);
@@ -35,30 +28,20 @@ class OCR extends worker_threads_1.Worker {
                     this.port = Number(port);
                 }
                 super.emit('init', this.pid, this.addr, this.port);
-                next();
+                res();
             });
         });
         super.once('exit', (code) => {
             this.exitCode = code;
-            quqeMap.delete(this);
+            quqeMap.get(this).return(null);
         });
     }
-    postMessage(obj) {
-        quqeMap.get(this)?.in((next) => {
-            super.once('message', next);
+    postMessage(obj) { OCR.prototype.flush.call(this, obj); }
+    async flush(obj) {
+        return (await quqeMap.get(this).next((res) => {
+            super.once('message', res);
             super.postMessage(obj);
-        });
-    }
-    flush(obj) {
-        return new Promise((res) => {
-            quqeMap.get(this).in((next) => {
-                super.once('message', (data) => {
-                    res(data);
-                    next();
-                });
-                super.postMessage(obj);
-            });
-        });
+        })).value;
     }
 }
 module.exports = OCR;
