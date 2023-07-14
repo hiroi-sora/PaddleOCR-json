@@ -74,7 +74,7 @@ class visualize:
         for index, tb in enumerate(textBlocks):
             text = f'{index+1}'
             xy = tuple(tb['box'][0])  # 左上角坐标
-            w, h = ttf.getsize(text)  # 宽高
+            x_, y_, w, h = ttf.getbbox(text)  # 获取宽高。只需要w和h
             w *= 1.1
             h *= 1.1
             draw.rectangle((xy, (xy[0]+w, xy[1]+h)), fill=bg, width=0)  # 背景矩形
