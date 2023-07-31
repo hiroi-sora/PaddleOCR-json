@@ -126,7 +126,7 @@ ocr.flush({ image_path: 'path/to/test/img' })
 
 ```python
 enginePath = "D:/Test/PaddleOCR_json.exe"  # 引擎路径
-argument = {"config_path": "models/congfig_en.txt"}  # 指定使用英文库
+argument = {"config_path": "models/config_en.txt"}  # 指定使用英文库
 ocr = GetOcrApi(enginePath, argument)
 ```
 
