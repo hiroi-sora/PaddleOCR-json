@@ -100,7 +100,7 @@ ocr.flush({ image_path: 'path/to/test/img' })
 
 ### 其他API
 
-`PowerShell`、`Java`、`Rust` 等API尚未兼容 v1.3 测试版本。如有需要，请用 [v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds) 版本。
+[`Java API`](https://github.com/jerrylususu/PaddleOCR-json-java-api) 已增加对 v1.3 版本的支持。`PowerShell`、`Rust` 等API尚未兼容 v1.3 测试版本。如有需要，请用 [v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds) 版本。
 
 ### 更多语言API
 
