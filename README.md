@@ -99,7 +99,7 @@ ocr.flush({ image_path: 'path/to/test/img' })
 
 ### 4. Java API
 
-[资源目录]([api/PowerShell](https://github.com/jerrylususu/PaddleOCR-json-java-api))
+[资源目录](https://github.com/jerrylususu/PaddleOCR-json-java-api)
 
 
 ### 其他API
