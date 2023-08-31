@@ -21,7 +21,7 @@ class OCR extends worker_threads_1.Worker {
         quqe.next();
         quqe.next((res) => {
             this.stdout.once('data', (data) => {
-                const [, pid, socket, addr, port] = String(data).match(/^pid=(\d+)(, a=(\d+\.\d+\.\d+\.\d+:\d+))?/);
+                const [, pid, socket, addr, port] = String(data).match(/^pid=(\d+)(, addr=(\d+\.\d+\.\d+\.\d+:\d+))?/);
                 this.pid = Number(pid);
                 if (socket) {
                     this.addr = addr;
