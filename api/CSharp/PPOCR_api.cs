@@ -1,14 +1,13 @@
 using System.Diagnostics;
 using Newtonsoft.Json;
 
-
-public class Ocr
+public class PPOCR_api
 {
     private string _exePath;
     private Process _process;
-    private bool IsActive => !_process.HasExited;
+    public bool IsActive => !_process.HasExited;
 
-    public Ocr(string path)
+    public PPOCR_api(string path)
     {
         this._exePath = path;
 
@@ -37,20 +36,24 @@ public class Ocr
         Console.WriteLine("OCR init completed.");
     }
 
-    ~Ocr()
+    ~PPOCR_api()
     {
         _process.Kill();
     }
 
 
     // 分析单张图片
-    public void ParseImgOnce(string imgPath)
+    public void ParseImg(string imgPath)
     {
         if (!IsActive)
         {
             throw new Exception("OCR process is not active.");
         }
 
+        var request = new OcrRequest();
+        request.image_base64 = ImgToBase64(imgPath);
+
+        var resp = SendJsonToOcr(request);
 
     }
 
@@ -74,6 +77,8 @@ public class Ocr
         // 把json启用ASCII转义
         var json = JsonConvert.SerializeObject(request, setting);
 
+        //json = @"{""img_path"" :""C:\Users\28904\Desktop\test.png""}";
+
         // 写入引擎进程的stdin流
         _process.StandardInput.WriteLine(json);
         _process.StandardInput.WriteLine("\r\n");
@@ -83,5 +88,12 @@ public class Ocr
         var ocrResp = JsonConvert.DeserializeObject<OcrResponse>(resp);
 
         return ocrResp;
+    }
+
+    private string ImgToBase64(string imgPath)
+    {
+        var bytes = System.IO.File.ReadAllBytes(imgPath);
+        var base64 = Convert.ToBase64String(bytes);
+        return base64;
     }
 }
