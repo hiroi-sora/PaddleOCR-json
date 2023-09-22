@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "w7hl4fe6uEUh8G5p88Sj3wwFMAWk/WmlNwui1Utwq4RSG4LmBRLkeWDSn9SrNtEnmOZNl61n/z6TTF/uumxulQ==",
+  "success": true,
+  "projectFilePath": "c:\\UnityLab\\Github\\PaddleOCR-json\\api\\CSharp\\CSharp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\28904\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
