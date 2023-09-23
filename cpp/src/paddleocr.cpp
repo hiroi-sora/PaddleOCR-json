@@ -99,15 +99,27 @@ namespace PaddleOCR
     {
 
         std::vector<OCRPredictResult> ocr_result;
-        // det
-        this->det(img, ocr_result);
-        // crop image
         std::vector<cv::Mat> img_list;
-        for (int j = 0; j < ocr_result.size(); j++)
+        // det
+        if (det)
         {
-            cv::Mat crop_img;
-            crop_img = Utility::GetRotateCropImage(img, ocr_result[j].box);
-            img_list.push_back(crop_img);
+            this->det(img, ocr_result); // 取det结果 
+            // 按det结果，裁切图片 
+            for (int j = 0; j < ocr_result.size(); j++)
+            {
+                cv::Mat crop_img;
+                crop_img = Utility::GetRotateCropImage(img, ocr_result[j].box);
+                img_list.push_back(crop_img);
+            }
+        }
+        else
+        {
+            // 创建一个box，大小与整张图片相同 
+            std::vector<std::vector<int>> box = { {0, 0}, {img.cols - 1, 0}, {img.cols - 1, img.rows - 1}, {0, img.rows - 1} };
+            OCRPredictResult res;
+            res.box = box;
+            ocr_result.push_back(res);
+            img_list.push_back(img);
         }
         // cls
         if (cls && this->classifier_ != nullptr)
