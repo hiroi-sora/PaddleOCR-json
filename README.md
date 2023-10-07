@@ -272,6 +272,11 @@ ocr = GetOcrApi(enginePath, argument)
 
 👆当你需要修改项目源码时欢迎参考。
 
+
+### [移植指南](cpp/docs/移植指南.md)
+
+👆当你需要移植项目到不同平台时欢迎参考。
+
 ### 感谢
 
 本项目中使用了 [ReneNyffenegger/cpp-base64](https://github.com/ReneNyffenegger/cpp-base64) ：
