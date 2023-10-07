@@ -4,6 +4,8 @@
 
 本文参考了 PPOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/docs/windows_vs2019_build.md#12-%E4%B8%8B%E8%BD%BD-paddlepaddle-c-%E9%A2%84%E6%B5%8B%E5%BA%93%E5%92%8C-opencv) ，但建议以本文为准。
 
+移植多平台，请参考 [移植指南](docs/移植指南.md) 。
+
 ## 1. 前期准备
 
 资源链接后面的(括弧里是版本)，请看清楚。
@@ -16,9 +18,11 @@
 
 ### 1.2 需要下载的资源：
 
-- [paddle_inference](https://paddleinference.paddlepaddle.org.cn/user_guides/download_lib.html#windows) (Windows, C++预测库, cpu_avx_mkl)
+- [paddle_inference](https://paddleinference.paddlepaddle.org.cn/user_guides/download_lib.html#windows) (Windows, 2.3.2, C++预测库, cpu_avx_mkl)
 - [Opencv](https://github.com/opencv/opencv/releases) (windows.exe)
 - [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/models%2Fv1.3) (models.zip)
+
+如果是 Linux / Mac 平台，则paddle_inference和Opencv需选择对应平台的资源。模型库通用，无需改。
 
 ### 1.3 放置资源
 
