@@ -318,7 +318,7 @@ textBlocks = getObj["data"]  # 提取文本块数据
 img1 = visualize(textBlocks, testImg).get(isOrder=True)
 
 # 执行文本块后处理：合并自然段
-textBlocksNew = tbpu.run_merge_line_h_m_paragraph(textBlocks)
+textBlocksNew = tbpu.MergePara(textBlocks)
 
 # 后处理结果的可视化Image
 img2 = visualize(textBlocksNew, testImg).get(isOrder=True)
