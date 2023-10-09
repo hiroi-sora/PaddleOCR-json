@@ -5,15 +5,12 @@
 # 一个OCR结果常由多个文块组成。
 # 文块处理器就是：将传入的多个文块进行处理，比如合并、排序、删除文块。
 
+
 class Tbpu:
     def __init__(self):
-        self.tbpuName = '文块处理单元-未知'
+        self.tbpuName = "文块处理单元-未知"
 
-    def getInitInfo(self):
-        '''返回初始化信息字符串'''
-        return f'文块后处理：[{self.tbpuName}]'
-
-    def run(self, textBlocks, imgInfo=None):
-        '''输入：textBlocks文块 , img图片信息\n
-        输出：textBlocks文块 , 处理日志'''
-        return textBlocks, f'[{self.tbpuName}]'
+    def run(self, textBlocks, img):
+        """输入：textBlocks文块 , img图片信息\n
+        输出：textBlocks文块"""
+        return textBlocks
