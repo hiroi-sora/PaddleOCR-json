@@ -2,7 +2,7 @@
 - **PaddleOCR-json**
 - [RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json)
 
-# PaddleOCR-json v1.3.0
+# PaddleOCR-json
 
 > 现已支持 Win7 x64 
 
