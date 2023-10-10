@@ -1,4 +1,6 @@
-
+##### 离线OCR组件 系列项目：
+- **PaddleOCR-json**
+- [RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json)
 
 # PaddleOCR-json v1.3.0
 
