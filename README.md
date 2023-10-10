@@ -2,6 +2,8 @@
 
 # PaddleOCR-json v1.3.0
 
+> 现已支持 Win7 x64 
+
 这是一个基于 [PaddleOCR v2.6 C++](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) 的开源离线OCR组件，可快速让你的程序拥有OCR能力。它通常作为一个子进程被上层程序调用，也可以作为一个单独的进程通过TCP调用。本项目提供了Python等语言的API，你可以无视技术细节，通过两行代码使用它。
 
 - **方便** ：部署方便，解压即用，无需安装和配置环境，无需联网。发布方便，可嵌入程序包也可作为外挂组件。
@@ -13,20 +15,20 @@
 
 ## 兼容性
 
-- 系统支持 Win10/11 x64 。Linux的支持正在筹备。
-- 不建议使用 Win7 ，识别引擎很可能无法运行。
+- 系统支持 Win7 x64 及以上。Linux的支持正在筹备。
+- 若 Win7 报错`计算机中丢失 VCOMP140.DLL` ，请安装 [VC运行库](https://aka.ms/vs/17/release/vc_redist.x64.exe) 。
 - CPU必须具有AVX指令集。常见的家用CPU一般都满足该条件。
 
     | AVX   | 支持的产品系列                                         | 不支持                                          |
     | ----- | ------------------------------------------------------ | ----------------------------------------------- |
     | Intel | 酷睿Core，至强Xeon                                     | 凌动Atom，安腾Itanium，赛扬Celeron，奔腾Pentium |
     | AMD   | 推土机架构及之后的产品，如锐龙Ryzen、速龙Athlon、FX 等 | K10架构及之前的产品                             |
-- 如果需求在 Win7 或 无AVX的CPU上使用OCR，可看看隔壁 [RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json) 。
+- 如果需求在无AVX的CPU上使用OCR，可看看隔壁 [RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json) 。
 
 
 ## 准备工作
 
-下载 [PaddleOCR-json v1.3.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.3.0) 并解压，即可。
+下载 [PaddleOCR-json v1.3.1](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.3.1) 并解压，即可。
 
 ### 简单试用
 
@@ -293,6 +295,9 @@ ocr = GetOcrApi(enginePath, argument)
 ## 更新日志
 
 版本号链接可前往对应备份分支。
+
+#### v1.3.1 `2023.10.10` 
+- 兼容 Win7 x64 。
 
 #### [v1.3.0](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.3.0) `2023.6.19` 
 - 修复了一些BUG。
