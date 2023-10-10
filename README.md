@@ -1,19 +1,37 @@
-##### 离线OCR组件 系列项目：
+#### 离线OCR组件 系列项目：
 - **PaddleOCR-json**
 - [RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json)
+
+|                  | PaddleOCR-json                                  | RapidOCR-json        |
+| ---------------- | ----------------------------------------------- | -------------------- |
+| CPU要求          | CPU必须具有AVX指令集。不支持以下CPU：           | 无特殊要求 👍         |
+|                  | 凌动Atom，安腾Itanium，赛扬Celeron，奔腾Pentium |                      |
+| 推理加速库       | mkldnn 👍                                        | 无                   |
+| 识别速度         | 快（启用mkldnn加速）👍                           | 中等                 |
+|                  | 极慢（不启用mkldnn）                            |                      |
+| 初始化耗时       | 约2s，慢                                        | 0.1s内，快 👍         |
+| 组件体积（压缩） | 52MB                                            | 15MB 👍               |
+| 组件体积（部署） | 250MB                                           | 16MB 👍               |
+| CPU占用          | 高，榨干硬件性能                                | 较低，对低配机器友好 |
+| 内存占用峰值     | >2000MB（启用mkldnn）                           | ~500MB 👍             |
+|                  | ~600MB（不启用mkldnn）                          |                      |
+
+---
 
 # PaddleOCR-json
 
 > 现已支持 Win7 x64 
 
-这是一个基于 [PaddleOCR v2.6 C++](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) 的开源离线OCR组件，可快速让你的程序拥有OCR能力。它通常作为一个子进程被上层程序调用，也可以作为一个单独的进程通过TCP调用。本项目提供了Python等语言的API，你可以无视技术细节，通过两行代码使用它。
+这是一个基于 [PaddleOCR v2.6 C++](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) 的离线图片OCR文字识别程序，可快速让你的程序拥有OCR能力。它可以作为一个子进程被上层程序调用，也可以作为一个单独的进程通过TCP调用。本项目提供了Python等语言的API，你可以无视技术细节，通过两行代码使用它。
+
+本项目旨在提供一个封装好的OCR引擎组件，使得没有C++编程基础的开发者也可以用别的语言来简单地调用OCR，享受到更快的运行效率、更便捷的打包&部署手段。
 
 - **方便** ：部署方便，解压即用，无需安装和配置环境，无需联网。发布方便，可嵌入程序包也可作为外挂组件。
 - **高速** ：基于 PPOCR C++ 版引擎，识别效率显著高于Python版本PPOCR及其他一些由Python编写的OCR引擎。
 - **精准** ：附带PPOCR-v3识别库，对非常规字形（手写、艺术字、小字、杂乱背景等）也具有不错的识别率。
 - **灵活** ：可以以多种方式指定OCR任务，支持识别本地图片路径、剪贴板图片、Base64编码的图片。
 
-**关联项目：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
+**应用：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
 
 ## 兼容性
 
