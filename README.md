@@ -123,6 +123,10 @@ ocr.flush({ image_path: 'path/to/test/img' })
 
 [资源目录](https://github.com/jerrylususu/PaddleOCR-json-java-api)
 
+### 5. .NET API
+
+[资源目录](https://github.com/aki-0929/PaddleOCRJson.NET)
+
 
 ### 其他API
 
