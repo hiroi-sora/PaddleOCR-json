@@ -128,9 +128,9 @@ ocr.flush({ image_path: 'path/to/test/img' })
 [资源目录](https://github.com/aki-0929/PaddleOCRJson.NET)
 
 
-### 其他API
+### 6. Rust API
 
-`Rust` 等API尚未兼容 v1.3 测试版本。如有需要，请用 [v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds) 版本。
+[资源目录](https://github.com/OverflowCat/paddleocr)
 
 ### 更多语言API
 
