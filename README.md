@@ -132,6 +132,10 @@ ocr.flush({ image_path: 'path/to/test/img' })
 
 [资源目录](https://github.com/OverflowCat/paddleocr)
 
+### 7. Go API
+
+[资源目录](https://github.com/doraemonkeys/paddleocr)
+
 ### 更多语言API
 
 欢迎补充！请参考 [详细使用指南](docs/详细使用指南.md) 。
