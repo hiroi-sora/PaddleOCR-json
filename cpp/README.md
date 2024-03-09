@@ -99,9 +99,18 @@ PADDLE_LIB:
 
 ![](docs/imgs/b9.png)
 
-4. 按F5编译。如果输出`生成：成功2个，失败0个……`，弹窗`无法启动程序：……系统找不到指定的文件` 是正常的。但你应该能在 `build/Release` 下找到生成的 `ppocr.exe` 。请继续下面的步骤。
+4. 按F5编译。如果输出`生成：成功2个，失败0个……`，弹窗`无法启动程序：……系统找不到指定的文件` 是正常的。但你应该能在 `build/Release` 下找到生成的 `ppocr.exe` 。请跳到第6步。
 
-5. 拷贝必要的运行库。在 `.source` 中的 `paddle_inference_cpu_avx_mkl` 及 `opencv` 目录中，拷贝以下文件到 `build/Release` 文件夹下。
+5. 如果编译时，报了大量的语法错误，如：
+   ```
+   C2447 "{"缺少函数标题
+   C2059 语法错误："if"
+   C2143 语法错误：缺少";"
+   …………等等
+   ```
+   那么可能是源代码文件的换行符编码问题。解决方法一：通过`git clone`下载本仓库代码，而不要直接在Github下载zip文件包。解决方法二：批量将所有`.h`和`.cpp`文件的 [换行符转换为CRLF](https://www.bing.com/search?q=%E6%89%B9%E9%87%8F%E8%BD%AC%E6%8D%A2+LF+%E5%92%8C+CRLF) 。
+
+6. 拷贝必要的运行库。在 `.source` 中的 `paddle_inference_cpu_avx_mkl` 及 `opencv` 目录中，拷贝以下文件到 `build/Release` 文件夹下。
 
 - `paddle_inference_cpu_avx_mkl/paddle/lib/paddle_inference.dll`
 - `paddle_inference_cpu_avx_mkl/third_party/install/onnxruntime/lib/onnxruntime.dll`
