@@ -2,6 +2,8 @@
 
 使用这份API，可以方便地调用 PaddleOCR-json 。比起Python原生的PaddleOCR库，PaddleOCR-json拥有更好的性能。你可以同时享受C++推理库的高效率和Python的简易开发。
 
+请先在本项目 [Releases](https://github.com/hiroi-sora/PaddleOCR-json/releases) 中下载二进制程序，然后将 [python api](https://github.com/hiroi-sora/PaddleOCR-json/tree/main/api/python) （当前目录中的.py文件）下载到本地，即可通过python接口调用二进制程序。
+
 Python API 拥有三大模块：
 - 基础OCR接口
 - 结果可视化模块，将OCR结果绘制到图像上并展示或保存。
