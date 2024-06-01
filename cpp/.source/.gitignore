@@ -1,0 +1,3 @@
+# 无视当前路径下所有文件，除了这个.gitignore
+*
+!.gitignore
