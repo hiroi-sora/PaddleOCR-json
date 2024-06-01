@@ -3,15 +3,15 @@ cmake_minimum_required(VERSION 3.14)
 
 option(WITH_MKL        "Compile demo with MKL/OpenBlas support, default use MKL."       ON)
 option(WITH_GPU        "Compile demo with GPU/CPU, default use CPU."                    OFF)
+option(WITH_STATIC_LIB "Compile demo with static/shared library, default use static."   ON)
+option(WITH_TENSORRT "Compile demo with TensorRT."   OFF)
+
 if (UNIX AND NOT APPLE) # Linux
   # 在Linux环境下使用 `WITH_STATIC_LIB=ON` 时无法编译
   # https://github.com/PaddlePaddle/PaddleOCR/issues/10602
   # 这里就直接强行设置成 `OFF` 了
   set(WITH_STATIC_LIB OFF)
-else ()
-  option(WITH_STATIC_LIB "Compile demo with static/shared library, default use static."   ON)
 endif ()
-option(WITH_TENSORRT "Compile demo with TensorRT."   OFF)
 
 SET(PADDLE_LIB "" CACHE PATH "Location of libraries")
 SET(OPENCV_DIR "" CACHE PATH "Location of libraries")
