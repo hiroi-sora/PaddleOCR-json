@@ -45,17 +45,17 @@ namespace PaddleOCR
         // 解码内存数据，变成cv::Mat数据 
         cv::_InputArray array(buffer, fileLength);
         cv::Mat image = cv::imdecode(array, flag);
+        // 释放buffer空间必须放在 cv::imdecode() 之后，
+        // 因为 cv::_InputArray() 并不会复制buffer内的元素，
+        // 而 cv::imdecode() 在解码时会新开辟一块内存并复制解码后的数据
+        delete[] buffer;
+        fileInput.close();
         // 解码失败
         if (image.empty())
         {
             set_state(CODE_ERR_PATH_DECODE, MSG_ERR_PATH_DECODE(pathU8));
             return cv::Mat();
         }
-        // 释放buffer空间必须放在 cv::imdecode() 之后，
-        // 因为 cv::_InputArray() 并不会复制buffer内的元素，
-        // 而 cv::imdecode() 在解码时会新开辟一块内存并复制解码后的数据
-        delete[] buffer;
-        fileInput.close();
         
         return image;
     }
