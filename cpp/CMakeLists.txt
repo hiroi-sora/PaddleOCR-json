@@ -3,7 +3,14 @@ cmake_minimum_required(VERSION 3.14)
 
 option(WITH_MKL        "Compile demo with MKL/OpenBlas support, default use MKL."       ON)
 option(WITH_GPU        "Compile demo with GPU/CPU, default use CPU."                    OFF)
-option(WITH_STATIC_LIB "Compile demo with static/shared library, default use static."   ON)
+if (UNIX AND NOT APPLE) # Linux
+  # 在Linux环境下使用 `WITH_STATIC_LIB=ON` 时无法编译
+  # https://github.com/PaddlePaddle/PaddleOCR/issues/10602
+  # 这里就直接强行设置成 `OFF` 了
+  set(WITH_STATIC_LIB OFF)
+else ()
+  option(WITH_STATIC_LIB "Compile demo with static/shared library, default use static."   ON)
+endif ()
 option(WITH_TENSORRT "Compile demo with TensorRT."   OFF)
 
 SET(PADDLE_LIB "" CACHE PATH "Location of libraries")
@@ -44,7 +51,13 @@ if (WIN32)
   find_package(OpenCV REQUIRED PATHS ${OPENCV_DIR}/build/ NO_DEFAULT_PATH)
 
 else ()
-  find_package(OpenCV REQUIRED PATHS ${OPENCV_DIR}/share/OpenCV NO_DEFAULT_PATH)
+  # 如果变量 `OPENCV_DIR` 的值不为空（或者默认值），则使用其给出的OpenCV路径
+  if (DEFINED ${OPENCV_DIR})
+    find_package(OpenCV REQUIRED PATHS ${OPENCV_DIR}/share/OpenCV NO_DEFAULT_PATH)
+  # 反之则让CMake自动寻找OpenCV
+  else ()
+    find_package(OpenCV REQUIRED)
+  endif ()
   include_directories("${PADDLE_LIB}/paddle/include")
   link_directories("${PADDLE_LIB}/paddle/lib")
 endif ()
@@ -71,7 +84,10 @@ else()
     if(WITH_MKL)
         set(FLAG_OPENMP "-fopenmp")
     endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -o3 ${FLAG_OPENMP} -std=c++11")
+    # 在Linux环境下使用 `-g -o3` 无法编译
+    # https://github.com/PaddlePaddle/PaddleOCR/issues/4654#issuecomment-977398981
+    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -o3 ${FLAG_OPENMP} -std=c++11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FLAG_OPENMP} -std=c++11")
     set(CMAKE_STATIC_LIBRARY_PREFIX "")
     message("cmake cxx flags" ${CMAKE_CXX_FLAGS})
 endif()
