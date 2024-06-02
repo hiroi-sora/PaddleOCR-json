@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifdef _WIN32
+#include <include/dirent.h>
+#include <direct.h>
+#else
 #include <dirent.h>
+#include <sys/stat.h>
+#endif
+
 #include <include/utility.h>
 #include <iostream>
 #include <ostream>
-
 #include <vector>
 
-#ifdef _WIN32
-#include <direct.h>
-#else
-#include <sys/stat.h>
-#endif
 
 namespace PaddleOCR
 {
