@@ -12,7 +12,7 @@
 
 ### 1.1 需要安装的工具：
 
-- [Visual Studio 2019](https://learn.microsoft.com/zh-cn/visualstudio/releases/2019/release-notes) (Community)
+- [Visual Studio 2022](https://learn.microsoft.com/zh-cn/visualstudio/releases/2022/release-notes) (2022或2019均可，Community)
 - [Cmake](https://cmake.org/download/) (Windows x64 Installer)
 - [Git](https://git-scm.com/download/win) (64-bit Git for Windows Setup)
 
@@ -67,7 +67,9 @@ OPENCV_DIR 和 OpenCV_DIR:
 `……/PaddleOCR-json/cpp/.source/opencv/build/x64/vc16/lib`
 
 PADDLE_LIB:  
-`……/PaddleOCR-json/.source/paddle_inference_cpu_avx_mkl`
+`……/PaddleOCR-json/cpp/.source/paddle_inference_cpu_avx_mkl`
+
+下面 `WITH_GPU` 确保**不要**勾选。
 
 其他项就不要动了！
 
@@ -75,7 +77,7 @@ PADDLE_LIB:
 
 点击左下角 **第一个按钮Configure** 应用配置，等待几秒，看到输出 `Configuring done` 即可。
 
-点击左下角 **第二个按钮Generate** 即可生成Visual Studio 项目的sln文件。看到输出 `Generating done` 即可。那么，你会看到 `PaddleOCR-json/cpp/build` 下生成了 `ppocr.sln` 及一堆文件。别急着打开！先按本文档完成后续步骤。
+点击左下角 **第二个按钮Generate** 即可生成Visual Studio 项目的sln文件。看到输出 `Generating done` 即可。那么，你会看到 `PaddleOCR-json/cpp/build` 下生成了 `PaddleOCR-json.sln` 及一堆文件。
 
 #### 构建失败？
 
@@ -87,21 +89,17 @@ PADDLE_LIB:
 
 ## 3. 配置项目
 
-1. 在 `PaddleOCR-json/cpp/docs` 中找到 `dirent.h` ，将它拷贝到 Visual Studio 软件的 include 文件夹下。默认是 `C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/VS/include` 。
-
-![](docs/imgs/b4.png)
-
-2. 回到工程目录下的build文件夹，打开 `ppocr.sln` 。**将Debug改为Release**。
+1. 回到工程目录下的build文件夹，打开 `PaddleOCR-json.sln` 。**将Debug改为Release**。
 
 ![](docs/imgs/b5.png)
 
-3. 调整项目字符集。在解决方案管理器的ppocr上，右键→高级→`字符集`改为`使用Unicode字符集`。
+2. 调整项目字符集。在解决方案管理器的PaddleOCR-json上，右键→属性→高级→`字符集`改为`使用Unicode字符集`。
 
 ![](docs/imgs/b9.png)
 
-4. 按F5编译。如果输出`生成：成功2个，失败0个……`，弹窗`无法启动程序：……系统找不到指定的文件` 是正常的。但你应该能在 `build/Release` 下找到生成的 `ppocr.exe` 。请跳到第6步。
+3. 按F5编译。如果输出`生成：成功2个，失败0个……`，弹窗`无法启动程序：……系统找不到指定的文件` 是正常的。但你应该能在 `build/Release` 下找到生成的 `PaddleOCR-json.exe` 。请跳到第6步。
 
-5. 如果编译时，报了大量的语法错误，如：
+4. 如果编译时，报了大量的语法错误，如：
    ```
    C2447 "{"缺少函数标题
    C2059 语法错误："if"
@@ -110,16 +108,16 @@ PADDLE_LIB:
    ```
    那么可能是源代码文件的换行符编码问题。解决方法一：通过`git clone`下载本仓库代码，而不要直接在Github下载zip文件包。解决方法二：批量将所有`.h`和`.cpp`文件的 [换行符转换为CRLF](https://www.bing.com/search?q=%E6%89%B9%E9%87%8F%E8%BD%AC%E6%8D%A2+LF+%E5%92%8C+CRLF) 。
 
-6. 拷贝必要的运行库。在 `.source` 中的 `paddle_inference_cpu_avx_mkl` 及 `opencv` 目录中，拷贝以下文件到 `build/Release` 文件夹下。
+5. 拷贝必要的运行库。在 `.source` 中的 `paddle_inference_cpu_avx_mkl` 及 `opencv` 目录中，拷贝以下文件到 `build/Release` 文件夹下。
 
 - `paddle_inference_cpu_avx_mkl/paddle/lib/paddle_inference.dll`
 - `paddle_inference_cpu_avx_mkl/third_party/install/onnxruntime/lib/onnxruntime.dll`
 - `paddle_inference_cpu_avx_mkl/third_party/install/paddle2onnx/lib/paddle2onnx.dll`
-- `opencv/build/x64/vc16/bin/opencv_world470.dll`
+- `opencv/build/x64/vc16/bin/opencv_world***.dll`
 
 6. 拷贝模型库。将 `.source` 中的 `models` 整个拷贝到 `build/Release` 文件夹下。
 
-7. 在`build/Release`下，Shift+右键，在此处打开终端（或PowerShell），输入 `./ppocr.exe` 。如果输出下列文字，就正常。
+7. 在`build/Release`下，Shift+右键，在此处打开终端（或PowerShell），输入 `./PaddleOCR-json.exe` 。如果输出下列文字，就正常。
 
 ```
 OCR anonymous pipe mode.
@@ -129,12 +127,9 @@ OCR init completed.
 8. 回到 Visual Studio 中，再进行一些配置。  
 - 首先在 `ALL BUILD` 上，右键→属性→常规，**输出目录** 原本是 `$(SolutionDir)$(Platform)/$(Configuration)/` ，现在改成exe生成的目录，即为 `$(ProjectDir)/Release` 。  
 - 其次修改工作目录，调试→工作目录，原来是`$(ProjectDir)` ，将它改为 `$(ProjectDir)/Release`。
-- 然后修改生成文件名： 常规→目标文件名，改成 `PaddleOCR-json` 或你喜欢的名字。
-- **解决方案中另外一个项目 `ppocr` 也要同样更改目标文件名，右键`ppocr`→属性→常规→修改目标文件名**。  
 
 ![](docs/imgs/b6.png)
 ![](docs/imgs/b7.png)
-![](docs/imgs/b8.png)
 
 9. 尝试按F5重新编译。如果成功生成，并且有一个命令行窗口一闪而过，那就说明配置正确了。
 
