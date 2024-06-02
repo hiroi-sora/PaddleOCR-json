@@ -13,6 +13,29 @@
 
 ## 1. 前期准备
 
+### 1.0 兼容性检查：
+
+**PaddleOCR-json 只支持具有AVX指令集的CPU。更多细节请查看[CPU要求](../README.md#离线ocr组件-系列项目)和[兼容性](../README.md#兼容性)。**
+
+请先检查你的CPU兼容性：
+
+```sh
+lscpu | grep Flags | grep avx
+```
+
+**如果你的CPU支持AVX指令集，你的输出大概长这样（你可以在输出里找到 `avx` 的字符）：**
+
+```
+Flags:                              fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology tsc_reliable nonstop_tsc cpuid pni pclmulqdq vmx ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves avx_vnni umip waitpkg gfni vaes vpclmulqdq rdpid movdiri movdir64b fsrm md_clear serialize flush_l1d arch_capabilities
+```
+
+**如果你看不到任何输出，这表明你的CPU不支持AVX指令集。**
+
+> [!TIP]
+> 如果你的CPU不支持AVX指令集，我们建议你尝试隔壁的[RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json)
+>
+> 当然，你也可以更换一个不需要AVX指令集的预测库来编译PaddleOCR-json（比如 `manylinux_cpu_noavx_openblas_gcc8.2` ）。不过大概率运行不了。
+
 ### 1.1 需要安装的工具：
 
 - wget（下载预测库用）
@@ -58,7 +81,7 @@ wget https://paddle-inference-lib.bj.bcebos.com/2.3.2/cxx_c/Linux/CPU/gcc8.2_avx
 tar -xf paddle_inference.tgz
 ```
 
-* 这一步之后可以根据预测库的版本来重命名一下 `paddle_inference` 文件夹。这里我们用的是 `manylinux_cpu_avx_mkl_gcc8.2` 的版本。
+* [可选] 这一步之后可以根据预测库的版本来重命名一下 `paddle_inference` 文件夹。这里我们用的是 `manylinux_cpu_avx_mkl_gcc8.2` 的版本。
 
 ```sh
 mv paddle_inference paddle_inference_manylinux_cpu_avx_mkl_gcc8.2
@@ -117,13 +140,13 @@ cmake -S . -B build/ \
     -DCMAKE_BUILD_TYPE=Release
 ```
 
-* 这里我们使用 `-S .` 命令来指定当前文件夹 `PaddleOCR-json/cpp` 为源码文件夹
+* 这里我们使用 `-S .` 命令来指定当前文件夹 `PaddleOCR-json/cpp` 为CMake项目根文件夹
 * 使用 `-B build/` 命令来指定 `PaddleOCR-json/cpp/build` 文件夹为工程文件夹
 * `-DPADDLE_LIB=$PADDLE_LIB` 命令会使用刚才设置的环境变量 `$PADDLE_LIB` 去指定预测库的位置
 * 最后，`-DCMAKE_BUILD_TYPE=Release` 命令会将这个工程设置为 `Release` 工程。你也可以把它改成 `Debug`。
 
 > [!NOTE]
-> 在构建工程文件夹时，CMake可能会报告下面这一套错误：
+> 在构建工程文件夹时，CMake可能会报告下面这一个错误：
 > 
 > `cp: cannot create regular file '/usr/lib/libmklml_intel.so': Permission denied`
 >
@@ -145,10 +168,10 @@ cmake --build build/
 
 如果报错中含有 `unable to access 'https://github.com/LDOUBLEV/AutoLog.git/': gnutls_handshake() failed: The TLS connection was non-properly terminated.` ，原因是网络问题，请挂全局科学上网。如果没有科学，那么可尝试将 `deploy/cpp_infer/external-cmake/auto-log.cmake` 中的github地址改为 `https://gitee.com/Double_V/AutoLog` 。
 
-欢迎提出Issue
+欢迎提出Issue。
 
 
-## 3. 配置 & 使用编译出来的可执行文件
+## 3. 配置 & 运行可执行文件
 
 1. 到这一步，你应该可以在 `build` 文件夹下找到一个叫 `ppocr` 的可执行文件
 
@@ -172,7 +195,7 @@ ls ./build/ppocr
 3. 一般我们可以更新环境变量 `PATH` 来解决这个问题，不过更新 `PATH` 有些时候不一定会起效。这里我们直接更新另一个环境变量 `LD_LIBRARY_PATH` 来解决。
 
 ```sh
-# 从之前的预测库文件夹下找出所有名为 "lib" 的文件夹，然后再把他们用 ":" 字符给串接起来。（就是 String.join()）最后在存到一个变量里面。
+# 从之前的预测库文件夹下找出所有名为 "lib" 的文件夹，然后再把他们用 ":" 字符给串接起来（就是 String.join()）。最后在存到一个变量里面。
 LIBS="$(find $PADDLE_LIB -name 'lib' -type d | paste -sd ':' -)"
 LD_LIBRARY_PATH=$LIBS ./build/ppocr
 ```
