@@ -12,7 +12,7 @@ SET(CUDA_LIB "" CACHE PATH "Location of libraries")
 SET(CUDNN_LIB "" CACHE PATH "Location of libraries")
 SET(TENSORRT_DIR "" CACHE PATH "Compile demo with TensorRT")
 
-set(DEMO_NAME "ppocr")
+set(DEMO_NAME "PaddleOCR-json") 
 
 
 macro(safe_set_static_flag)
