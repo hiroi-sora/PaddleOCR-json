@@ -126,11 +126,12 @@ OCR init completed.
 
 8. 回到 Visual Studio 中，再进行一些配置。  
 - 首先在 `ALL BUILD` 上，右键→属性→常规，**输出目录** 原本是 `$(SolutionDir)$(Platform)/$(Configuration)/` ，现在改成exe生成的目录，即为 `$(ProjectDir)/Release` 。  
-- 其次修改工作目录，调试→工作目录，原来是`$(ProjectDir)` ，将它改为 `$(ProjectDir)/Release`。
+- **目标文件名** 改成 `PaddleOCR-json` 。  
+- 修改工作目录：调试→**工作目录**，原来是`$(ProjectDir)` ，将它改为 `$(ProjectDir)/Release`。
 
 ![](docs/imgs/b6.png)
 ![](docs/imgs/b7.png)
 
-9. 尝试按F5重新编译。如果成功生成，并且有一个命令行窗口一闪而过，那就说明配置正确了。
+1. 尝试按F5重新编译。如果成功生成，并且有一个命令行窗口一闪而过，那就说明配置正确了。
 
 如果你需要移植其他平台，可以参考文档 [移植指南](docs/移植指南.md)
