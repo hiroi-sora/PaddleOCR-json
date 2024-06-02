@@ -1,4 +1,4 @@
-project(ppocr CXX C)
+project(PaddleOCR-json CXX C)
 cmake_minimum_required(VERSION 3.14)
 
 option(WITH_MKL        "Compile demo with MKL/OpenBlas support, default use MKL."       ON)
