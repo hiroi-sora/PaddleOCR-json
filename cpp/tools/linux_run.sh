@@ -21,8 +21,11 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR/../.source
 
 # 从预测库里找出所有动态库文件夹
-PADDLE_LIB="paddle_inference"
+PADDLE_LIB="$(pwd)/$(ls -d *paddle_inference*/ | head -n1)"
 LIBS="$(find $PADDLE_LIB -name 'lib' -type d | paste -sd ':' -)"
+
+echo "PADDLE_LIB: $PADDLE_LIB"
+echo "LIBS: $LIBS"
 
 # 运行PaddleOCR-json
 LD_LIBRARY_PATH=$LIBS ../build/ppocr \
