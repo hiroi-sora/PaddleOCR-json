@@ -16,8 +16,8 @@ mkdir -p build
 
 # 如果build文件夹不是一个CMake工程，则构建工程文件夹（第一次运行）
 if [ ! -d "build/CMakeFiles/" ]; then
-    cmake -S . -B build/ -DPADDLE_LIB=$PADDLE_LIB -DCMAKE_BUILD_TYPE=$MODE
+    cmake -S . -B build/ -DPADDLE_LIB="$PADDLE_LIB" -DCMAKE_BUILD_TYPE="$MODE"
 fi
 
 # 编译
-cmake --build build/ --config=$MODE
+cmake --build build/ --config="$MODE"
