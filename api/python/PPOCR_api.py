@@ -18,13 +18,11 @@ class PPOCR_pipe:  # 调用OCR（管道模式）
         `argument`: 启动参数，字典`{"键":值}`。参数说明见 https://github.com/hiroi-sora/PaddleOCR-json
         """
         cwd = os.path.abspath(os.path.join(exePath, os.pardir))  # 获取exe父文件夹
+        cmds = [exePath]
         # 处理启动参数
         if not argument == None:
             for key, value in argument.items():
-                if isinstance(value, str):  # 字符串类型的值加双引号
-                    exePath += f' --{key}="{value}"'
-                else:
-                    exePath += f" --{key}={value}"
+                cmds += [f'--{key}', str(value)] # Popen() 要求输入list里所有的元素都是 str 或 bytes
         # 设置子进程启用静默模式，不显示控制台窗口
         self.ret = None
         startupinfo = None
@@ -35,7 +33,7 @@ class PPOCR_pipe:  # 调用OCR（管道模式）
             )
             startupinfo.wShowWindow = subprocess.SW_HIDE
         self.ret = subprocess.Popen(  # 打开管道
-            exePath,
+            cmds,
             cwd=cwd,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
