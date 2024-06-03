@@ -28,6 +28,6 @@ echo "PADDLE_LIB: $PADDLE_LIB"
 echo "LIBS: $LIBS"
 
 # 运行PaddleOCR-json
-LD_LIBRARY_PATH="$LIBS" ../build/ppocr \
+LD_LIBRARY_PATH="$LIBS" ../build/PaddleOCR-json \
     -config_path=./models/config_chinese.txt \
     -image_path="$IMG_PATH"
