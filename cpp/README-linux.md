@@ -112,7 +112,7 @@ PaddleOCR-json
 5. 最后一步，为了方便之后的使用，设置两个环境变量。
 
 ```sh
-export PADDLE_LIB="$(pwd)/paddle_inference_manylinux_cpu_avx_mkl_gcc8.2"
+export PADDLE_LIB="$(pwd)/$(ls -d *paddle_inference*/ | head -n1)"
 export MODELS="$(pwd)/models"
 ```
 
