@@ -7,7 +7,7 @@ from PPOCR_api import GetOcrApi
 import os
 
 # 测试图片路径
-TestImagePath = f"{os.path.dirname(os.path.abspath(__file__))}\\test.jpg"
+TestImagePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test.jpg")
 
 # 初始化识别器对象，传入 PaddleOCR-json.exe 的路径。请改成你自己的路径
 ocr = GetOcrApi(r"D:\……\PaddleOCR-json.exe")
@@ -48,7 +48,7 @@ if Image:
     pilImage = Image.open(TestImagePath)
     # Image 对象转为 字节流
     buffered = BytesIO()
-    pilImage.save(buffered, format="JPEG")
+    pilImage.save(buffered, format="PNG")
     imageBytes = buffered.getvalue()
     # 送入OCR
     res = ocr.runBytes(imageBytes)

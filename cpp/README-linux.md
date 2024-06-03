@@ -1,8 +1,8 @@
 # PaddleOCR-json V1.3 Linux 构建指南
 
-本文档帮助如何在Linux上编译 PaddleOCR-json V1.3 （对应PPOCR v2.6）。推荐给具有一定Linux命令行使用经验的读者。
+本文档帮助如何在Linux上编译 PaddleOCR-json V1.3 （对应PaddleOCR v2.6）。推荐给具有一定Linux命令行使用经验的读者。
 
-本文参考了 PPOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/readme_ch.md) ，但建议以本文为准。
+本文参考了 PaddleOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/readme_ch.md) ，但建议以本文为准。
 
 另外，本文将使用Debian/Ubuntu系列linux为例子进行讲解。其他linux发行版的用户请自行替换一些对应的命令（比如apt这类的）。
 
@@ -112,7 +112,7 @@ PaddleOCR-json
 5. 最后一步，为了方便之后的使用，设置两个环境变量。
 
 ```sh
-export PADDLE_LIB="$(pwd)/paddle_inference_manylinux_cpu_avx_mkl_gcc8.2"
+export PADDLE_LIB="$(pwd)/$(ls -d *paddle_inference*/ | head -n1)"
 export MODELS="$(pwd)/models"
 ```
 
@@ -173,20 +173,20 @@ cmake --build build/
 
 ## 3. 配置 & 运行可执行文件
 
-1. 到这一步，你应该可以在 `build` 文件夹下找到一个叫 `ppocr` 的可执行文件
+1. 到这一步，你应该可以在 `build` 文件夹下找到一个叫 `PaddleOCR-json` 的可执行文件
 
 ```sh
-ls ./build/ppocr
+ls ./build/PaddleOCR-json
 ```
 
 2. 直接运行的话会得到这样一个错误
 
 ```sh
-./build/ppocr
+./build/PaddleOCR-json
 ```
 
 ```
-./build/ppocr: error while loading shared libraries: libiomp5.so: cannot open shared object file: No such file or directory
+./build/PaddleOCR-json: error while loading shared libraries: libiomp5.so: cannot open shared object file: No such file or directory
 ```
 
 > [!NOTE]
@@ -197,7 +197,7 @@ ls ./build/ppocr
 ```sh
 # 从之前的预测库文件夹下找出所有名为 "lib" 的文件夹，然后再把他们用 ":" 字符给串接起来（就是 String.join()）。最后在存到一个变量里面。
 LIBS="$(find $PADDLE_LIB -name 'lib' -type d | paste -sd ':' -)"
-LD_LIBRARY_PATH=$LIBS ./build/ppocr
+LD_LIBRARY_PATH=$LIBS ./build/PaddleOCR-json
 ```
 
 > [!TIP]
@@ -218,9 +218,9 @@ LD_LIBRARY_PATH=$LIBS ./build/ppocr
 ```sh
 # PaddleOCR-json 必须运行在 "module" 文件夹的相同目录下
 cd $MODELS/..
-LD_LIBRARY_PATH=$LIBS ../build/ppocr \
-    -config_path=./models/config_chinese.txt \
-    -image_path=/path/to/image.jpg # 图片的路径
+LD_LIBRARY_PATH=$LIBS ../build/PaddleOCR-json \
+    -config_path="./models/config_chinese.txt" \
+    -image_path="/path/to/image.jpg" # 图片的路径
 ```
 
 > [!TIP]

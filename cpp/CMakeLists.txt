@@ -22,6 +22,20 @@ SET(TENSORRT_DIR "" CACHE PATH "Compile demo with TensorRT")
 set(DEMO_NAME "PaddleOCR-json") 
 
 
+# 检测是否运行在WSL下，如果是则设置compiler flag：-DUNDER_WSL
+if (UNIX AND NOT APPLE) # Linux
+  execute_process (
+    COMMAND "uname" "-a"
+    OUTPUT_VARIABLE UNAME_RESULT
+  )
+  string(STRIP "${UNAME_RESULT}" UNAME_RESULT)
+  if (UNAME_RESULT MATCHES ".*WSL.*")
+    message("Compiling under WSL")
+    add_definitions(-DUNDER_WSL)
+  endif()
+endif ()
+
+
 macro(safe_set_static_flag)
     foreach(flag_var
         CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE

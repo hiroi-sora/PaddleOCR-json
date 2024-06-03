@@ -9,12 +9,10 @@ import tbpu
 import os
 
 # 测试图片路径
-TestImagePath = f"{os.path.dirname(os.path.abspath(__file__))}\\test.jpg"
+TestImagePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test.jpg")
 
 # 初始化识别器对象，传入 PaddleOCR_json.exe 的路径
-ocr = GetOcrApi(
-    r"D:\MyCode\CppCode\PaddleOCR-json\cpp\build\Release\PaddleOCR-json.exe"
-)
+ocr = GetOcrApi(r"D:\MyCode\CppCode\PaddleOCR-json\cpp\build\Release\PaddleOCR-json.exe")
 print(f"初始化OCR成功，进程号为{ocr.ret.pid}")
 
 # OCR识别图片，获取文本块

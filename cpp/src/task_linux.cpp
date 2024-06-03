@@ -177,7 +177,7 @@ namespace PaddleOCR
             set_state(); // 初始化状态
             // 获取ocr结果
             std::string strOut = run_ocr(strIn);
-            // ocr结束，关闭连接，退出循环
+            // 接收到退出指令，关闭连接，退出主循环，結束服务器
             if (is_exit)
             {
                 close(clientFd);
@@ -186,7 +186,7 @@ namespace PaddleOCR
             // =============== OCR完毕 ===============
             
             // 发送数据
-            std::cout << strOut << std::endl;
+            std::cerr << strOut << std::endl;
             int bytesSent = send(clientFd, strOut.c_str(), strlen(strOut.c_str()), 0);
             // 没有发送出数据 | 发送出0字节
             if (bytesSent <= 0)

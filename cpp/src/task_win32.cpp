@@ -330,7 +330,7 @@ namespace PaddleOCR
             // =============== OCR完毕 =============== 
 
             // 发送数据
-            std::cout << str_out << std::endl;
+            std::cerr << str_out << std::endl;
             int m = send(client_fd, str_out.c_str(), strlen(str_out.c_str()), 0);
             if (m <= 0) {
                 std::cerr << "Failed to send data." << std::endl;
