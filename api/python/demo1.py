@@ -48,7 +48,7 @@ if Image:
     pilImage = Image.open(TestImagePath)
     # Image 对象转为 字节流
     buffered = BytesIO()
-    pilImage.save(buffered, format="JPEG")
+    pilImage.save(buffered, format="PNG")
     imageBytes = buffered.getvalue()
     # 送入OCR
     res = ocr.runBytes(imageBytes)
