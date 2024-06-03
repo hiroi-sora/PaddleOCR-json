@@ -186,17 +186,7 @@ namespace PaddleOCR
             // =============== OCR完毕 ===============
             
             // 发送数据
-#ifdef UNDER_WSL
-            // 当运行在WSL下时，如果使用 python subprocess.Popen() 来以子进程的形式启动这个程序，
-            // 并且将所有的 stdout 输出导入 subprocess.PIPE 时，
-            // 下面这一行 std::cout 会将整个服务器阻塞。
-            // 于是我们用 CMake 去检测 WSL 并设置这个 UNDER_WSL 的 compiler flag。
-            // 如果在 WSL 下就直接跳过下面这行 std::cout 了。
-            // 在套接字服务器的模式下，其他进程应该直接从套接字里接收数据而非使用 pipe 。
-            // 所以无视下面这行 std::cout 的影响应该不大。
-#else
-            std::cout << strOut << std::endl;
-#endif
+            std::cerr << strOut << std::endl;
             int bytesSent = send(clientFd, strOut.c_str(), strlen(strOut.c_str()), 0);
             // 没有发送出数据 | 发送出0字节
             if (bytesSent <= 0)
