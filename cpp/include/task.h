@@ -25,7 +25,7 @@ namespace PaddleOCR
 #define CODE_ERR_PATH_DECODE 203 // 图片打开成功，但读取到的内容无法被opencv解码
 #define MSG_ERR_PATH_DECODE(p) "Image decode failed. Path: \"" + p + "\""
 
-#ifdef ENABLE_CLIPBOARD
+#if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
 // 剪贴板读图，失败
 #define CODE_ERR_CLIP_OPEN 210 // 剪贴板打开失败 ( OpenClipboard )
 #define MSG_ERR_CLIP_OPEN "Clipboard open failed."

@@ -36,8 +36,8 @@ if (UNIX AND NOT APPLE) # Linux
   endif()
 endif ()
 
-# 如果启用剪贴板，设置一个compiler flag：-DENABLE_CLIPBOARD
-if (ENABLE_CLIPBOARD)
+# 在Windows下如果启用剪贴板，设置一个compiler flag：-DENABLE_CLIPBOARD
+if (ENABLE_CLIPBOARD AND WIN32)
   message(STATUS "Feature [clipboard] enabled")
   add_definitions(-DENABLE_CLIPBOARD)
 else ()

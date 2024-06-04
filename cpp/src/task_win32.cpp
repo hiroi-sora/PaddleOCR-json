@@ -102,7 +102,7 @@ namespace PaddleOCR
     // 代替cv imread，接收utf-8字符串传入，返回Mat。
     cv::Mat Task::imread_u8(std::string pathU8, int flag)
     {
-#ifdef ENABLE_CLIPBOARD
+#if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
         if (pathU8 == u8"clipboard") { // 若为剪贴板任务 
             return imread_clipboard(flag);
         }
@@ -119,7 +119,7 @@ namespace PaddleOCR
         return imread_wstr(wpath);
     }
 
-#ifdef ENABLE_CLIPBOARD
+#if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
     // 从剪贴板读入一张图片，返回Mat。注意flag对剪贴板内存图片无效，仅对剪贴板路径图片有效。
     cv::Mat Task::imread_clipboard(int flag)
     {

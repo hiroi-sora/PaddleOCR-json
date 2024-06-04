@@ -200,7 +200,7 @@ namespace PaddleOCR
         ppocr = new PPOCR(); // 创建引擎对象
         int flag;
         
-#ifdef ENABLE_CLIPBOARD
+#if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
         std::cout << "OCR clipboard enbaled." << std::endl;
 #endif
         
