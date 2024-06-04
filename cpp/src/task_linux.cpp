@@ -24,28 +24,38 @@ namespace PaddleOCR
     // 代替cv imread，接收utf-8字符串传入，返回Mat。
     cv::Mat Task::imread_u8(std::string pathU8, int flag)
     {
-        // 若为剪贴板任务
-        if (pathU8 == "clipboard")
-            return imread_clipboard(flag);
+        std::ifstream fileInput;
+        size_t fileLength;
+        char *buffer;
         
-        std::ifstream fileInput(pathU8, std::ios::binary);
-        // 路径不存在且无法输出
-        if (!fileInput)
+        // 尝试将pathU8读取到内存
+        try
         {
-            set_state(CODE_ERR_PATH_EXIST, MSG_ERR_PATH_EXIST(pathU8));
-            return cv::Mat();
+            fileInput.open(pathU8, std::ios::binary);
+            // 路径不存在且无法输出
+            if (!fileInput)
+            {
+                set_state(CODE_ERR_PATH_EXIST, MSG_ERR_PATH_EXIST(pathU8));
+                return cv::Mat();
+            }
+            
+            // 获取文件大小并将文件读到内存
+            fileInput.seekg (0, fileInput.end);
+            fileLength = fileInput.tellg();
+            fileInput.seekg (0, fileInput.beg);
+            buffer = new char[fileLength];
+            fileInput.read(buffer, fileLength);
+            
+            // 无法读取
+            if (!fileInput)
+            {
+                set_state(CODE_ERR_PATH_READ, MSG_ERR_PATH_READ(pathU8));
+                return cv::Mat();
+            }
         }
-        
-        // 获取文件大小并将文件读到内存
-        fileInput.seekg (0, fileInput.end);
-        size_t fileLength = fileInput.tellg();
-        fileInput.seekg (0, fileInput.beg);
-        char *buffer = new char[fileLength];
-        fileInput.read(buffer, fileLength);
-        
-        // 无法读取
-        if (!fileInput)
+        catch (std::exception& err)
         {
+            // 文件打开失败或者是读取失败，这里默认是读取失败
             set_state(CODE_ERR_PATH_READ, MSG_ERR_PATH_READ(pathU8));
             return cv::Mat();
         }
@@ -58,6 +68,7 @@ namespace PaddleOCR
         // 而 cv::imdecode() 在解码时会新开辟一块内存并复制解码后的数据
         delete[] buffer;
         fileInput.close();
+        
         // 解码失败
         if (image.empty())
         {
@@ -66,12 +77,6 @@ namespace PaddleOCR
         }
         
         return image;
-    }
-    
-    cv::Mat Task::imread_clipboard(int flag)
-    {
-        std::cerr << "PaddleOCR::Task::imread_clipboard() stub\n";
-        return cv::Mat();
     }
     
     int Task::socket_mode()
