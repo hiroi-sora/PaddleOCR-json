@@ -1,10 +1,11 @@
 project(PaddleOCR-json CXX C)
 cmake_minimum_required(VERSION 3.14)
 
-option(WITH_MKL        "Compile demo with MKL/OpenBlas support, default use MKL."       ON)
-option(WITH_GPU        "Compile demo with GPU/CPU, default use CPU."                    OFF)
-option(WITH_STATIC_LIB "Compile demo with static/shared library, default use static."   ON)
-option(WITH_TENSORRT "Compile demo with TensorRT."   OFF)
+option(WITH_MKL        "Compile with MKL/OpenBlas support, default use MKL."       ON)
+option(WITH_GPU        "Compile with GPU/CPU, default use CPU."                    OFF)
+option(WITH_STATIC_LIB "Compile with static/shared library, default use static."   ON)
+option(WITH_TENSORRT "Compile with TensorRT."   OFF)
+option(ENABLE_CLIPBOARD "启用剪贴板编译。默认关闭。"   OFF)
 
 if (UNIX AND NOT APPLE) # Linux
   # 在Linux环境下使用 `WITH_STATIC_LIB=ON` 时无法编译
@@ -35,6 +36,13 @@ if (UNIX AND NOT APPLE) # Linux
   endif()
 endif ()
 
+# 如果启用剪贴板，设置一个compiler flag：-DENABLE_CLIPBOARD
+if (ENABLE_CLIPBOARD)
+  message(STATUS "Feature [clipboard] enabled")
+  add_definitions(-DENABLE_CLIPBOARD)
+else ()
+  message(STATUS "Feature [clipboard] disabled")
+endif()
 
 macro(safe_set_static_flag)
     foreach(flag_var
