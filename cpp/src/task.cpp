@@ -201,7 +201,7 @@ namespace PaddleOCR
         int flag;
         
 #ifdef ENABLE_CLIPBOARD
-        std::cout << "OCR clipboard enbaled" << std::endl;
+        std::cout << "OCR clipboard enbaled." << std::endl;
 #endif
         
         // 单张图片识别模式
