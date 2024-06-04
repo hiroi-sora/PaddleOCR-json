@@ -279,5 +279,8 @@ LD_LIBRARY_PATH=$LIBS ../build/PaddleOCR-json \
 在编译完成后（[完成第二大章之后](#2-构建--编译项目)），你可以使用下面这个脚本来直接运行PaddleOCR-json
 
 ```sh
-./tools/linux_run.sh /图片路径/img.jpg
+./tools/linux_run.sh [配置参数]
 ```
+
+* **请注意：所有的相对路径都将以 .source 文件夹为基准**
+* [常用配置参数](../README.md#常用配置参数说明)
