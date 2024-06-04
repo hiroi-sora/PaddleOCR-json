@@ -227,6 +227,11 @@ ocr = GetOcrApi(enginePath, argument)
 - 注意，引擎不以文件后缀来区分各种图片，而是对存在的路径，均读入字节尝试解码。若传入的文件路径不是图片，或图片已损坏，则会报这个错。
 - 反之，将正常图片的后缀改为别的（如`.png`改成`.jpg或.exe`），也可以被正常识别。
 
+<details>
+<summary>
+<strong>剪贴板相关接口已弃用，不建议使用</strong>
+</summary>
+
 ##### `210` 剪贴板打开失败
 
 - data：`Clipboard open failed.`
@@ -265,6 +270,8 @@ ocr = GetOcrApi(enginePath, argument)
 
 - data：`Clipboard number of image channels is not valid. Number: 通道数`
 - 引擎只允许读入通道为1（黑白）、3（RGB）、4（RGBA）的图片。位图通道数不是1、3或4，会报这个错。
+
+</details>
 
 ##### `300` base64字符串解析为string失败
 
