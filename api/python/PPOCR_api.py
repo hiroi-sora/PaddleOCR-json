@@ -50,7 +50,7 @@ class PPOCR_pipe:  # 调用OCR（管道模式）
             initStr = self.ret.stdout.readline().decode("utf-8", errors="ignore")
             if "OCR init completed." in initStr:  # 初始化成功
                 break
-            elif "OCR clipboard enbaled." in initStr: # 剪贴板以启用
+            elif "OCR clipboard enbaled." in initStr: # 检测到剪贴板已启用
                 self.__ENABLE_CLIPBOARD = True
         atexit.register(self.exit)  # 注册程序终止时执行强制停止子进程
 

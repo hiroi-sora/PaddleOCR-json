@@ -47,6 +47,7 @@ if Image:
     print(f"\n示例3-PIL Image 识别结果：")
     ocr.printResult(res)
 
+# 以下示例默认禁用
 # 示例4：识别剪贴板图片
 if ocr.isClipboardEnabled():
     res = ocr.runClipboard()
