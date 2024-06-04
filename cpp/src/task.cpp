@@ -199,6 +199,11 @@ namespace PaddleOCR
         // 初始化引擎
         ppocr = new PPOCR(); // 创建引擎对象
         int flag;
+        
+#ifdef ENABLE_CLIPBOARD
+        std::cout << "OCR clipboard enbaled" << std::endl;
+#endif
+        
         // 单张图片识别模式
         if (!FLAGS_image_path.empty()){
             std::cout << "OCR single image mode. Path: " << FLAGS_image_path << std::endl;
