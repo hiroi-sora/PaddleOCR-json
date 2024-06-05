@@ -81,6 +81,34 @@ PADDLE_LIB:
 
 点击左下角 **第二个按钮Generate** 即可生成Visual Studio 项目的sln文件。看到输出 `Generating done` 即可。那么，你会看到 `PaddleOCR-json/cpp/build` 下生成了 `PaddleOCR-json.sln` 及一堆文件。
 
+#### CMake构建参数
+
+像刚才我们勾选/填写的那些CMake选项（`WITH_GPU`、`OPENCV_DIR`、`PADDLE_LIB`这些），它们是CMake的参数。你也可以自行参考并修改这些参数。
+
+以下参数是一些编译参数：
+
+| 参数名             | 描述                                                                                                                               |
+|--------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| `WITH_MKL`         | 使用MKL或OpenBlas，默认使用MKL。                                                                                                     |
+| `WITH_GPU`         | 使用GPU或CPU，默认使用CPU。                                                                                                          |
+| `WITH_STATIC_LIB`  | 编译成static library或shared library，默认编译成static library。（Linux下这个参数设置成 `ON` 时无法编译，所以它是强行设置成 `OFF` 的。） |
+| `WITH_TENSORRT`    | 使用TensorRT，默认关闭。                                                                                                             |
+| `ENABLE_CLIPBOARD` | 启用剪贴板功能。默认关闭。（Linux下没有剪贴板功能，启用了也没有效果）                                                                   |
+
+以下参数指定了一些编译用的库的位置。除了 `PADDLE_LIB` 是必填的以外其他的视情况而定。
+
+| 参数名         | 描述                                                   |
+|----------------|------------------------------------------------------|
+| `PADDLE_LIB`   | paddle_inference的路径                                 |
+| `OPENCV_DIR`   | 库的路径。（Linux下，如果已经安装到系统之中就不用指定了。） |
+| `CUDA_LIB`     | 库的路径                                               |
+| `CUDNN_LIB`    | 库的路径                                               |
+| `TENSORRT_DIR` | 使用TensorRT编译并设置其路径                           |
+
+#### 关于剪贴板读取
+
+在Windows下，从剪贴板中读取数据的功能存在，不过已经弃用。所有剪贴板相关的代码是默认不编译的。如果你需要PaddleOCR-json去读取剪贴板，请自行修改 `ENABLE_CLIPBOARD=ON` 并重新编译。
+
 #### 构建失败？
 
 如果报错中含有 `Could NOT find Git (missing: GIT_EXECUTABLE)` ，原因是电脑上未安装Git，请先安装（尽量装在默认目录下）。

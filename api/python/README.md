@@ -92,24 +92,7 @@ res = ocr.run("test.png")
 print("识别结果：\n", res)
 ```
 
-#### 2. 识别剪贴板图片
-
-**方法：** `runClipboard()`
-
-**说明：** 对当前剪贴板首位的图片进行OCR
-
-**无参数** 
-
-**返回值字典：同上** 
-
-**示例：** 
-
-```python
-res = ocr.runClipboard()
-print("剪贴板识别结果：\n", res)
-```
-
-#### 3. 识别图片字节流
+#### 2. 识别图片字节流
 
 **方法：** `runBytes()`
 
@@ -132,7 +115,7 @@ res = ocr.runBytes(imageBytes)
 print("字节流识别结果：\n", res)
 ```
 
-#### 4. 识别图片Base64编码字符串
+#### 3. 识别图片Base64编码字符串
 
 **方法：** `runBase64()`
 
@@ -146,7 +129,7 @@ print("字节流识别结果：\n", res)
 
 **返回值字典：同上** 
 
-#### 5. 格式化输出OCR结果
+#### 4. 格式化输出OCR结果
 
 **方法：** `printResult()`
 
@@ -167,6 +150,43 @@ res = ocr.run("test.png")
 print("格式化输出：")
 ocr.printResult(res)
 ```
+
+<details>
+<summary>
+<strong>剪贴板相关接口已弃用，不建议使用</strong>
+</summary>
+
+#### 5. 识别剪贴板图片
+
+**方法：** `runClipboard()`
+
+**说明：** 对当前剪贴板首位的图片进行OCR
+
+**无参数** 
+
+**返回值字典：同上** 
+
+**示例：** 
+
+```python
+res = ocr.runClipboard()
+print("剪贴板识别结果：\n", res)
+```
+
+</details>
+
+**方法：** `isClipboardEnabled()`
+
+**说明：** 检测剪贴板功能是否启用。
+
+**无参数：** 
+
+**返回值** 
+
+如果剪贴板已启用：`True`
+
+如果剪贴板未启用：`False`
+
 
 使用示例详见 [demo1.py](demo1.py)
 

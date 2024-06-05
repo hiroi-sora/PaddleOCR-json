@@ -17,6 +17,9 @@ class PPOCR_pipe:  # 调用OCR（管道模式）
         `exePath`: 识别器`PaddleOCR_json.exe`的路径。\n
         `argument`: 启动参数，字典`{"键":值}`。参数说明见 https://github.com/hiroi-sora/PaddleOCR-json
         """
+        # 私有成员变量
+        self.__ENABLE_CLIPBOARD = False
+        
         cwd = os.path.abspath(os.path.join(exePath, os.pardir))  # 获取exe父文件夹
         cmds = [exePath]
         # 处理启动参数
@@ -47,7 +50,12 @@ class PPOCR_pipe:  # 调用OCR（管道模式）
             initStr = self.ret.stdout.readline().decode("utf-8", errors="ignore")
             if "OCR init completed." in initStr:  # 初始化成功
                 break
+            elif "OCR clipboard enbaled." in initStr: # 检测到剪贴板已启用
+                self.__ENABLE_CLIPBOARD = True
         atexit.register(self.exit)  # 注册程序终止时执行强制停止子进程
+
+    def isClipboardEnabled(self) -> bool:
+        return self.__ENABLE_CLIPBOARD
 
     def runDict(self, writeDict: dict):
         """传入指令字典，发送给引擎进程。\n
@@ -91,7 +99,10 @@ class PPOCR_pipe:  # 调用OCR（管道模式）
     def runClipboard(self):
         """立刻对剪贴板第一位的图片进行文字识别。\n
         `return`:  {"code": 识别码, "data": 内容列表或错误信息字符串}\n"""
-        return self.run("clipboard")
+        if self.__ENABLE_CLIPBOARD:
+            return self.run("clipboard")
+        else:
+            raise Exception("剪贴板功能不存在或已禁用。") 
 
     def runBase64(self, imageBase64: str):
         """对一张编码为base64字符串的图片进行文字识别。\n

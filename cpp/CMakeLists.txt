@@ -1,10 +1,11 @@
 project(PaddleOCR-json CXX C)
 cmake_minimum_required(VERSION 3.14)
 
-option(WITH_MKL        "Compile demo with MKL/OpenBlas support, default use MKL."       ON)
-option(WITH_GPU        "Compile demo with GPU/CPU, default use CPU."                    OFF)
-option(WITH_STATIC_LIB "Compile demo with static/shared library, default use static."   ON)
-option(WITH_TENSORRT "Compile demo with TensorRT."   OFF)
+option(WITH_MKL          "使用MKL或OpenBlas，默认使用MKL。"                                  ON)
+option(WITH_GPU          "使用GPU或CPU，默认使用CPU。"                                      OFF)
+option(WITH_STATIC_LIB   "编译成static library或shared library，默认编译成static library。"   ON)
+option(WITH_TENSORRT     "使用TensorRT，默认关闭。"                                         OFF)
+option(ENABLE_CLIPBOARD  "启用剪贴板功能。默认关闭。"                                        OFF)
 
 if (UNIX AND NOT APPLE) # Linux
   # 在Linux环境下使用 `WITH_STATIC_LIB=ON` 时无法编译
@@ -13,11 +14,11 @@ if (UNIX AND NOT APPLE) # Linux
   set(WITH_STATIC_LIB OFF)
 endif ()
 
-SET(PADDLE_LIB "" CACHE PATH "Location of libraries")
-SET(OPENCV_DIR "" CACHE PATH "Location of libraries")
-SET(CUDA_LIB "" CACHE PATH "Location of libraries")
-SET(CUDNN_LIB "" CACHE PATH "Location of libraries")
-SET(TENSORRT_DIR "" CACHE PATH "Compile demo with TensorRT")
+SET(PADDLE_LIB "" CACHE PATH "paddle_inference的路径")
+SET(OPENCV_DIR "" CACHE PATH "库的路径。Linux下，如果已经安装到系统之中就不用指定了。")
+SET(CUDA_LIB "" CACHE PATH "库的路径")
+SET(CUDNN_LIB "" CACHE PATH "库的路径")
+SET(TENSORRT_DIR "" CACHE PATH "使用TensorRT编译并设置其路径")
 
 set(DEMO_NAME "PaddleOCR-json") 
 
@@ -35,6 +36,13 @@ if (UNIX AND NOT APPLE) # Linux
   endif()
 endif ()
 
+# 在Windows下如果启用剪贴板，设置一个compiler flag：-DENABLE_CLIPBOARD
+if (ENABLE_CLIPBOARD AND WIN32)
+  message(STATUS "Feature [clipboard] enabled")
+  add_definitions(-DENABLE_CLIPBOARD)
+else ()
+  message(STATUS "Feature [clipboard] disabled")
+endif()
 
 macro(safe_set_static_flag)
     foreach(flag_var

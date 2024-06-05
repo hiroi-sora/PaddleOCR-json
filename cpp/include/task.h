@@ -24,6 +24,8 @@ namespace PaddleOCR
 #define MSG_ERR_PATH_READ(p) "Image open failed. Path: \"" + p + "\""
 #define CODE_ERR_PATH_DECODE 203 // 图片打开成功，但读取到的内容无法被opencv解码
 #define MSG_ERR_PATH_DECODE(p) "Image decode failed. Path: \"" + p + "\""
+
+#if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
 // 剪贴板读图，失败
 #define CODE_ERR_CLIP_OPEN 210 // 剪贴板打开失败 ( OpenClipboard )
 #define MSG_ERR_CLIP_OPEN "Clipboard open failed."
@@ -41,6 +43,8 @@ namespace PaddleOCR
 #define MSG_ERR_CLIP_BITMAP "Getting clipboard bitmap bits failed."
 #define CODE_ERR_CLIP_CHANNEL 217 // 剪贴板中位图的通道数不支持 ( nChannels 不为1，3，4 )
 #define MSG_ERR_CLIP_CHANNEL(n) "Clipboard number of image channels is not valid. Number: " + std::to_string(n)
+#endif
+
 // base64读图，失败
 #define CODE_ERR_BASE64_DECODE 300 // base64字符串解析为string失败 
 #define MSG_ERR_BASE64_DECODE "Base64 decode failed."

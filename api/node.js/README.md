@@ -121,7 +121,6 @@ const ocr = new OCR('PaddleOCR_json.exe', [], {
 
 ```js
 ocr.flush({
-    /* image_path: null, // -image_path=clipboard */
     image_path: 'path/to/test/img',
     // limit_side_len: 960,
     // ...
@@ -131,7 +130,14 @@ ocr.flush({
 
 `obj`详见[hiroi-sora/PaddleOCR-json/blob/main/docs/详细使用指南.md#配置参数](https://github.com/hiroi-sora/PaddleOCR-json/blob/main/docs/%E8%AF%A6%E7%BB%86%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97.md#%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0)
 
+<details>
+<summary>
+<strong>剪贴板相关接口已弃用，不建议使用</strong>
+</summary>
+
 如果要识别剪贴板，请传入`{ image_path: null }`(`obj.image_dir`设置为`null`).
+
+</details>
 
 #### 其他
 

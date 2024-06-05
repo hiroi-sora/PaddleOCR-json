@@ -164,6 +164,38 @@ cmake --build build/
 
 * 这里我们使用 `--build build/` 命令来指定要编译的工程文件夹 `build`。
 
+#### CMake构建参数
+
+你可以使用 `-D参数名=值` 来添加新的CMake参数。
+
+以下参数是一些编译参数：
+
+| 参数名             | 描述                                                           |
+|--------------------|--------------------------------------------------------------|
+| `WITH_MKL`         | 使用MKL或OpenBlas，默认使用MKL。                                 |
+| `WITH_GPU`         | 使用GPU或CPU，默认使用CPU。                                      |
+| `WITH_STATIC_LIB`  | 编译成static library或shared library，默认编译成static library。 |
+| `WITH_TENSORRT`    | 使用TensorRT，默认关闭。                                         |
+| `ENABLE_CLIPBOARD` | 启用剪贴板功能。默认关闭。                                       |
+
+> [!NOTE]
+> * `WITH_STATIC_LIB`: Linux下这个参数设置成 `ON` 时无法编译，所以它是强行设置成 `OFF` 的。
+> * `ENABLE_CLIPBOARD`: Linux下没有剪贴板功能，启用了也无法使用。
+
+以下参数指定了一些编译用的库的位置。除了 `PADDLE_LIB` 是必填的以外其他的视情况而定。
+
+| 参数名         | 描述                                                 |
+|----------------|----------------------------------------------------|
+| `PADDLE_LIB`   | paddle_inference的路径                               |
+| `OPENCV_DIR`   | 库的路径。Linux下，如果已经安装到系统之中就不用指定了。 |
+| `CUDA_LIB`     | 库的路径                                             |
+| `CUDNN_LIB`    | 库的路径                                             |
+| `TENSORRT_DIR` | 使用TensorRT编译并设置其路径                         |
+
+#### 关于剪贴板读取
+
+在Linux下，从剪贴板中读取数据的功能不存在。即使把 `ENABLE_CLIPBOARD` 设置成 `ON` 也无法使用。
+
 #### 构建 or 编译失败？
 
 如果报错中含有 `unable to access 'https://github.com/LDOUBLEV/AutoLog.git/': gnutls_handshake() failed: The TLS connection was non-properly terminated.` ，原因是网络问题，请挂全局科学上网。如果没有科学，那么可尝试将 `deploy/cpp_infer/external-cmake/auto-log.cmake` 中的github地址改为 `https://gitee.com/Double_V/AutoLog` 。
@@ -247,5 +279,8 @@ LD_LIBRARY_PATH=$LIBS ../build/PaddleOCR-json \
 在编译完成后（[完成第二大章之后](#2-构建--编译项目)），你可以使用下面这个脚本来直接运行PaddleOCR-json
 
 ```sh
-./tools/linux_run.sh /图片路径/img.jpg
+./tools/linux_run.sh [配置参数]
 ```
+
+* **请注意：所有的相对路径都将以 .source 文件夹为基准**
+* [常用配置参数](../README.md#常用配置参数说明)

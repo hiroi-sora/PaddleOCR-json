@@ -6,7 +6,12 @@ $arg = ""  #参数其实在API内没处理
 $ocr = [PPOCR]::new($exePath,$arg)
 
 while (1) {
-    $选择 = Read-Host "1:图片路径`n2:剪贴板`n3:图片Base64`n4:图片Byte`n其他则退出"
+    $prompt_str = "1:图片路径`n2:图片Base64`n3:图片Byte`n"
+    if ( $ocr.isClipboardEnabled() ) {
+        $prompt_str += "4:剪贴板`n"
+    }
+    $prompt_str += "其他则退出"
+    $选择 = Read-Host $prompt_str
     switch($选择){
         1{
             # 识别图片
@@ -17,10 +22,6 @@ while (1) {
             }
         }
         2{
-            $getObj = $ocr.runClipboard()
-            Write-Host "图片识别完毕，状态码：$($getObj.'code') 结果：`n$($getObj.'data'|Out-String)`n"
-        }
-        3{
             $path = read-host "请输入图片路径，自动转换BASE64" 
             $imgBase64 = [convert]::ToBase64String([System.IO.FIle]::ReadAllBytes($path))
             if ($imgBase64) {
@@ -28,12 +29,24 @@ while (1) {
                 Write-Host "图片识别完毕，状态码：$($getObj.'code') 结果：`n$($getObj.'data'|Out-String)`n"
             }
         }
-        4{
+        3{
             $path = read-host "请输入图片路径，自动转换Byte"
             $imgByte = [System.IO.FIle]::ReadAllBytes($path)
             if ($imgByte) {
                 $getObj = $ocr.runByte($imgByte)
                 Write-Host "图片识别完毕，状态码：$($getObj.'code') 结果：`n$($getObj.'data'|Out-String)`n"
+            }
+        }
+        # 以下示例默认禁用
+        4{
+            if ( $ocr.isClipboardEnabled() ) {
+                $getObj = $ocr.runClipboard()
+                Write-Host "图片识别完毕，状态码：$($getObj.'code') 结果：`n$($getObj.'data'|Out-String)`n"
+            }
+            else {
+                $ocr.stop()  # 结束子进程。
+                Write-Host "程序结束。"
+                Exit
             }
         }
         Default

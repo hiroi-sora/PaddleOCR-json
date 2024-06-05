@@ -24,6 +24,7 @@ class PPOCR {
     [System.Object]$process # 子进程对象
     [int] $runFlag = 0 # 运行标志。0正在初始化，1正常运行中
     [System.Diagnostics.Process] $stdSender # 保存子进程stdout管道
+    [int] $__ENABLE_CLIPBOARD = 0 # 剪贴板是否启用。0禁用，1启用
     [string] $imgJson # 缓存图片识别结果json字符串
     [string] $processID # OCR子进程id，用于组成标识符
     [string] $eventInit # OCR初始化完成的事件标识符，启动时定义
@@ -71,6 +72,9 @@ class PPOCR {
                     $this_.runFlag = 1
                     New-Event -SourceIdentifier $this_.eventInit # 发送初始化完成事件
                 }
+                elseif ( $getData.contains("OCR clipboard enbaled.") ) {
+                    $this_.__ENABLE_CLIPBOARD = 1 # 检测到剪贴板已启用
+                }
                 break
             }
             # 正常运行中
@@ -80,6 +84,10 @@ class PPOCR {
                 break
             }
         }
+    }
+
+    [PSCustomObject] isClipboardEnabled() {
+        return $this.__ENABLE_CLIPBOARD;
     }
 
     [PSCustomObject] runDict( [string]$writeDict ) {
@@ -112,7 +120,12 @@ class PPOCR {
     }
     
     [PSCustomObject] runClipboard() {
-        return $this.run("clipboard");
+        if ( $this.__ENABLE_CLIPBOARD ) {
+            return $this.run("clipboard");
+        }
+        else {
+            throw "剪贴板功能不存在或已禁用。"
+        }
     }
 
     [PSCustomObject] runBase64( [string]$imgBase64 ) {

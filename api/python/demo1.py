@@ -20,28 +20,20 @@ print(f"\n示例1-图片路径识别结果（原始信息）：\n{res}")
 print(f"\n示例1-图片路径识别结果（格式化输出）：")
 ocr.printResult(res)
 
-# 示例2：识别剪贴板图片
-res = ocr.runClipboard()
-if res["code"] == 212:
-    print(f"\n示例2-当前剪贴板中没有图片。")
-else:
-    print(f"\n示例2-剪贴板识别结果：")
-    ocr.printResult(res)
-
-# 示例3：识别图片字节流
+# 示例2：识别图片字节流
 with open(TestImagePath, "rb") as f:  # 获取图片字节流
     # 实际使用中，可以联网下载或者截图获取字节流，直接送入OCR，无需保存到本地中转。
     imageBytes = f.read()
 res = ocr.runBytes(imageBytes)
-print(f"\n示例3-字节流识别结果：")
+print(f"\n示例2-字节流识别结果：")
 ocr.printResult(res)
 
-# 示例4：识别 PIL Image 对象
+# 示例3：识别 PIL Image 对象
 try:
     from PIL import Image
     from io import BytesIO
 except Exception:
-    print("安装Pillow库后方可测试示例4。")
+    print("安装Pillow库后方可测试示例3。")
     Image = None
 if Image:
     # 创建一个PIL Image对象
@@ -52,5 +44,15 @@ if Image:
     imageBytes = buffered.getvalue()
     # 送入OCR
     res = ocr.runBytes(imageBytes)
-    print(f"\n示例4-PIL Image 识别结果：")
+    print(f"\n示例3-PIL Image 识别结果：")
     ocr.printResult(res)
+
+# 以下示例默认禁用
+# 示例4：识别剪贴板图片
+if ocr.isClipboardEnabled():
+    res = ocr.runClipboard()
+    if res["code"] == 212:
+        print(f"\n示例4-当前剪贴板中没有图片。")
+    else:
+        print(f"\n示例4-剪贴板识别结果：")
+        ocr.printResult(res)
