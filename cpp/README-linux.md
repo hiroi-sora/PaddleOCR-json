@@ -205,20 +205,20 @@ cmake --build build/
 
 ## 3. 配置 & 运行可执行文件
 
-1. 到这一步，你应该可以在 `build` 文件夹下找到一个叫 `PaddleOCR-json` 的可执行文件
+1. 到这一步，你应该可以在 `build/bin/` 文件夹下找到一个叫 `PaddleOCR-json` 的可执行文件
 
 ```sh
-ls ./build/PaddleOCR-json
+ls ./build/bin/PaddleOCR-json
 ```
 
 2. 直接运行的话会得到这样一个错误
 
 ```sh
-./build/PaddleOCR-json
+./build/bin/PaddleOCR-json
 ```
 
 ```
-./build/PaddleOCR-json: error while loading shared libraries: libiomp5.so: cannot open shared object file: No such file or directory
+./build/bin/PaddleOCR-json: error while loading shared libraries: libiomp5.so: cannot open shared object file: No such file or directory
 ```
 
 > [!NOTE]
@@ -227,9 +227,9 @@ ls ./build/PaddleOCR-json
 3. 一般我们可以更新环境变量 `PATH` 来解决这个问题，不过更新 `PATH` 有些时候不一定会起效。这里我们直接更新另一个环境变量 `LD_LIBRARY_PATH` 来解决。
 
 ```sh
-# 从之前的预测库文件夹下找出所有名为 "lib" 的文件夹，然后再把他们用 ":" 字符给串接起来（就是 String.join()）。最后在存到一个变量里面。
-LIBS="$(find $PADDLE_LIB -name 'lib' -type d | paste -sd ':' -)"
-LD_LIBRARY_PATH=$LIBS ./build/PaddleOCR-json
+# 所有的预测库共享库都已经被自动复制到 "build/bin" 文件夹下了，这里我们把它存到一个变量里。
+LIBS="$(pwd)/build/bin/"
+LD_LIBRARY_PATH=$LIBS ./build/bin/PaddleOCR-json
 ```
 
 > [!TIP]
@@ -250,7 +250,7 @@ LD_LIBRARY_PATH=$LIBS ./build/PaddleOCR-json
 ```sh
 # PaddleOCR-json 必须运行在 "module" 文件夹的相同目录下
 cd $MODELS/..
-LD_LIBRARY_PATH=$LIBS ../build/PaddleOCR-json \
+LD_LIBRARY_PATH=$LIBS ../build/bin/PaddleOCR-json \
     -config_path="./models/config_chinese.txt" \
     -image_path="/path/to/image.jpg" # 图片的路径
 ```
