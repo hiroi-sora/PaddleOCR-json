@@ -145,18 +145,7 @@ cmake -S . -B build/ \
 * `-DPADDLE_LIB=$PADDLE_LIB` 命令会使用刚才设置的环境变量 `$PADDLE_LIB` 去指定预测库的位置
 * 最后，`-DCMAKE_BUILD_TYPE=Release` 命令会将这个工程设置为 `Release` 工程。你也可以把它改成 `Debug`。
 
-> [!NOTE]
-> 在构建工程文件夹时，CMake可能会报告下面这一个错误：
-> 
-> `cp: cannot create regular file '/usr/lib/libmklml_intel.so': Permission denied`
->
-> 这是因为PaddleOCR官方的CMakeLists会尝试安装预测库自带的 `mklml` 库到系统的 `/usr/lib` 下面，然后因为CMake没有权限而失败。
->
-> 如果你不了解Linux权限相关知识，或者不明白系统的 `/usr/lib` 有什么作用，请直接无视这条错误。不用去处理它。
-> 
-> 如果你明白以上两点并且愿意在系统里手动安装第三方库的话，你可以在上面的CMake命令前加上 `sudo` 来提权（不建议这么做）。
-
-3. 使用 CMake 编译项目
+1. 使用 CMake 编译项目
 
 ```sh
 cmake --build build/
@@ -222,9 +211,9 @@ ls ./build/bin/PaddleOCR-json
 ```
 
 > [!NOTE]
-> 这是因为系统没法在环境变量 `PATH` 里列出的路径下找到上面这个共享库 `libiomp5.so`。这就是为什么之前PaddleOCR想在系统路径下安装自带的第三方库了
+> 这是因为系统没法在环境变量 `PATH` 里列出的路径下找到上面这个共享库 `libiomp5.so`。
 
-3. 一般我们可以更新环境变量 `PATH` 来解决这个问题，不过更新 `PATH` 有些时候不一定会起效。这里我们直接更新另一个环境变量 `LD_LIBRARY_PATH` 来解决。
+1. 一般我们可以更新环境变量 `PATH` 来解决这个问题，不过更新 `PATH` 有些时候不一定会起效。这里我们直接更新另一个环境变量 `LD_LIBRARY_PATH` 来解决。
 
 ```sh
 # 所有的预测库共享库都已经被自动复制到 "build/bin" 文件夹下了，这里我们把它存到一个变量里。
@@ -239,13 +228,9 @@ LD_LIBRARY_PATH=$LIBS ./build/bin/PaddleOCR-json
 > [使用LD_LIBRARY_PATH的风险？](https://m.ituring.com.cn/article/22101)
 
 > [!NOTE]
-> 如果你打算长期使用PaddleOCR-json的话，建议还是老实的在系统环境下安装所有的依赖库吧。
->
-> 你可以按照[构建 & 编译项目第二条](#2-构建--编译项目)下面提到的那样直接给CMake提权让它来安装。
->
-> 或者你也可以使用系统的包管理器来安装
+> 如果你打算长期使用PaddleOCR-json的话，可以参考[安装章节](#5-安装)。
 
-4. 到这一步，PaddleOCR-json 已经可以运行了。不过它会提示你缺少配置文件。我们所需的所有文件都在之前准备的模型库 `module` 文件夹里面。
+1. 到这一步，PaddleOCR-json 已经可以运行了。不过它会提示你缺少配置文件。我们所需的所有文件都在之前准备的模型库 `module` 文件夹里面。
 
 ```sh
 # PaddleOCR-json 必须运行在 "module" 文件夹的相同目录下
@@ -284,3 +269,15 @@ LD_LIBRARY_PATH=$LIBS ../build/bin/PaddleOCR-json \
 
 * **请注意：所有的相对路径都将以 .source 文件夹为基准**
 * [常用配置参数](../README.md#常用配置参数说明)
+
+## 5. 安装
+
+你可以使用CMake来安装PaddleOCR-json到系统里。直接以 `sudo` 权限运行下面这条命令。
+
+```sh
+sudo cmake --install build
+```
+
+CMake会将 `build` 文件夹下的可执行文件和运行库给安装到系统文件夹 `/usr/local` 下，这样你就可以直接用 `PaddleOCR-json` 来调用这个软件了。
+
+如果你希望安装到指定位置，你可以为上面这条命令加上参数 `--prefix /安装路径/` 来指定一个安装路径。比如 `--prefix build/install` 会将所有的文件都安装到 `build/install` 文件夹下。
