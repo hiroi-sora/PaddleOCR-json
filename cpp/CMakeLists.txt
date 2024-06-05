@@ -311,10 +311,20 @@ install(
     RUNTIME DESTINATION "bin"
 )
 # 安装共享库
-install(
-    DIRECTORY "$<TARGET_FILE_DIR:${DEMO_NAME}>/"
-    DESTINATION "lib"
-    FILES_MATCHING
-    PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}*"
-    PATTERN "${DEMO_NAME}*" EXCLUDE
-)
+if (WIN32)
+    install(
+        DIRECTORY "$<TARGET_FILE_DIR:${DEMO_NAME}>/"
+        DESTINATION "bin"
+        FILES_MATCHING
+        PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}*"
+        PATTERN "${DEMO_NAME}*" EXCLUDE
+    )
+else ()
+    install(
+        DIRECTORY "$<TARGET_FILE_DIR:${DEMO_NAME}>/"
+        DESTINATION "lib"
+        FILES_MATCHING
+        PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}*"
+        PATTERN "${DEMO_NAME}*" EXCLUDE
+    )
+endif ()
