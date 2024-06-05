@@ -281,3 +281,4 @@ sudo cmake --install build
 CMake会将 `build` 文件夹下的可执行文件和运行库给安装到系统文件夹 `/usr/local` 下，这样你就可以直接用 `PaddleOCR-json` 来调用这个软件了。
 
 如果你希望安装到指定位置，你可以为上面这条命令加上参数 `--prefix /安装路径/` 来指定一个安装路径。比如 `--prefix build/install` 会将所有的文件都安装到 `build/install` 文件夹下。
+
