@@ -33,6 +33,7 @@ DECLARE_bool(benchmark);
 DECLARE_string(output);
 DECLARE_string(type);
 DECLARE_string(config_path);
+DECLARE_string(models_path);
 DECLARE_bool(ensure_ascii);
 // detection related
 DECLARE_string(det_model_dir);
