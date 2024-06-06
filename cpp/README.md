@@ -8,6 +8,8 @@
 
 [Linux 构建指南](./README-linux.md)
 
+[使用 docker 部署](#使用-docker-部署)
+
 ## 1. 前期准备
 
 资源链接后面的(括弧里是版本)，请看清楚。
@@ -177,3 +179,33 @@ CMake会将 `build` 文件夹下的可执行文件和运行库给安装到 `buil
 
 如果你希望安装到指定位置，你可以为上面这条命令加上参数 `--prefix /安装路径/` 来指定一个安装路径。比如 `--prefix build/install` 会将所有的文件都安装到 `build/install` 文件夹下。
 
+
+## 使用 Docker 部署
+
+你可以使用将本项目部署到Docker容器里，然后通过套接字来连接使用。
+
+部署步骤：
+
+1. [安装Docker](https://yeasy.gitbook.io/docker_practice/install)
+2. clone 本仓库，然后在 `cpp` 文件夹下打开一个终端（或PowerShell）。
+3. 接着使用Docker来构建镜像
+
+```sh
+docker build -t paddleocr-json .
+```
+
+4. 接着就可以部署了
+
+```sh
+docker run -d \
+   --name paddleocr-json \
+   -p 3746:3746 \
+   paddleocr-json
+```
+
+* 这里我们使用参数 `--name` 来命名Docker容器。
+* 使用参数 `-p` 来暴露容器端口 `3746` 到本地端口 `3746`。容器在运行时会默认将套接字服务器开在容器端口 `3746` 上。
+
+> [!TIP]
+> * 你可以输入各种PaddleOCR-json参数来修改服务器。更多配置参数请参考[简单试用](../README.md#简单试用)和[常用配置参数说明](../README.md#常用配置参数说明)
+> * 容器自带一套[模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/models%2Fv1.3)，存放在 `/app/models` 路径下。如果你希望使用自己的模型库，你可以[使用Docker挂载一个数据卷到容器里](https://yeasy.gitbook.io/docker_practice/data_management/volume#qi-dong-yi-ge-gua-zai-shu-ju-juan-de-rong-qi)，然后使用参数 `-models_path` 来指定新的模型库路径。
