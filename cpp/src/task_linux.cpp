@@ -95,7 +95,12 @@ namespace PaddleOCR
         // 地址族：IPv4
         socketAddr.sin_family = AF_INET;
         // IP地址模式：本地环回/任何可用
-        socketAddr.sin_addr.s_addr = addr_to_int(FLAGS_addr);
+        if (addr_to_uint32(FLAGS_addr, socketAddr.sin_addr.s_addr) < 0)
+        {
+            std::cerr << "Failed to parse input address." << std::endl;
+            close(socketFd);
+            return -1;
+        }
         // 端口号
         socketAddr.sin_port = htons(FLAGS_port);
         

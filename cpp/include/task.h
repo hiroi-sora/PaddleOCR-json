@@ -98,7 +98,7 @@ namespace PaddleOCR
         // 其他
         
         // ipv4 地址转 uint32_t
-        uint32_t addr_to_int(const std::string& addr);
+        int addr_to_uint32(const std::string& addr, uint32_t& addr_out);
     };
 
 } // namespace PaddleOCR

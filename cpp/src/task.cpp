@@ -292,11 +292,19 @@ namespace PaddleOCR
     
     
     // ipv4 地址转 uint32_t
-    uint32_t Task::addr_to_int(const std::string& addr)
+    int Task::addr_to_uint32(const std::string& addr, uint32_t& addr_out)
     {
         // 处理特殊情况
-        if (addr == "loopback") return htonl(INADDR_LOOPBACK);
-        else if (addr == "any") return htonl(INADDR_ANY);
+        if (addr == "loopback")
+        {
+            addr_out = htonl(INADDR_LOOPBACK);
+            return 0;
+        }
+        else if (addr == "any")
+        {
+            addr_out = htonl(INADDR_ANY);
+            return 0;
+        }
         
         // 使用正则表达式来处理IPv4地址
         std::regex rgx(R"((\d+)\.(\d+)\.(\d+)\.(\d+))");
@@ -306,20 +314,22 @@ namespace PaddleOCR
         // 如果验证为IPv4地址，将其转成 uint32_t 主机字节序
         if(std::regex_search(addr, matches, rgx))
         {
+            uint8_t octet;
             for (size_t i = 1; i < matches.size(); ++i)
             {
-                int sector = std::stoi(matches[i].str());
-                output |= sector << (8 * (4-i));
+                octet = static_cast<uint8_t>(std::stoi(matches[i].str()));
+                output |= octet << (8 * (4-i));
             }
         }
         // 反之则报错
         else
         {
-            throw std::runtime_error("Failed to parse input address.");
+            return -1;
         }
         
         // 最后把 uint32_t 主机字节序 转成 网络字节序
-        return htonl(output);
+        addr_out = htonl(output);
+        return 0;
     }
 }
 
