@@ -1,8 +1,19 @@
 
+#include <exception>
+#include <regex>
+
 #include "include/paddleocr.h"
 #include "include/args.h"
 #include "include/task.h"
 #include "include/base64.h" // base64库
+
+// htonl 函数
+#if defined(_WIN32)
+#include <windows.h>
+#else // Linux, Mac
+#include <arpa/inet.h>
+#endif
+
 namespace PaddleOCR
 {
     // ==================== 工具 ====================
@@ -210,17 +221,17 @@ namespace PaddleOCR
             flag = 1;
         }
         // 套接字服务器模式
-         else if (FLAGS_port != -1) {
-            std::cout << "OCR socket mode. Addr:" << FLAGS_addr  << ", Port: " << FLAGS_port << std::endl;
+        else if (FLAGS_port >= 0 && !FLAGS_addr.empty()) {
+            std::cout << "OCR socket mode. Addr: " << FLAGS_addr  << ", Port: " << FLAGS_port << std::endl;
             flag = 2;
-         }
+        }
         // 匿名管道模式
         else {
             std::cout << "OCR anonymous pipe mode." << std::endl;
             flag = 3;
         }
         std::cout << "OCR init completed." << std::endl;
-
+        
         switch (flag)
         {
         case 1:
@@ -232,7 +243,7 @@ namespace PaddleOCR
         }
         return 0;
     }
-
+    
     // 单张图片识别模式 
     int Task::single_image_mode()
     {
@@ -257,7 +268,7 @@ namespace PaddleOCR
         }
         return 0;
     }
-
+    
     // 匿名管道模式 
     int Task::anonymous_pipe_mode() {
         while (1) {
@@ -274,8 +285,42 @@ namespace PaddleOCR
         }
         return 0;
     }
-
+    
     // 套接字服务器模式，在平台内定义 
+    
+    // 其他
+    
+    
+    // ipv4 地址转 uint32_t
+    uint32_t Task::addr_to_int(const std::string& addr)
+    {
+        // 处理特殊情况
+        if (addr == "loopback") return htonl(INADDR_LOOPBACK);
+        else if (addr == "any") return htonl(INADDR_ANY);
+        
+        // 使用正则表达式来处理IPv4地址
+        std::regex rgx(R"((\d+)\.(\d+)\.(\d+)\.(\d+))");
+        std::smatch matches;
+        uint32_t output = 0;
+        
+        // 如果验证为IPv4地址，将其转成 uint32_t 主机字节序
+        if(std::regex_search(addr, matches, rgx))
+        {
+            for (size_t i = 1; i < matches.size(); ++i)
+            {
+                int sector = std::stoi(matches[i].str());
+                output |= sector << (8 * (4-i));
+            }
+        }
+        // 反之则报错
+        else
+        {
+            throw std::runtime_error("Failed to parse input address.");
+        }
+        
+        // 最后把 uint32_t 主机字节序 转成 网络字节序
+        return htonl(output);
+    }
 }
 
 // ./PaddleOCR-json.exe -config_path="models/zh_CN.txt" -image_path="D:/Test/t2.png" -ensure_ascii=0

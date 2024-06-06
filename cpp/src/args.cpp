@@ -177,8 +177,5 @@ std::string check_flags() {
     if (FLAGS_det_db_score_mode != "slow" && FLAGS_det_db_score_mode != "fast") {
         msg += "limit_type should be 'slow'(default) or 'fast', not " + FLAGS_det_db_score_mode + ". ";
     }
-    if (FLAGS_addr != "loopback" && FLAGS_addr != "any") {
-        msg += "addr should be 'loopback'(default) or 'any', not " + FLAGS_addr + ". ";
-    }
     return msg;
 }
