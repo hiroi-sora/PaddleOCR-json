@@ -1,11 +1,17 @@
 project(PaddleOCR-json CXX C)
 cmake_minimum_required(VERSION 3.14)
 
+set(DEMO_NAME "PaddleOCR-json") 
+
+# 令CMake将最后的可执行文件放在 build/bin 里面
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+
+# 编译相关参数
 option(WITH_MKL          "使用MKL或OpenBlas，默认使用MKL。"                                  ON)
 option(WITH_GPU          "使用GPU或CPU，默认使用CPU。"                                      OFF)
 option(WITH_STATIC_LIB   "编译成static library或shared library，默认编译成static library。"   ON)
 option(WITH_TENSORRT     "使用TensorRT，默认关闭。"                                         OFF)
-option(ENABLE_CLIPBOARD  "启用剪贴板功能。默认关闭。"                                        OFF)
 
 if (UNIX AND NOT APPLE) # Linux
     # 在Linux环境下使用 `WITH_STATIC_LIB=ON` 时无法编译
@@ -14,17 +20,17 @@ if (UNIX AND NOT APPLE) # Linux
     set(WITH_STATIC_LIB OFF)
 endif ()
 
+# 依赖库路径相关参数
 SET(PADDLE_LIB "" CACHE PATH "paddle_inference的路径")
 SET(OPENCV_DIR "" CACHE PATH "库的路径。Linux下，如果已经安装到系统之中就不用指定了。")
 SET(CUDA_LIB "" CACHE PATH "库的路径")
 SET(CUDNN_LIB "" CACHE PATH "库的路径")
 SET(TENSORRT_DIR "" CACHE PATH "使用TensorRT编译并设置其路径")
 
-set(DEMO_NAME "PaddleOCR-json") 
-
-
-# 令CMake将最后的可执行文件放在 build/bin 里面
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# 功能相关参数
+option(ENABLE_CLIPBOARD         "启用剪贴板功能。默认关闭。"        OFF)
+option(ENABLE_REMOTE_EXIT       "启用远程关停服务器命令。默认开启。"  ON)
+option(ENABLE_JSON_IMAGE_PATH   "启用json命令image_path。默认开启。" ON)
 
 
 # compiler flags
@@ -44,10 +50,19 @@ endif ()
 
 # 在Windows下如果启用剪贴板，设置一个compiler flag：-DENABLE_CLIPBOARD
 if (ENABLE_CLIPBOARD AND WIN32)
-    message(STATUS "Feature [clipboard] enabled")
     add_definitions(-DENABLE_CLIPBOARD)
-else ()
-    message(STATUS "Feature [clipboard] disabled")
+elseif () # 在其他系统上禁用ENABLE_CLIPBOARD
+    set(ENABLE_CLIPBOARD OFF)
+endif()
+
+# 启用远程关停服务器命令，设置compiler flag：-DENABLE_REMOTE_EXIT
+if (ENABLE_REMOTE_EXIT)
+    add_definitions(-DENABLE_REMOTE_EXIT)
+endif()
+
+# 启用json命令image_path，设置compiler flag：-DENABLE_JSON_IMAGE_PATH
+if (ENABLE_JSON_IMAGE_PATH)
+    add_definitions(-DENABLE_JSON_IMAGE_PATH)
 endif()
 
 macro(safe_set_static_flag)
@@ -72,6 +87,15 @@ if(NOT DEFINED OPENCV_DIR)
     message(FATAL_ERROR "please set OPENCV_DIR with -DOPENCV_DIR=/path/opencv")
 endif()
 
+
+# 输出功能设置
+message(STATUS "Features:")
+message(STATUS "    ENABLE_CLIPBOARD: ${ENABLE_CLIPBOARD}")
+message(STATUS "    ENABLE_REMOTE_EXIT: ${ENABLE_REMOTE_EXIT}")
+message(STATUS "    ENABLE_JSON_IMAGE_PATH: ${ENABLE_JSON_IMAGE_PATH}")
+
+
+# 加载依赖
 
 # OpenCV
 # 尝试从人工提供的OpenCV路径寻找OpenCV

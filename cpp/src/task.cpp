@@ -126,12 +126,14 @@ namespace PaddleOCR
 
     // 输入json字符串，解析并读取Mat 
     cv::Mat Task::imread_json(std::string& str_in) {
+#ifdef ENABLE_REMOTE_EXIT
         if (str_in == "exit") { // 退出指令 
             is_exit = true;
             return cv::Mat();
         }
+#endif
         cv::Mat img;
-        bool is_image = false; // 当前是否已找到图片 
+        bool is_image_found = false; // 当前是否已找到图片 
         std::string logstr = "";
         // 解析为json对象 
         auto j = nlohmann::json();
@@ -144,8 +146,13 @@ namespace PaddleOCR
         }
         for (auto& el : j.items()) { // 遍历键值 
             if (el.key() == "exit") { // 退出指令 
+#ifdef ENABLE_REMOTE_EXIT
                 is_exit = true;
                 return cv::Mat();
+#else
+                set_state(CODE_ERR_JSON_PARSE_KEY, MSG_ERR_JSON_PARSE_KEY(el.key())); // 报告状态：解析键失败 
+                return cv::Mat();
+#endif
             }
             try {
                 std::string value = to_string(el.value());
@@ -154,16 +161,21 @@ namespace PaddleOCR
                     value = value.substr(1, vallen - 2); // 删去nlohmann字符串的两端引号
                 }
                 // 提取图片 
-                if (!is_image) {
+                if (!is_image_found) {
                     if (el.key() == "image_path") { // 图片路径
+#ifdef ENABLE_JSON_IMAGE_PATH
                         FLAGS_image_path = value;
                         img = imread_u8(value); // 读取图片 
-                        is_image = true;
+                        is_image_found = true;
+#else
+                        set_state(CODE_ERR_JSON_PARSE_KEY, MSG_ERR_JSON_PARSE_KEY(el.key())); // 报告状态：解析键失败 
+                        return cv::Mat();
+#endif
                     }
                     else if (el.key() == "image_base64") { // base64字符串 
                         FLAGS_image_path = "base64"; // 设置图片路径标记，以便于无文字时的信息输出 
                         img = imread_base64(value); // 读取图片 
-                        is_image = true;
+                        is_image_found = true;
                     }
                 }
                 //else {} // TODO: 其它参数热更新
@@ -173,7 +185,7 @@ namespace PaddleOCR
                 return cv::Mat();
             }
         }
-        if (!is_image) {
+        if (!is_image_found) {
             set_state(CODE_ERR_NO_TASK, MSG_ERR_NO_TASK); // 报告状态：未发现有效任务 
         }
         return img;
@@ -288,8 +300,8 @@ namespace PaddleOCR
     
     // 套接字服务器模式，在平台内定义 
     
-    // 其他
     
+    // 其他函数
     
     // ipv4 地址转 uint32_t
     int Task::addr_to_uint32(const std::string& addr, uint32_t& addr_out)
