@@ -256,6 +256,7 @@ namespace PaddleOCR
         // 配置地址和端口号 
         struct sockaddr_in addr;
         addr.sin_family = AF_INET; // 地址族：IPv4 
+        // IP地址模式：本地环回/任何可用/其他IPv4
         if (addr_to_uint32(FLAGS_addr, socketAddr.sin_addr.s_addr) < 0)
         {
             std::cerr << "Failed to parse input address." << std::endl;
