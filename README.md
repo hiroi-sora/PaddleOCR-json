@@ -145,7 +145,8 @@ ocr.flush({ image_path: 'path/to/test/img' })
 
 | 键名称         | 默认值 | 值说明                                                     |
 | -------------- | ------ | ---------------------------------------------------------- |
-| config_path    | ""     | 可以指定不同语言的配置文件路径，识别多国语言。详情见下节。 |
+| config_path    | ""     | 可以指定不同语言的配置文件路径，识别多国语言。[详情见下节](#语言库与切换识别语言)。 |
+| models_path    | ""     | 可以指定语言库 `models` 文件夹的路径。[详情见下节](#语言库与切换识别语言)。 |
 | cls            | false  | 启用cls方向分类，识别方向不是正朝上的图片。                |
 | use_angle_cls  | false  | 启用方向分类，必须与cls值相同。                            |
 | enable_mkldnn  | true   | 启用CPU推理加速，关掉可以减少内存占用，但会降低速度。      |
@@ -155,7 +156,7 @@ ocr.flush({ image_path: 'path/to/test/img' })
 
 更多参数详见 [args.cpp](/cpp/src/args.cpp) 。（不支持其中GPU相关、表格识别相关的参数。-）
 
-### 切换识别语言：
+### 语言库与切换识别语言：
 
 `v1.3`版本的Release压缩包中，默认附带了 `简中,繁中,英,日,韩,俄,德,法` 的语言库与配置文件，在 `models` 目录下。
 
@@ -168,6 +169,34 @@ ocr = GetOcrApi(enginePath, argument)
 ```
 
 如果 config_path 留空，则 PaddleOCR-json 默认加载并使用简体中文识别库。
+
+但是，当使用默认路径或单独设置 `config_path` 时，PaddleOCR-json可执行文件必须与语言库在同一目录下。比如：
+
+```
+.
+├─ PaddleOCR-json.exe
+└─ models
+    ├─ ...
+```
+
+如果语言库在另外一个文件夹下，PaddleOCR-json就无法找到语言库。
+
+在这种情况下，你可以使用 `models_path` 参数来设置语言库的位置。PaddleOCR-json会使用用户设置的语言库位置为基准来加载其他文件。
+
+这样一来，即使 PaddleOCR-json 与语言库不在同一目录下也能正常使用。以 Python API 为例：
+
+```python
+enginePath = "D:/Test/PaddleOCR_json.exe"  # 引擎路径
+modelsPath = "D:/Hello/models"             # 语言库路径路径
+# 这里的参数顺序不影响结果
+argument = {
+  # 指定语言库位置
+  "models_path": "D:/Hello/models",
+  # 指定使用英文库
+  "config_path": "D:/Hello/models/config_en.txt",
+}
+ocr = GetOcrApi(enginePath, argument)
+```
 
 #### 删除语言库：
 
