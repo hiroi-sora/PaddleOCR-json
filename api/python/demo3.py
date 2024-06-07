@@ -13,7 +13,12 @@ TestImagePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test.j
 
 # 初始化识别器对象，传入 PaddleOCR_json.exe 的路径
 ocr = GetOcrApi(r"D:\MyCode\CppCode\PaddleOCR-json\cpp\build\Release\PaddleOCR-json.exe")
-print(f"初始化OCR成功，进程号为{ocr.ret.pid}")
+
+if ocr.getRunningMode() == 'local':
+    print(f"初始化OCR成功，进程号为{ocr.ret.pid}")
+elif ocr.getRunningMode() == 'remote':
+    print(f"连接远程OCR引擎成功，ip：{ocr.ip}，port：{ocr.port}")
+print(f"\n测试图片路径：{TestImagePath}")
 
 # OCR识别图片，获取文本块
 getObj = ocr.run(TestImagePath)
