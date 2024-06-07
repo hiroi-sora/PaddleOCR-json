@@ -2,7 +2,7 @@
 
 使用这份API，可以方便地调用 PaddleOCR-json 。比起Python原生的PaddleOCR库，PaddleOCR-json拥有更好的性能。你可以同时享受C++推理库的高效率和Python的简易开发。
 
-请先在本项目 [Releases](https://github.com/hiroi-sora/PaddleOCR-json/releases) 中下载二进制程序，然后将 [python api](https://github.com/hiroi-sora/PaddleOCR-json/tree/main/api/python) （当前目录中的.py文件）下载到本地，即可通过python接口调用二进制程序。
+请先在本项目 [Releases](https://github.com/hiroi-sora/PaddleOCR-json/releases) 中下载OCR引擎二进制程序，然后将 [python api](https://github.com/hiroi-sora/PaddleOCR-json/tree/main/api/python) （当前目录中的所有文件）下载到本地，即可通过python接口调用二进制程序。
 
 Python API 拥有三大模块：
 - 基础OCR接口
@@ -28,13 +28,24 @@ from PPOCR_api import GetOcrApi
 
 | 名称     | 默认值 | 类型 | 描述                                                           |
 | -------- | ------ | ---- | -------------------------------------------------------------- |
-| exePath  | 必填   | str  | 引擎exe的路径，如`D:/PaddleOCR-json.exe`                       |
+| exePath  | 必填   | str  | 引擎二进制文件的路径，或远程服务器地址，见下。                 |
 | argument | None   | dict | 启动参数字典。可以用这个参数指定配置文件、指定识别语言。       |
 | ipcMode  | "pipe" | str  | 进程间通信方式，可选值为套接字模式`socket` 或 管道模式`pipe`。 |
 
+##### 关于 `exePath` ：
+
+当前允许两种调用引擎的模式：
+1. 引擎部署在本地：
+- 在 [Releases](https://github.com/hiroi-sora/PaddleOCR-json/releases) 中下载OCR引擎二进制程序到本地，解压。
+- Windows 平台：`exePath` 传入 `PaddleOCR-json.exe` 的路径。
+- Linux 平台： TODO
+2. 引擎部署在远程：
+- 在服务器上部署 PaddleOCR-json 程序，启用服务器模式，并确保客户机可以访问服务器。
+- 客户机：`exePath` 传入 `"remote://ip:port"` 。
+
 **返回值：** 
 
-初始化成功，返回引擎API对象。初始化失败，抛出异常。
+初始化成功，返回引擎API对象。初始化失败或连接远程服务失败，抛出异常。
 
 **示例1：** 最简单的情况
 
