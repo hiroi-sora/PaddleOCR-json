@@ -61,6 +61,20 @@ ocr = GetOcrApi(r"…………\PaddleOCR_json.exe", argument)
 ocr = GetOcrApi(r"…………\PaddleOCR_json.exe", ipcMode="socket")
 ```
 
+**示例4：** 使用套接字模式连接到远程服务器
+
+在套接字通信模式下，你可以连接到一个远程的PaddleOCR-json服务器。这样一来就不需要将整套系统部署到同一台机器上了。
+
+```python
+ip = '192.168.10.1'
+port = 1234
+ocr = GetOcrApi(r"remote://192.168.10.1:1234", ipcMode="socket")
+```
+
+这里我们使用一个URI来代替引擎位置，表示服务器的IP和端口。接着用参数 `ipcMode` 来使用套接字模式（不可以用管道模式）。在这种情况下，输入 `argument` 参数不会有任何作用，因为这个python脚本并不会启动引擎进程。
+
+在这种部署情况下，我们建议你使用方法 `runBase64()` 或者 `runBytes()` 来传输文件，方法 `run()` 的路径传输方式很容易出错。当然，你也可以禁用服务器的[路径传输json命令image_path](../../cpp/README.md#cmake构建参数)。
+
 ### 第二步：识别图片
 
 Python API 提供了丰富的接口，可以用各种姿势调用OCR。
@@ -186,6 +200,18 @@ print("剪贴板识别结果：\n", res)
 如果剪贴板已启用：`True`
 
 如果剪贴板未启用：`False`
+
+**方法：** `getRunningMode()`
+
+**说明：** 检测PaddleOCR-json引擎的运行模式，本地或远程
+
+**无参数：** 
+
+**返回值字符串：** 
+
+如果引擎运行在本地：`"local"`
+
+如果引擎运行在远程：`"remote"`
 
 
 使用示例详见 [demo1.py](demo1.py)
