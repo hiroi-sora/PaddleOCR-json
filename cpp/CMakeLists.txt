@@ -261,7 +261,11 @@ if (NOT WIN32)
     set(DEPS ${DEPS} ${EXTERNAL_LIB})
 endif()
 
-set(DEPS ${DEPS} ${OpenCV_LIBS})
+set(DEPS ${DEPS}
+    opencv_core
+    opencv_imgcodecs
+    opencv_imgproc
+)
 
 include(FetchContent)
 include(external-cmake/auto-log.cmake)

@@ -15,9 +15,13 @@
 #ifdef _WIN32
 #include <include/dirent.h>
 #include <direct.h>
+// 不同平台的路径分隔符
+#define SEP '\\'
 #else
 #include <dirent.h>
 #include <sys/stat.h>
+// 不同平台的路径分隔符
+#define SEP '/'
 #endif
 
 #include <include/utility.h>
@@ -232,6 +236,59 @@ namespace PaddleOCR
         return array_index;
     }
 
+    // trim系列函数，删除前面、后面、两头的：空格、\n、\r
+    inline void Utility::ltrim(std::string &str)
+    {
+        std::size_t found = str.find_first_not_of(" \n\r\t");
+        if (found == std::string::npos)
+        {
+            str = "";
+            return;
+        }
+        str = std::string(str.begin()+found, str.end());
+    }
+    inline void Utility::rtrim(std::string &str)
+    {
+        std::size_t found = str.find_last_not_of(" \n\r\t");
+        if (found == std::string::npos)
+        {
+            str = "";
+            return;
+        }
+        str = std::string(str.begin(), str.begin()+found+1);
+    }
+    inline void Utility::trim(std::string &str)
+    {
+        std::size_t left = str.find_first_not_of(" \n\r\t");
+        if (left == std::string::npos)
+        {
+            str = "";
+            return;
+        }
+        std::size_t right = str.find_last_not_of(" \n\r\t");
+        if (right == std::string::npos)
+        {
+            str = "";
+            return;
+        }
+        str = std::string(str.begin()+left, str.begin()+right+1);
+    }
+    inline std::string Utility::ltrim_copy(std::string str)
+    {
+        ltrim(str);
+        return str;
+    }
+    inline std::string Utility::rtrim_copy(std::string str)
+    {
+        rtrim(str);
+        return str;
+    }
+    inline std::string Utility::trim_copy(std::string str)
+    {
+        trim(str);
+        return str;
+    }
+
     // 提取文件名
     std::string Utility::basename(const std::string &filename)
     {
@@ -273,6 +330,31 @@ namespace PaddleOCR
         }
 
         return filename.substr(index + 1, len - index);
+    }
+
+    // 路径拼接
+    std::string Utility::pathjoin(const std::string& parent, const std::string& child)
+    {
+        // 去掉头尾的空格
+        std::string pstr = trim_copy(parent);
+        std::string cstr = trim_copy(child);
+        
+        // 把 child 头部的路径分隔符去掉
+        if (cstr.front() == '/' || cstr.front() == '\\')
+            cstr.assign(cstr.begin()+1, cstr.end());
+        
+        // 处理特殊情况
+        if (pstr == "/" || pstr == "\\")
+            return (SEP + cstr);
+        else if (pstr.size() <= 0)
+            return cstr;
+        
+        // 把 parent 尾部的路径分隔符去掉
+        if (pstr.back() == '/' || pstr.back() == '\\')
+            pstr.assign(pstr.begin(), pstr.end()-1);
+        
+        // 最后拼接
+        return (pstr + SEP + cstr);
     }
 
     // 检查文件存在（string）

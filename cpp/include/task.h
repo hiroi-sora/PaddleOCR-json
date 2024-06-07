@@ -73,6 +73,7 @@ namespace PaddleOCR
         int t_code;        // 本轮任务状态码 
         std::string t_msg; // 本轮任务状态消息 
 
+    private:
         // 任务流程
         std::string run_ocr(std::string); // 输入用户传入值（字符串），返回结果json字符串
         int single_image_mode();   // 单次识别模式 
@@ -93,6 +94,11 @@ namespace PaddleOCR
 #ifdef _WIN32
         cv::Mat imread_wstr(std::wstring pathW, int flags = cv::IMREAD_COLOR); // 输入unicode wstring字符串，返回Mat。 
 #endif
+        
+        // 其他
+        
+        // ipv4 地址转 uint32_t
+        int addr_to_uint32(const std::string& addr, uint32_t& addr_out);
     };
 
 } // namespace PaddleOCR

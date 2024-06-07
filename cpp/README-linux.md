@@ -10,6 +10,7 @@
 
 移植多平台，请参考 [移植指南](docs/移植指南.md) 。
 
+[使用 docker 部署](./README.md#使用-docker-部署)
 
 ## 1. 前期准备
 
@@ -213,7 +214,7 @@ ls ./build/bin/PaddleOCR-json
 > [!NOTE]
 > 这是因为系统没法在环境变量 `PATH` 里列出的路径下找到上面这个共享库 `libiomp5.so`。
 
-1. 一般我们可以更新环境变量 `PATH` 来解决这个问题，不过更新 `PATH` 有些时候不一定会起效。这里我们直接更新另一个环境变量 `LD_LIBRARY_PATH` 来解决。
+3. 一般我们可以更新环境变量 `PATH` 来解决这个问题，不过更新 `PATH` 有些时候不一定会起效。这里我们直接更新另一个环境变量 `LD_LIBRARY_PATH` 来解决。
 
 ```sh
 # 所有的预测库共享库都已经被自动复制到 "build/bin" 文件夹下了，这里我们把它存到一个变量里。
@@ -230,13 +231,12 @@ LD_LIBRARY_PATH=$LIBS ./build/bin/PaddleOCR-json
 > [!NOTE]
 > 如果你打算长期使用PaddleOCR-json的话，可以参考[安装章节](#5-安装)。
 
-1. 到这一步，PaddleOCR-json 已经可以运行了。不过它会提示你缺少配置文件。我们所需的所有文件都在之前准备的模型库 `module` 文件夹里面。
+4. 到这一步，PaddleOCR-json 已经可以运行了。不过它会提示你缺少配置文件。我们所需的所有文件都在之前准备的模型库 `module` 文件夹里面。
 
 ```sh
-# PaddleOCR-json 必须运行在 "module" 文件夹的相同目录下
-cd $MODELS/..
-LD_LIBRARY_PATH=$LIBS ../build/bin/PaddleOCR-json \
-    -config_path="./models/config_chinese.txt" \
+LD_LIBRARY_PATH=$LIBS ./build/bin/PaddleOCR-json \
+    -models_path="$MODELS" \
+    -config_path="$MODELS/config_chinese.txt" \
     -image_path="/path/to/image.jpg" # 图片的路径
 ```
 

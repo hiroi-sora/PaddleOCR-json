@@ -80,7 +80,22 @@ namespace PaddleOCR
 
         static std::vector<int> argsort(const std::vector<float> &array);
 
+        static inline void ltrim(std::string &str);
+        static inline void rtrim(std::string &str);
+        static inline void trim(std::string &str);
+        static inline std::string ltrim_copy(std::string str);
+        static inline std::string rtrim_copy(std::string str);
+        static inline std::string trim_copy(std::string str);
+
+        static inline bool str_starts_with(const std::string& str, const std::string& pattern)
+        {
+            // https://stackoverflow.com/a/40441240
+            return (str.rfind(pattern, 0) == 0);
+        }
+
         static std::string basename(const std::string &filename);
+
+        static std::string pathjoin(const std::string& parent, const std::string& child);
 
         static bool PathExists(const std::string &path);
 
