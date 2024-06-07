@@ -160,27 +160,41 @@ cmake --build build/
 
 以下参数是一些编译参数：
 
-| 参数名             | 描述                                                           |
-|--------------------|--------------------------------------------------------------|
-| `WITH_MKL`         | 使用MKL或OpenBlas，默认使用MKL。                                 |
-| `WITH_GPU`         | 使用GPU或CPU，默认使用CPU。                                      |
-| `WITH_STATIC_LIB`  | 编译成static library或shared library，默认编译成static library。 |
-| `WITH_TENSORRT`    | 使用TensorRT，默认关闭。                                         |
-| `ENABLE_CLIPBOARD` | 启用剪贴板功能。默认关闭。                                       |
+| 参数名            | 描述                                                           |
+|-------------------|--------------------------------------------------------------|
+| `WITH_MKL`        | 使用MKL或OpenBlas，默认使用MKL。                                 |
+| `WITH_GPU`        | 使用GPU或CPU，默认使用CPU。                                      |
+| `WITH_STATIC_LIB` | 编译成static library或shared library，默认编译成static library。 |
+| `WITH_TENSORRT`   | 使用TensorRT，默认关闭。                                         |
 
 > [!NOTE]
 > * `WITH_STATIC_LIB`: Linux下这个参数设置成 `ON` 时无法编译，所以它是强行设置成 `OFF` 的。
+
+以下是一些依赖库路径相关参数。除了 `PADDLE_LIB` 是必填的以外其他的视情况而定。
+
+| 参数名         | 描述                         |
+|----------------|----------------------------|
+| `PADDLE_LIB`   | paddle_inference的路径       |
+| `OPENCV_DIR`   | 库的路径                     |
+| `CUDA_LIB`     | 库的路径                     |
+| `CUDNN_LIB`    | 库的路径                     |
+| `TENSORRT_DIR` | 使用TensorRT编译并设置其路径 |
+
+> [!NOTE]
+> * `OPENCV_DIR`: Linux下，如果已经安装到系统之中就不用指定了。
+
+以下是一些PaddleOCR-json功能相关参数。
+
+| 参数名                   | 描述                             |
+|--------------------------|--------------------------------|
+| `ENABLE_CLIPBOARD`       | 启用剪贴板功能。默认关闭。         |
+| `ENABLE_REMOTE_EXIT`     | 启用远程关停服务器命令。默认开启。 |
+| `ENABLE_JSON_IMAGE_PATH` | 启用json命令image_path。默认开启。 |
+
+> [!NOTE]
 > * `ENABLE_CLIPBOARD`: Linux下没有剪贴板功能，启用了也无法使用。
-
-以下参数指定了一些编译用的库的位置。除了 `PADDLE_LIB` 是必填的以外其他的视情况而定。
-
-| 参数名         | 描述                                                 |
-|----------------|----------------------------------------------------|
-| `PADDLE_LIB`   | paddle_inference的路径                               |
-| `OPENCV_DIR`   | 库的路径。Linux下，如果已经安装到系统之中就不用指定了。 |
-| `CUDA_LIB`     | 库的路径                                             |
-| `CUDNN_LIB`    | 库的路径                                             |
-| `TENSORRT_DIR` | 使用TensorRT编译并设置其路径                         |
+> * `ENABLE_REMOTE_EXIT`: 这个参数控制着 “传入 `exit` 关停服务器” 的功能。
+> * `ENABLE_JSON_IMAGE_PATH`: 这个参数控制着 “使用`{"image_path":""}`指定路径” 的功能。
 
 #### 关于剪贴板读取
 
