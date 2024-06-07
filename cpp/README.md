@@ -4,11 +4,11 @@
 
 本文参考了 PPOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/docs/windows_vs2019_build.md#12-%E4%B8%8B%E8%BD%BD-paddlepaddle-c-%E9%A2%84%E6%B5%8B%E5%BA%93%E5%92%8C-opencv) ，但建议以本文为准。
 
-移植多平台，请参考 [移植指南](docs/移植指南.md) 。
+相关文档：
+- [Linux 构建指南](./README-linux.md)
+- [Docker 部署](#使用-docker-部署)
+- 其他平台 [移植指南](docs/移植指南.md)
 
-[Linux 构建指南](./README-linux.md)
-
-[使用 docker 部署](#使用-docker-部署)
 
 ## 1. 前期准备
 
@@ -89,17 +89,17 @@ PADDLE_LIB:
 
 以下参数是一些编译参数：
 
-| 参数名            | 描述                                                                                                                               |
-|-------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| `WITH_MKL`        | 使用MKL或OpenBlas，默认使用MKL。                                                                                                     |
-| `WITH_GPU`        | 使用GPU或CPU，默认使用CPU。                                                                                                          |
+| 参数名            | 描述                                                                                                                                     |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `WITH_MKL`        | 使用MKL或OpenBlas，默认使用MKL。                                                                                                         |
+| `WITH_GPU`        | 使用GPU或CPU，默认使用CPU。                                                                                                              |
 | `WITH_STATIC_LIB` | 编译成static library或shared library，默认编译成static library。（Linux下这个参数设置成 `ON` 时无法编译，所以它是强行设置成 `OFF` 的。） |
-| `WITH_TENSORRT`   | 使用TensorRT，默认关闭。                                                                                                             |
+| `WITH_TENSORRT`   | 使用TensorRT，默认关闭。                                                                                                                 |
 
 以下是一些依赖库路径相关参数。除了 `PADDLE_LIB` 是必填的以外其他的视情况而定。
 
 | 参数名         | 描述                         |
-|----------------|----------------------------|
+| -------------- | ---------------------------- |
 | `PADDLE_LIB`   | paddle_inference的路径       |
 | `OPENCV_DIR`   | 库的路径                     |
 | `CUDA_LIB`     | 库的路径                     |
@@ -108,8 +108,8 @@ PADDLE_LIB:
 
 以下是一些PaddleOCR-json功能相关参数。
 
-| 参数名                   | 描述                             |
-|--------------------------|--------------------------------|
+| 参数名                   | 描述                               |
+| ------------------------ | ---------------------------------- |
 | `ENABLE_CLIPBOARD`       | 启用剪贴板功能。默认关闭。         |
 | `ENABLE_REMOTE_EXIT`     | 启用远程关停服务器命令。默认开启。 |
 | `ENABLE_JSON_IMAGE_PATH` | 启用json命令image_path。默认开启。 |
