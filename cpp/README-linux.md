@@ -20,7 +20,7 @@
 请先检查你的CPU兼容性：
 
 ```sh
-lscpu | grep Flags | grep avx
+lscpu | grep avx
 ```
 
 **如果你的CPU支持AVX指令集，你的输出大概长这样（你可以在输出里找到 `avx` 的字符）：**
