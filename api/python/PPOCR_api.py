@@ -13,18 +13,28 @@ from base64 import b64encode  # base64 编码
 
 
 class PPOCR_pipe:  # 调用OCR（管道模式）
-    def __init__(self, exePath: str, argument: dict = None):
+    def __init__(self, exePath: str, modelsPath: str = None, argument: dict = None):
         """初始化识别器（管道模式）。\n
         `exePath`: 识别器`PaddleOCR_json.exe`的路径。\n
+        `modelsPath`: 识别库`models`文件夹的路径。若为None则默认识别库与识别器在同一目录下。\n
         `argument`: 启动参数，字典`{"键":值}`。参数说明见 https://github.com/hiroi-sora/PaddleOCR-json
         """
         # 私有成员变量
         self.__ENABLE_CLIPBOARD = False
 
+        exePath = os.path.abspath(exePath)
         cwd = os.path.abspath(os.path.join(exePath, os.pardir))  # 获取exe父文件夹
         cmds = [exePath]
         # 处理启动参数
-        if not argument == None:
+        if modelsPath is not None:
+            if os.path.exists(modelsPath) and os.path.isdir(modelsPath):
+                cmds += [
+                    "--models_path",
+                    os.path.abspath(modelsPath)
+                ]
+            else:
+                raise Exception(f"Input modelsPath doesn't exits or isn't a directory. modelsPath: [{modelsPath}]")
+        if isinstance(argument, dict):
             for key, value in argument.items():
                 # Popen() 要求输入list里所有的元素都是 str 或 bytes
                 cmds += [
@@ -129,12 +139,13 @@ class PPOCR_pipe:  # 调用OCR（管道模式）
 
     def exit(self):
         """关闭引擎子进程"""
-        if not self.ret:
-            return
-        try:
-            self.ret.kill()  # 关闭子进程
-        except Exception as e:
-            print(f"[Error] ret.kill() {e}")
+        if hasattr(self, "ret"):
+            if not self.ret:
+                return
+            try:
+                self.ret.kill()  # 关闭子进程
+            except Exception as e:
+                print(f"[Error] ret.kill() {e}")
         self.ret = None
         atexit.unregister(self.exit)  # 移除退出处理
         print("###  PPOCR引擎子进程关闭！")
@@ -164,9 +175,10 @@ class PPOCR_pipe:  # 调用OCR（管道模式）
 class PPOCR_socket(PPOCR_pipe):
     """调用OCR（套接字模式）"""
 
-    def __init__(self, exePath: str, argument: dict = None):
+    def __init__(self, exePath: str, modelsPath: str = None, argument: dict = None):
         """初始化识别器（套接字模式）。\n
         `exePath`: 识别器`PaddleOCR_json.exe`的路径。\n
+        `modelsPath`: 识别库`models`文件夹的路径。若为None则默认识别库与识别器在同一目录下。\n
         `argument`: 启动参数，字典`{"键":值}`。参数说明见 https://github.com/hiroi-sora/PaddleOCR-json
         """
         # 处理参数
@@ -182,7 +194,7 @@ class PPOCR_socket(PPOCR_pipe):
 
         # 如果为本地路径：使用 PPOCR_pipe 来开启本地引擎进程
         if self.__runningMode == "local":
-            super().__init__(self.exePath, argument)  # 父类构造函数
+            super().__init__(self.exePath, modelsPath, argument)  # 父类构造函数
             self.__ENABLE_CLIPBOARD = super().isClipboardEnabled()
             # 再获取一行输出，检查是否成功启动服务器
             initStr = self.ret.stdout.readline().decode("utf-8", errors="ignore")
@@ -199,9 +211,11 @@ class PPOCR_socket(PPOCR_pipe):
         # 如果为远程路径：直接连接
         elif self.__runningMode == "remote":
             self.__ENABLE_CLIPBOARD = False
-            # TODO ：检测远程服务器可用性
-            # 比如发送个空指令 {} ，如果服务器返回正确的报错码403，则服务可用。
-            # 否则，抛出异常。
+            # 发送一个空指令，检测远程服务器可用性
+            testServer = self.runDict({})
+            if testServer["code"] in [902, 903, 904]:
+                raise Exception(f"Socket connection fail.")
+            print(f"套接字服务器连接成功。{self.ip}:{self.port}")
             return
 
         # 异常
@@ -261,15 +275,16 @@ class PPOCR_socket(PPOCR_pipe):
     def exit(self):
         """关闭引擎子进程"""
         # 仅在本地模式下关闭引擎进程
-        if self.__runningMode == "local":
-            if not self.ret:
-                return
-            try:
-                self.ret.kill()  # 关闭子进程
-            except Exception as e:
-                print(f"[Error] ret.kill() {e}")
+        if hasattr(self, "ret"):
+            if self.__runningMode == "local":
+                if not self.ret:
+                    return
+                try:
+                    self.ret.kill()  # 关闭子进程
+                except Exception as e:
+                    print(f"[Error] ret.kill() {e}")
+            self.ret = None
 
-        self.ret = None
         self.ip = None
         self.port = None
         atexit.unregister(self.exit)  # 移除退出处理
@@ -299,16 +314,17 @@ class PPOCR_socket(PPOCR_pipe):
             return None
 
 
-def GetOcrApi(exePath: str, argument: dict = None, ipcMode: str = "pipe"):
+def GetOcrApi(exePath: str, modelsPath: str = None, argument: dict = None, ipcMode: str = "pipe"):
     """获取识别器API对象。\n
     `exePath`: 识别器`PaddleOCR_json.exe`的路径。\n
+    `modelsPath`: 识别库`models`文件夹的路径。若为None则默认识别库与识别器在同一目录下。\n
     `argument`: 启动参数，字典`{"键":值}`。参数说明见 https://github.com/hiroi-sora/PaddleOCR-json\n
     `ipcMode`: 进程通信模式，可选值为套接字模式`socket` 或 管道模式`pipe`。用法上完全一致。
     """
     if ipcMode == "socket":
-        return PPOCR_socket(exePath, argument)
+        return PPOCR_socket(exePath, modelsPath, argument)
     elif ipcMode == "pipe":
-        return PPOCR_pipe(exePath, argument)
+        return PPOCR_pipe(exePath, modelsPath, argument)
     else:
         raise Exception(
             f'ipcMode可选值为 套接字模式"socket" 或 管道模式"pipe" ，不允许{ipcMode}。'
