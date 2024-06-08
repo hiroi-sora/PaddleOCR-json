@@ -102,9 +102,11 @@ namespace PaddleOCR
     // 代替cv imread，接收utf-8字符串传入，返回Mat。
     cv::Mat Task::imread_u8(std::string pathU8, int flag)
     {
+#if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
         if (pathU8 == u8"clipboard") { // 若为剪贴板任务 
             return imread_clipboard(flag);
         }
+#endif
         // string u8 转 wchar_t
         std::wstring wpath;
         try {
@@ -117,6 +119,7 @@ namespace PaddleOCR
         return imread_wstr(wpath);
     }
 
+#if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
     // 从剪贴板读入一张图片，返回Mat。注意flag对剪贴板内存图片无效，仅对剪贴板路径图片有效。
     cv::Mat Task::imread_clipboard(int flag)
     {
@@ -233,6 +236,7 @@ namespace PaddleOCR
         }
         return cv::Mat();
     }
+#endif
 
     // 套接字模式 
     int Task::socket_mode() {
@@ -252,7 +256,15 @@ namespace PaddleOCR
         // 配置地址和端口号 
         struct sockaddr_in addr;
         addr.sin_family = AF_INET; // 地址族：IPv4 
-        addr.sin_addr.s_addr = (FLAGS_addr=="loopback" ? htonl(INADDR_LOOPBACK) : INADDR_ANY); // IP地址模式：本地环回/任何可用 
+        // IP地址模式：本地环回/任何可用/其他IPv4
+        unsigned int my_s_addr;
+        if (addr_to_uint32(FLAGS_addr, my_s_addr) < 0)
+        {
+            std::cerr << "Failed to parse input address." << std::endl;
+            closesocket(server_fd);
+            return -1;
+        }
+        addr.sin_addr.s_addr = static_cast<ULONG>(my_s_addr);
         addr.sin_port = htons(FLAGS_port); // 端口号 
         // 绑定地址和端口号到套接字句柄server_fd
         if (bind(server_fd, (struct sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) {
@@ -330,7 +342,7 @@ namespace PaddleOCR
             // =============== OCR完毕 =============== 
 
             // 发送数据
-            std::cout << str_out << std::endl;
+            std::cerr << str_out << std::endl;
             int m = send(client_fd, str_out.c_str(), strlen(str_out.c_str()), 0);
             if (m <= 0) {
                 std::cerr << "Failed to send data." << std::endl;

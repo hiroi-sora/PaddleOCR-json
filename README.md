@@ -20,7 +20,7 @@
 
 # PaddleOCR-json
 
-> 现已支持 Win7 x64 
+> 系统支持： `Win7 x64`、`Linux x64`
 
 这是一个基于 [PaddleOCR v2.6 C++](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) 的离线图片OCR文字识别程序，可快速让你的程序拥有OCR能力。它可以作为一个子进程被上层程序调用，也可以作为一个单独的进程通过TCP调用。本项目提供了Python等语言的API，你可以无视技术细节，通过两行代码使用它。
 
@@ -143,19 +143,20 @@ ocr.flush({ image_path: 'path/to/test/img' })
 
 ## 常用配置参数说明
 
-| 键名称         | 默认值 | 值说明                                                     |
-| -------------- | ------ | ---------------------------------------------------------- |
-| config_path    | ""     | 可以指定不同语言的配置文件路径，识别多国语言。详情见下节。 |
-| cls            | false  | 启用cls方向分类，识别方向不是正朝上的图片。                |
-| use_angle_cls  | false  | 启用方向分类，必须与cls值相同。                            |
-| enable_mkldnn  | true   | 启用CPU推理加速，关掉可以减少内存占用，但会降低速度。      |
-| limit_side_len | 960    | 对图像边长进行限制，降低分辨率，加快速度。                 |
-|                |        | 如果对大图/长图的识别率低，可增大 limit_side_len 的值。    |
-|                |        | 建议为 32 & 48 的公倍数，如 960, 2880, 4320                |
+| 键名称         | 默认值 | 值说明                                                                              |
+| -------------- | ------ | ----------------------------------------------------------------------------------- |
+| config_path    | ""     | 可以指定不同语言的配置文件路径，识别多国语言。[详情见下节](#语言库与切换识别语言)。 |
+| models_path    | ""     | 可以指定语言库 `models` 文件夹的路径。[详情见下节](#语言库与切换识别语言)。         |
+| cls            | false  | 启用cls方向分类，识别方向不是正朝上的图片。                                         |
+| use_angle_cls  | false  | 启用方向分类，必须与cls值相同。                                                     |
+| enable_mkldnn  | true   | 启用CPU推理加速，关掉可以减少内存占用，但会降低速度。                               |
+| limit_side_len | 960    | 对图像边长进行限制，降低分辨率，加快速度。                                          |
+|                |        | 如果对大图/长图的识别率低，可增大 limit_side_len 的值。                             |
+|                |        | 建议为 32 & 48 的公倍数，如 960, 2880, 4320                                         |
 
 更多参数详见 [args.cpp](/cpp/src/args.cpp) 。（不支持其中GPU相关、表格识别相关的参数。-）
 
-### 切换识别语言：
+### 语言库与切换识别语言：
 
 `v1.3`版本的Release压缩包中，默认附带了 `简中,繁中,英,日,韩,俄,德,法` 的语言库与配置文件，在 `models` 目录下。
 
@@ -168,6 +169,34 @@ ocr = GetOcrApi(enginePath, argument)
 ```
 
 如果 config_path 留空，则 PaddleOCR-json 默认加载并使用简体中文识别库。
+
+但是，当使用默认路径或单独设置 `config_path` 时，PaddleOCR-json可执行文件必须与语言库在同一目录下。比如：
+
+```
+.
+├─ PaddleOCR-json.exe
+└─ models
+    ├─ ...
+```
+
+如果语言库在另外一个文件夹下，PaddleOCR-json就无法找到语言库。
+
+在这种情况下，你可以使用 `models_path` 参数来设置语言库的位置。PaddleOCR-json会使用用户设置的语言库位置为基准来加载其他文件。
+
+这样一来，即使 PaddleOCR-json 与语言库不在同一目录下也能正常使用。以 Python API 为例：
+
+```python
+enginePath = "D:/Test/PaddleOCR_json.exe"  # 引擎路径
+modelsPath = "D:/Hello/models"             # 语言库路径路径
+# 这里的参数顺序不影响结果
+argument = {
+  # 指定语言库位置
+  "models_path": "D:/Hello/models",
+  # 指定使用英文库
+  "config_path": "D:/Hello/models/config_en.txt",
+}
+ocr = GetOcrApi(enginePath, argument)
+```
 
 #### 删除语言库：
 
@@ -227,6 +256,11 @@ ocr = GetOcrApi(enginePath, argument)
 - 注意，引擎不以文件后缀来区分各种图片，而是对存在的路径，均读入字节尝试解码。若传入的文件路径不是图片，或图片已损坏，则会报这个错。
 - 反之，将正常图片的后缀改为别的（如`.png`改成`.jpg或.exe`），也可以被正常识别。
 
+<details>
+<summary>
+<strong>剪贴板相关接口已弃用，不建议使用</strong>
+</summary>
+
 ##### `210` 剪贴板打开失败
 
 - data：`Clipboard open failed.`
@@ -266,6 +300,8 @@ ocr = GetOcrApi(enginePath, argument)
 - data：`Clipboard number of image channels is not valid. Number: 通道数`
 - 引擎只允许读入通道为1（黑白）、3（RGB）、4（RGBA）的图片。位图通道数不是1、3或4，会报这个错。
 
+</details>
+
 ##### `300` base64字符串解析为string失败
 
 - data：`Base64 decode failed.`
@@ -301,10 +337,10 @@ ocr = GetOcrApi(enginePath, argument)
 👆当你需要修改或开发新API时欢迎参考。
 
 
-### [项目构建指南](cpp)
+### 项目构建指南
 
-👆当你需要修改项目源码时欢迎参考。
-
+- [Windows 平台](cpp/README.md)
+- [Linux 平台](cpp/README-linux.md)
 
 ### [移植指南](cpp/docs/移植指南.md)
 

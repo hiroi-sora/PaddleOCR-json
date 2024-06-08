@@ -36,7 +36,7 @@ function cargs(obj) {
     obj = Object.assign({}, obj);
     if ('image_path' in obj) {
         if (obj.image_path === null)
-            obj.image_path = 'clipboard';
+            throw new Error('图片路径为空。');
         else if (obj.image_path)
             obj.image_path = (0, path_1.resolve)(currentPath, obj.image_path);
     }

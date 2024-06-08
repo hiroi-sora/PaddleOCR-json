@@ -21,7 +21,7 @@
 // 工作模式
 DEFINE_string(image_path, "", "Set image_path to run a single task."); // 若填写了图片路径，则执行一次OCR。
 DEFINE_int32(port, -1, "Set to 0 enable random port, set to 1~65535 enables specified port.");      // 填写0随机端口号，填1^65535指定端口号。默认则启用匿名管道模式。
-DEFINE_string(addr, "loopback", "Socket server addr, the value is selected in ['loopback','any']."); // 套接字服务器的地址模式，本地环回/任何可用。 
+DEFINE_string(addr, "loopback", "Socket server addr, the value can be 'loopback', 'any', or other IPv4 address."); // 套接字服务器的地址模式，本地环回/任何可用。 
 
 // common args 常用参数
 DEFINE_bool(use_gpu, false, "Infering with GPU or CPU.");                                              // true时启用GPU（需要推理库支持）
@@ -35,6 +35,7 @@ DEFINE_bool(benchmark, false, "Whether use benchmark.");                        
 DEFINE_string(output, "./output/", "Save benchmark log path.");                                        // 可视化结果保存的路径 TODO
 DEFINE_string(type, "ocr", "Perform ocr or structure, the value is selected in ['ocr','structure']."); // 任务类型（暂不可用）
 DEFINE_string(config_path, "", "Path of config file.");                                                // 配置文件路径
+DEFINE_string(models_path, "", "Path of models folder.");                                              // 预测库路径
 DEFINE_bool(ensure_ascii, true, "Enable JSON ascii escape.");                                          // true时json开启ascii转义
 
 // detection related DET检测相关
@@ -80,9 +81,40 @@ DEFINE_bool(cls, false, "Whether use cls in forward.");
 DEFINE_bool(table, false, "Whether use table structure in forward.");
 DEFINE_bool(layout, false, "Whether use layout analysis in forward.");
 
+
+// 检查一个路径path是否存在，将信息写入msg
+void check_path(const std::string& path, const std::string& name, std::string& msg)
+{
+    if (path.empty()){
+        msg += (name + " is empty. ");
+    }
+    else if (!PaddleOCR::Utility::PathExists(path)) {
+        msg += (name + " [" + path + "] does not exist. ");
+    }
+}
+
+// 为 value 前置拼接预测库路径
+void prepend_models(const std::string& models_path_base, std::string& value)
+{
+    if (PaddleOCR::Utility::str_starts_with(value, "models")) {
+        value.erase(0, 6);
+        value = PaddleOCR::Utility::pathjoin(models_path_base, value);
+    }
+}
+
 // 从配置文件中读取配置，返回日志字符串。
 std::string read_config()
 {
+    // 设置默认预测库路径
+    std::string models_path_base = "models";
+    // 如果输入正常预测库路径参数
+    if (!FLAGS_models_path.empty() && PaddleOCR::Utility::PathExists(FLAGS_models_path))
+    {
+        // 则更新预测库路径
+        models_path_base = FLAGS_models_path;
+        // 之后我们会用这个预测库路径来更新所有其他参数的路径
+    }
+    
     if (!PaddleOCR::Utility::PathExists(FLAGS_config_path))
     {
         return ("config_path [" + FLAGS_config_path + "] does not exist. ");
@@ -110,6 +142,7 @@ std::string read_config()
             continue;
         std::string key = line.substr(0, split);
         std::string value = line.substr(split + 1);
+        prepend_models(models_path_base, value);
         // 设置配置，优先级低于命令行传入参数。
         std::string res = google::SetCommandLineOptionWithMode(key.c_str(), value.c_str(), google::SET_FLAG_IF_DEFAULT);
         if (!res.empty())
@@ -126,32 +159,37 @@ std::string read_config()
     return msg;
 }
 
-// 检查一个路径path是否存在，将信息写入msg
-void check_path(const std::string& path, const std::string& name, std::string& msg)
-{
-    if (path.empty()){
-        msg += (name + " is empty. ");
-    }
-    else if (!PaddleOCR::Utility::PathExists(path)) {
-   
-        msg += (name + " [" + path + "] does not exist. ");
-    }
-}
-
 // 检测参数合法性。成功返回空字符串，失败返回报错信息字符串。
 std::string check_flags() {
-
+    // 设置默认预测库路径
+    std::string models_path_base = "models";
+    // 如果输入正常预测库路径参数
+    if (!FLAGS_models_path.empty() && PaddleOCR::Utility::PathExists(FLAGS_models_path))
+    {
+        // 则更新预测库路径
+        models_path_base = FLAGS_models_path;
+        // 之后我们会用这个预测库路径来更新所有其他参数的路径
+    }
+    
     std::string msg = "";
     if (FLAGS_det) { // 检查det
+        prepend_models(models_path_base, FLAGS_det_model_dir);
         check_path(FLAGS_det_model_dir, "det_model_dir", msg);
     }
     if (FLAGS_rec) { // 检查rec
+        prepend_models(models_path_base, FLAGS_rec_model_dir);
         check_path(FLAGS_rec_model_dir, "rec_model_dir", msg);
     }
     if (FLAGS_cls && FLAGS_use_angle_cls) { // 检查cls
+        prepend_models(models_path_base, FLAGS_cls_model_dir);
         check_path(FLAGS_cls_model_dir, "cls_model_dir", msg);
     }
+    if (!FLAGS_rec_char_dict_path.empty()) { // 检查 rec_char_dict_path
+        prepend_models(models_path_base, FLAGS_rec_char_dict_path);
+        check_path(FLAGS_rec_char_dict_path, "rec_char_dict_path", msg);
+    }
     if (FLAGS_table) { // 检查table
+        prepend_models(models_path_base, FLAGS_table_model_dir);
         check_path(FLAGS_table_model_dir, "table_model_dir", msg);
         if (!FLAGS_det)
             check_path(FLAGS_det_model_dir, "det_model_dir", msg);
@@ -159,6 +197,7 @@ std::string check_flags() {
             check_path(FLAGS_rec_model_dir, "rec_model_dir", msg);
     }
     if (FLAGS_layout) { // 布局
+        prepend_models(models_path_base, FLAGS_layout_model_dir);
         check_path(FLAGS_layout_model_dir, "layout_model_dir", msg);
     }
     if (!FLAGS_config_path.empty()) { // 配置文件目录非空时检查存在 
@@ -176,9 +215,6 @@ std::string check_flags() {
     }
     if (FLAGS_det_db_score_mode != "slow" && FLAGS_det_db_score_mode != "fast") {
         msg += "limit_type should be 'slow'(default) or 'fast', not " + FLAGS_det_db_score_mode + ". ";
-    }
-    if (FLAGS_addr != "loopback" && FLAGS_addr != "any") {
-        msg += "addr should be 'loopback'(default) or 'any', not " + FLAGS_addr + ". ";
     }
     return msg;
 }

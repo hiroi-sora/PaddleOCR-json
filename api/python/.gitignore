@@ -1,0 +1,7 @@
+# 无视所有图片
+*.png
+*.jpg
+*.jpeg
+
+# 除了 test.jpg
+!test.jpg

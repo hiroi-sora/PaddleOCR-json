@@ -1,8 +1,19 @@
 
+#include <exception>
+#include <regex>
+
 #include "include/paddleocr.h"
 #include "include/args.h"
 #include "include/task.h"
 #include "include/base64.h" // base64库
+
+// htonl 函数
+#if defined(_WIN32)
+#include <windows.h>
+#else // Linux, Mac
+#include <arpa/inet.h>
+#endif
+
 namespace PaddleOCR
 {
     // ==================== 工具 ====================
@@ -115,12 +126,14 @@ namespace PaddleOCR
 
     // 输入json字符串，解析并读取Mat 
     cv::Mat Task::imread_json(std::string& str_in) {
+#ifdef ENABLE_REMOTE_EXIT
         if (str_in == "exit") { // 退出指令 
             is_exit = true;
             return cv::Mat();
         }
+#endif
         cv::Mat img;
-        bool is_image = false; // 当前是否已找到图片 
+        bool is_image_found = false; // 当前是否已找到图片 
         std::string logstr = "";
         // 解析为json对象 
         auto j = nlohmann::json();
@@ -133,8 +146,13 @@ namespace PaddleOCR
         }
         for (auto& el : j.items()) { // 遍历键值 
             if (el.key() == "exit") { // 退出指令 
+#ifdef ENABLE_REMOTE_EXIT
                 is_exit = true;
                 return cv::Mat();
+#else
+                set_state(CODE_ERR_JSON_PARSE_KEY, MSG_ERR_JSON_PARSE_KEY(el.key())); // 报告状态：解析键失败 
+                return cv::Mat();
+#endif
             }
             try {
                 std::string value = to_string(el.value());
@@ -143,16 +161,21 @@ namespace PaddleOCR
                     value = value.substr(1, vallen - 2); // 删去nlohmann字符串的两端引号
                 }
                 // 提取图片 
-                if (!is_image) {
+                if (!is_image_found) {
                     if (el.key() == "image_path") { // 图片路径
+#ifdef ENABLE_JSON_IMAGE_PATH
                         FLAGS_image_path = value;
                         img = imread_u8(value); // 读取图片 
-                        is_image = true;
+                        is_image_found = true;
+#else
+                        set_state(CODE_ERR_JSON_PARSE_KEY, MSG_ERR_JSON_PARSE_KEY(el.key())); // 报告状态：解析键失败 
+                        return cv::Mat();
+#endif
                     }
                     else if (el.key() == "image_base64") { // base64字符串 
                         FLAGS_image_path = "base64"; // 设置图片路径标记，以便于无文字时的信息输出 
                         img = imread_base64(value); // 读取图片 
-                        is_image = true;
+                        is_image_found = true;
                     }
                 }
                 //else {} // TODO: 其它参数热更新
@@ -162,7 +185,7 @@ namespace PaddleOCR
                 return cv::Mat();
             }
         }
-        if (!is_image) {
+        if (!is_image_found) {
             set_state(CODE_ERR_NO_TASK, MSG_ERR_NO_TASK); // 报告状态：未发现有效任务 
         }
         return img;
@@ -199,23 +222,28 @@ namespace PaddleOCR
         // 初始化引擎
         ppocr = new PPOCR(); // 创建引擎对象
         int flag;
+        
+#if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
+        std::cout << "OCR clipboard enbaled." << std::endl;
+#endif
+        
         // 单张图片识别模式
         if (!FLAGS_image_path.empty()){
             std::cout << "OCR single image mode. Path: " << FLAGS_image_path << std::endl;
             flag = 1;
         }
         // 套接字服务器模式
-         else if (FLAGS_port != -1) {
-            std::cout << "OCR socket mode. Addr:" << FLAGS_addr  << ", Port: " << FLAGS_port << std::endl;
+        else if (FLAGS_port >= 0 && !FLAGS_addr.empty()) {
+            std::cout << "OCR socket mode. Addr: " << FLAGS_addr  << ", Port: " << FLAGS_port << std::endl;
             flag = 2;
-         }
+        }
         // 匿名管道模式
         else {
             std::cout << "OCR anonymous pipe mode." << std::endl;
             flag = 3;
         }
         std::cout << "OCR init completed." << std::endl;
-
+        
         switch (flag)
         {
         case 1:
@@ -227,7 +255,7 @@ namespace PaddleOCR
         }
         return 0;
     }
-
+    
     // 单张图片识别模式 
     int Task::single_image_mode()
     {
@@ -252,7 +280,7 @@ namespace PaddleOCR
         }
         return 0;
     }
-
+    
     // 匿名管道模式 
     int Task::anonymous_pipe_mode() {
         while (1) {
@@ -269,8 +297,52 @@ namespace PaddleOCR
         }
         return 0;
     }
-
+    
     // 套接字服务器模式，在平台内定义 
+    
+    
+    // 其他函数
+    
+    // ipv4 地址转 uint32_t
+    int Task::addr_to_uint32(const std::string& addr, uint32_t& addr_out)
+    {
+        // 处理特殊情况
+        if (addr == "loopback")
+        {
+            addr_out = htonl(INADDR_LOOPBACK);
+            return 0;
+        }
+        else if (addr == "any")
+        {
+            addr_out = htonl(INADDR_ANY);
+            return 0;
+        }
+        
+        // 使用正则表达式来处理IPv4地址
+        std::regex rgx(R"((\d+)\.(\d+)\.(\d+)\.(\d+))");
+        std::smatch matches;
+        uint32_t output = 0;
+        
+        // 如果验证为IPv4地址，将其转成 uint32_t 主机字节序
+        if(std::regex_search(addr, matches, rgx))
+        {
+            uint8_t octet;
+            for (size_t i = 1; i < matches.size(); ++i)
+            {
+                octet = static_cast<uint8_t>(std::stoi(matches[i].str()));
+                output |= octet << (8 * (4-i));
+            }
+        }
+        // 反之则报错
+        else
+        {
+            return -1;
+        }
+        
+        // 最后把 uint32_t 主机字节序 转成 网络字节序
+        addr_out = htonl(output);
+        return 0;
+    }
 }
 
 // ./PaddleOCR-json.exe -config_path="models/zh_CN.txt" -image_path="D:/Test/t2.png" -ensure_ascii=0

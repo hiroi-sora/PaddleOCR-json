@@ -1,8 +1,5 @@
 *.code-workspace
 
-cpp/build
-cpp/.source
-
 *__pycache__*
 
 .vscode

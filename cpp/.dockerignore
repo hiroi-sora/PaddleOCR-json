@@ -1,0 +1,9 @@
+*.log
+*.jpg
+*.jpeg
+*.png
+*.json
+config.py
+
+build/
+.source/

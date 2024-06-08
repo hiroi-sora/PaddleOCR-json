@@ -24,6 +24,8 @@ namespace PaddleOCR
 #define MSG_ERR_PATH_READ(p) "Image open failed. Path: \"" + p + "\""
 #define CODE_ERR_PATH_DECODE 203 // 图片打开成功，但读取到的内容无法被opencv解码
 #define MSG_ERR_PATH_DECODE(p) "Image decode failed. Path: \"" + p + "\""
+
+#if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
 // 剪贴板读图，失败
 #define CODE_ERR_CLIP_OPEN 210 // 剪贴板打开失败 ( OpenClipboard )
 #define MSG_ERR_CLIP_OPEN "Clipboard open failed."
@@ -41,6 +43,8 @@ namespace PaddleOCR
 #define MSG_ERR_CLIP_BITMAP "Getting clipboard bitmap bits failed."
 #define CODE_ERR_CLIP_CHANNEL 217 // 剪贴板中位图的通道数不支持 ( nChannels 不为1，3，4 )
 #define MSG_ERR_CLIP_CHANNEL(n) "Clipboard number of image channels is not valid. Number: " + std::to_string(n)
+#endif
+
 // base64读图，失败
 #define CODE_ERR_BASE64_DECODE 300 // base64字符串解析为string失败 
 #define MSG_ERR_BASE64_DECODE "Base64 decode failed."
@@ -69,6 +73,7 @@ namespace PaddleOCR
         int t_code;        // 本轮任务状态码 
         std::string t_msg; // 本轮任务状态消息 
 
+    private:
         // 任务流程
         std::string run_ocr(std::string); // 输入用户传入值（字符串），返回结果json字符串
         int single_image_mode();   // 单次识别模式 
@@ -89,6 +94,11 @@ namespace PaddleOCR
 #ifdef _WIN32
         cv::Mat imread_wstr(std::wstring pathW, int flags = cv::IMREAD_COLOR); // 输入unicode wstring字符串，返回Mat。 
 #endif
+        
+        // 其他
+        
+        // ipv4 地址转 uint32_t
+        int addr_to_uint32(const std::string& addr, uint32_t& addr_out);
     };
 
 } // namespace PaddleOCR
