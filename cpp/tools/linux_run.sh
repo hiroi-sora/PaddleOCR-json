@@ -15,8 +15,6 @@ EXE_LOCATION="$SCRIPT_DIR/../build/bin/PaddleOCR-json"
 # 所有PaddleOCR运行库都被复制到PaddleOCR-json的相同路径下了
 LIBS="$(dirname $EXE_LOCATION)"
 
-# echo "LIBS: $LIBS"
-
 # 运行PaddleOCR-json
 LD_LIBRARY_PATH="$LIBS" "$EXE_LOCATION" \
     "$@"

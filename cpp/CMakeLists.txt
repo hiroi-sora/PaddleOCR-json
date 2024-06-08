@@ -342,8 +342,9 @@ install(
     ARCHIVE DESTINATION "lib"
     RUNTIME DESTINATION "bin"
 )
-# 安装共享库
+# 其他安装
 if (WIN32)
+    # 安装共享库
     install(
         DIRECTORY "$<TARGET_FILE_DIR:${DEMO_NAME}>/"
         DESTINATION "bin"
@@ -352,11 +353,20 @@ if (WIN32)
         PATTERN "${DEMO_NAME}*" EXCLUDE
     )
 else ()
+    # 安装共享库
     install(
         DIRECTORY "$<TARGET_FILE_DIR:${DEMO_NAME}>/"
         DESTINATION "lib"
         FILES_MATCHING
         PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}*"
         PATTERN "${DEMO_NAME}*" EXCLUDE
+    )
+    # 安装启动脚本和安装脚本
+    install(
+        FILES
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/linux_dist_tools/run.sh"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/linux_dist_tools/install_env.sh"
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        DESTINATION "."
     )
 endif ()
