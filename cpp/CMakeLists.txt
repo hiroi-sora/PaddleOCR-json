@@ -102,18 +102,22 @@ message(STATUS "    ENABLE_JSON_IMAGE_PATH: ${ENABLE_JSON_IMAGE_PATH}")
 # 请提供一个路径包含 "OpenCVConfig.cmake" 或 "opencv-config.cmake"这两个文件
 
 # 由CMake参数提供（-DOPENCV_DIR）
-if(DEFINED ${OPENCV_DIR})
+if(DEFINED OPENCV_DIR AND NOT "${OPENCV_DIR}" STREQUAL "")
     message(STATUS "Setting OPENCV_DIR: ${OPENCV_DIR}")
     find_package(OpenCV PATHS ${OPENCV_DIR} NO_DEFAULT_PATH)
+elseif(DEFINED OpenCV_DIR AND NOT "${OpenCV_DIR}" STREQUAL "")
+    message(STATUS "Setting OPENCV_DIR: ${OpenCV_DIR}")
+    find_package(OpenCV PATHS ${OpenCV_DIR} NO_DEFAULT_PATH)
 # 由环境变量提供 OPENCV_DIR 或 OpenCV_DIR 提供
-elseif(DEFINED $ENV{OPENCV_DIR})
+elseif(NOT "$ENV{OPENCV_DIR}" STREQUAL "")
     message(STATUS "Setting OPENCV_DIR: $ENV{OPENCV_DIR}")
     find_package(OpenCV PATHS $ENV{OPENCV_DIR} NO_DEFAULT_PATH)
-elseif(DEFINED $ENV{OpenCV_DIR})
+elseif(NOT "$ENV{OpenCV_DIR}" STREQUAL "")
     message(STATUS "Setting OPENCV_DIR: $ENV{OpenCV_DIR}")
     find_package(OpenCV PATHS $ENV{OpenCV_DIR} NO_DEFAULT_PATH)
 # 没有提供OpenCV路径，尝试让CMake自己寻找
 else()
+    message("last opencv")
     find_package(OpenCV REQUIRED)
 endif()
 include_directories(${OpenCV_INCLUDE_DIRS})
@@ -301,7 +305,7 @@ target_link_libraries(${DEMO_NAME} ${DEPS})
 
 
 # 把 PADDLE_LIB 文件夹下的所有共享库找出
-file(GLOB_RECURSE PADDLE_LIB_FILES ${PADDLE_LIB} "*${CMAKE_SHARED_LIBRARY_SUFFIX}*")
+file(GLOB_RECURSE PADDLE_LIB_FILES "${PADDLE_LIB}/*${CMAKE_SHARED_LIBRARY_SUFFIX}*")
 # 然后全部复制到TARGET的输出文件夹里
 foreach(ITEM ${PADDLE_LIB_FILES})
     add_custom_command(TARGET ${DEMO_NAME} POST_BUILD
