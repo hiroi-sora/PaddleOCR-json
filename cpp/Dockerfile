@@ -1,6 +1,10 @@
 # 编译环境
 FROM debian:stable AS build
 
+# 构建参数
+ARG ENABLE_REMOTE_EXIT="ON" \
+    ENABLE_JSON_IMAGE_PATH="OFF"
+
 SHELL ["/bin/bash", "-c"]
 
 # 检查AVX指令集，如果不支持就退出
@@ -12,9 +16,8 @@ RUN if [[ -z $(lscpu | grep Flags | grep avx) ]] ; \
 # 安装编译环境
 RUN \
     apt update -y && \
-    # 把libopencv-dev单独安装，以免一次性安装太多的包导致被当成DDOS
-    apt install -y libopencv-dev ; \
-    apt install -y wget tar zip unzip git gcc g++ cmake make
+    apt install -y libopencv-dev && \
+    apt install -y wget tar zip unzip git gcc g++ cmake make pkg-config
 
 WORKDIR /src/
 
@@ -29,11 +32,17 @@ ENV PADDLE_LIB="/src/.source/paddle_inference/"
 # 构建工程 + 编译
 RUN cd /src/ && \
     mkdir -p .source && cp -r /src/paddle_inference .source && \
+    # 检查libopencv-dev是否正常安装
+    if [[ -z $(pkg-config --silence-errors --libs opencv4) ]] ; \
+        then echo "Cannot find libopencv-dev in the system." ; exit -1 ; \
+    fi && \
     mkdir -p build && \
         cmake -S . -B build \
         -DPADDLE_LIB=$PADDLE_LIB \
         -DCMAKE_BUILD_TYPE=Release \
-        -DENABLE_CLIPBOARD=OFF && \
+        -DENABLE_CLIPBOARD=OFF \
+        -DENABLE_REMOTE_EXIT=${ENABLE_REMOTE_EXIT} \
+        -DENABLE_JSON_IMAGE_PATH=${ENABLE_JSON_IMAGE_PATH} && \
     cmake --build build --config=Release && \
     cmake --install build --prefix build/install
 

@@ -6,11 +6,10 @@
 
 另外，本文将使用Debian/Ubuntu系列linux为例子进行讲解。其他linux发行版的用户请自行替换一些对应的命令（比如apt这类的）。
 
-[Windows 构建指南](./README.md)
-
-移植多平台，请参考 [移植指南](docs/移植指南.md) 。
-
-[使用 docker 部署](./README.md#使用-docker-部署)
+相关文档：
+- [Windows 构建指南](./README.md)
+- [Docker 部署](./README.md#使用-docker-部署)
+- 其他平台 [移植指南](docs/移植指南.md)
 
 ## 1. 前期准备
 
@@ -160,27 +159,41 @@ cmake --build build/
 
 以下参数是一些编译参数：
 
-| 参数名             | 描述                                                           |
-|--------------------|--------------------------------------------------------------|
-| `WITH_MKL`         | 使用MKL或OpenBlas，默认使用MKL。                                 |
-| `WITH_GPU`         | 使用GPU或CPU，默认使用CPU。                                      |
-| `WITH_STATIC_LIB`  | 编译成static library或shared library，默认编译成static library。 |
-| `WITH_TENSORRT`    | 使用TensorRT，默认关闭。                                         |
-| `ENABLE_CLIPBOARD` | 启用剪贴板功能。默认关闭。                                       |
+| 参数名            | 描述                                                             |
+| ----------------- | ---------------------------------------------------------------- |
+| `WITH_MKL`        | 使用MKL或OpenBlas，默认使用MKL。                                 |
+| `WITH_GPU`        | 使用GPU或CPU，默认使用CPU。                                      |
+| `WITH_STATIC_LIB` | 编译成static library或shared library，默认编译成static library。 |
+| `WITH_TENSORRT`   | 使用TensorRT，默认关闭。                                         |
 
 > [!NOTE]
 > * `WITH_STATIC_LIB`: Linux下这个参数设置成 `ON` 时无法编译，所以它是强行设置成 `OFF` 的。
+
+以下是一些依赖库路径相关参数。除了 `PADDLE_LIB` 是必填的以外其他的视情况而定。
+
+| 参数名         | 描述                         |
+| -------------- | ---------------------------- |
+| `PADDLE_LIB`   | paddle_inference的路径       |
+| `OPENCV_DIR`   | 库的路径                     |
+| `CUDA_LIB`     | 库的路径                     |
+| `CUDNN_LIB`    | 库的路径                     |
+| `TENSORRT_DIR` | 使用TensorRT编译并设置其路径 |
+
+> [!NOTE]
+> * `OPENCV_DIR`: Linux下，如果已经安装到系统之中就不用指定了。
+
+以下是一些PaddleOCR-json功能相关参数。
+
+| 参数名                   | 描述                               |
+| ------------------------ | ---------------------------------- |
+| `ENABLE_CLIPBOARD`       | 启用剪贴板功能。默认关闭。         |
+| `ENABLE_REMOTE_EXIT`     | 启用远程关停服务器命令。默认开启。 |
+| `ENABLE_JSON_IMAGE_PATH` | 启用json命令image_path。默认开启。 |
+
+> [!NOTE]
 > * `ENABLE_CLIPBOARD`: Linux下没有剪贴板功能，启用了也无法使用。
-
-以下参数指定了一些编译用的库的位置。除了 `PADDLE_LIB` 是必填的以外其他的视情况而定。
-
-| 参数名         | 描述                                                 |
-|----------------|----------------------------------------------------|
-| `PADDLE_LIB`   | paddle_inference的路径                               |
-| `OPENCV_DIR`   | 库的路径。Linux下，如果已经安装到系统之中就不用指定了。 |
-| `CUDA_LIB`     | 库的路径                                             |
-| `CUDNN_LIB`    | 库的路径                                             |
-| `TENSORRT_DIR` | 使用TensorRT编译并设置其路径                         |
+> * `ENABLE_REMOTE_EXIT`: 这个参数控制着 “传入 `exit` 关停服务器” 的功能。
+> * `ENABLE_JSON_IMAGE_PATH`: 这个参数控制着 “使用`{"image_path":""}`指定路径” 的功能。
 
 #### 关于剪贴板读取
 
@@ -212,9 +225,9 @@ ls ./build/bin/PaddleOCR-json
 ```
 
 > [!NOTE]
-> 这是因为系统没法在环境变量 `PATH` 里列出的路径下找到上面这个共享库 `libiomp5.so`。
+> 这是因为系统没法在环境变量 `LD_LIBRARY_PATH` 里列出的路径下找到上面这个共享库 `libiomp5.so`。
 
-3. 一般我们可以更新环境变量 `PATH` 来解决这个问题，不过更新 `PATH` 有些时候不一定会起效。这里我们直接更新另一个环境变量 `LD_LIBRARY_PATH` 来解决。
+3. 这里我们直接更新另一个环境变量 `LD_LIBRARY_PATH` 来解决。
 
 ```sh
 # 所有的预测库共享库都已经被自动复制到 "build/bin" 文件夹下了，这里我们把它存到一个变量里。

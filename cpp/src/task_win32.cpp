@@ -257,12 +257,14 @@ namespace PaddleOCR
         struct sockaddr_in addr;
         addr.sin_family = AF_INET; // 地址族：IPv4 
         // IP地址模式：本地环回/任何可用/其他IPv4
-        if (addr_to_uint32(FLAGS_addr, socketAddr.sin_addr.s_addr) < 0)
+        unsigned int my_s_addr;
+        if (addr_to_uint32(FLAGS_addr, my_s_addr) < 0)
         {
             std::cerr << "Failed to parse input address." << std::endl;
-            close(socketFd);
+            closesocket(server_fd);
             return -1;
         }
+        addr.sin_addr.s_addr = static_cast<ULONG>(my_s_addr);
         addr.sin_port = htons(FLAGS_port); // 端口号 
         // 绑定地址和端口号到套接字句柄server_fd
         if (bind(server_fd, (struct sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) {

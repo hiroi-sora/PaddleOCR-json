@@ -9,9 +9,16 @@ import os
 # 测试图片路径
 TestImagePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test.jpg")
 
-# 初始化识别器对象，传入 PaddleOCR-json.exe 的路径。请改成你自己的路径
-ocr = GetOcrApi(r"D:\……\PaddleOCR-json.exe")
-print(f"初始化OCR成功，进程号为{ocr.ret.pid}")
+# 初始化识别器对象，传入 PaddleOCR-json 引擎路径。
+# 引擎下载地址： https://github.com/hiroi-sora/PaddleOCR-json/releases
+# Windows： 传入 PaddleOCR-json.exe 的路径。
+# Linux： 传入 run.sh 的路径
+ocr = GetOcrApi(r"Your Path/PaddleOCR-json.exe")
+
+if ocr.getRunningMode() == "local":
+    print(f"初始化OCR成功，进程号为{ocr.ret.pid}")
+elif ocr.getRunningMode() == "remote":
+    print(f"连接远程OCR引擎成功，ip：{ocr.ip}，port：{ocr.port}")
 print(f"\n测试图片路径：{TestImagePath}")
 
 # 示例1：识别本地图片
