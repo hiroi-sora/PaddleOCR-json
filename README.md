@@ -48,7 +48,10 @@
 
 ## 准备工作
 
-下载 [PaddleOCR-json v1.3.1](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.3.1) 并解压，即可。
+下载可执行文件包：
+
+- Windows： [Release](https://github.com/hiroi-sora/PaddleOCR-json/releases/latest)
+- Linux： [Gavin1937/Release](https://github.com/Gavin1937/PaddleOCR-json/releases/tag/v1.4.0)
 
 ### 简单试用
 
