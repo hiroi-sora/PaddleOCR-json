@@ -12,7 +12,7 @@ TestImagePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test.j
 # 初始化识别器对象，传入 PaddleOCR-json 引擎路径。
 # 引擎下载地址： https://github.com/hiroi-sora/PaddleOCR-json/releases
 # Windows： 传入 PaddleOCR-json.exe 的路径。
-# Linux： TODO
+# Linux： 传入 run.sh 的路径
 ocr = GetOcrApi(r"Your Path/PaddleOCR-json.exe")
 
 if ocr.getRunningMode() == "local":

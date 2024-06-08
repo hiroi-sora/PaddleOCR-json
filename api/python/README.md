@@ -39,7 +39,7 @@ from PPOCR_api import GetOcrApi
 1. 引擎部署在本地：
 - 在 [Releases](https://github.com/hiroi-sora/PaddleOCR-json/releases) 中下载OCR引擎二进制程序到本地，解压。
 - Windows 平台：`exePath` 传入 `PaddleOCR-json.exe` 的路径。
-- Linux 平台： TODO
+- Linux 平台：`exePath` 传入 `run.sh` 的路径
 2. 引擎部署在远程：
 - 在服务器上部署 PaddleOCR-json 程序，启用服务器模式，并确保客户机可以访问服务器。
 - 客户机：`exePath` 传入 `"remote://ip:port"` 。

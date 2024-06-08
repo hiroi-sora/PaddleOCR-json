@@ -369,4 +369,10 @@ else ()
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
         DESTINATION "."
     )
+    # 安装README.txt
+    install(
+        FILES
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/linux_dist_tools/README.txt"
+        DESTINATION "."
+    )
 endif ()
