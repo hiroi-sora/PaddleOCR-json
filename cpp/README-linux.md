@@ -177,7 +177,7 @@ cmake --build build/
 | `OPENCV_DIR`   | 库的路径                     |
 | `CUDA_LIB`     | 库的路径                     |
 | `CUDNN_LIB`    | 库的路径                     |
-| `TENSORRT_DIR` | 使用TensorRT编译并设置其路径 |
+| `TENSORRT_DIR` | 使用TensorRT编译并设置其路径  |
 
 > [!NOTE]
 > * `OPENCV_DIR`: Linux下，如果已经安装到系统之中就不用指定了。
@@ -194,6 +194,12 @@ cmake --build build/
 > * `ENABLE_CLIPBOARD`: Linux下没有剪贴板功能，启用了也无法使用。
 > * `ENABLE_REMOTE_EXIT`: 这个参数控制着 “传入 `exit` 关停服务器” 的功能。
 > * `ENABLE_JSON_IMAGE_PATH`: 这个参数控制着 “使用`{"image_path":""}`指定路径” 的功能。
+
+以下是一些CMake功能相关参数。
+
+| 参数名                   | 描述                               |
+| ------------------------ | --------------------------------- |
+| `INSTALL_WITH_TOOLS`     | CMake安装时附带工具文件。默认开启。  |
 
 #### 关于剪贴板读取
 
@@ -291,7 +297,12 @@ LD_LIBRARY_PATH=$LIBS ./build/bin/PaddleOCR-json \
 sudo cmake --install build
 ```
 
-CMake会将 `build` 文件夹下的可执行文件和运行库给安装到系统文件夹 `/usr/local` 下，这样你就可以直接用 `PaddleOCR-json` 来调用这个软件了。
+CMake会将 `build` 文件夹下的可执行文件和运行库给安装到系统文件夹 `/usr/` 下，这样你就可以直接用 `PaddleOCR-json` 来调用这个软件了。
 
 如果你希望安装到指定位置，你可以为上面这条命令加上参数 `--prefix /安装路径/` 来指定一个安装路径。比如 `--prefix build/install` 会将所有的文件都安装到 `build/install` 文件夹下。
 
+> [!TIP]
+> 在Linux下安装时，CMake会额外安装一些工具脚本和文档以方便用户直接使用（[就是 `linux_dist_tools/` 文件夹下的东西](./tools/linux_dist_tools/)）。这个功能可以帮助开发者更方便的打包软件。但是，如果你希望将PaddleOCR-json安装到系统文件夹里，你则不需要这些工具文件。你可以通过关闭CMake参数 `INSTALL_WITH_TOOLS` 来禁用这些工具文件的安装。
+
+> [!TIP]
+> CMake在安装PaddleOCR-json时，会将所有在 `build/bin` 文件夹下的共享依赖库给复制到安装目录的 `lib` 文件夹下。但是，Linux的很多共享库是被拆分在系统文件夹里的（比如 `/usr/lib/` ）。CMake无法自动找到这些共享依赖库。如果你需要将PaddleOCR-json打包成一个无依赖的软件，你需要手动将所有在系统文件夹里的共享依赖库给复制到 `build/bin` 文件夹下。这样一来CMake就可以在安装时将完整的依赖共享库一起打包了。

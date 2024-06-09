@@ -32,6 +32,9 @@ option(ENABLE_CLIPBOARD         "启用剪贴板功能。默认关闭。"       
 option(ENABLE_REMOTE_EXIT       "启用远程关停服务器命令。默认开启。"  ON)
 option(ENABLE_JSON_IMAGE_PATH   "启用json命令image_path。默认开启。" ON)
 
+# CMake功能相关参数
+option(INSTALL_WITH_TOOLS       "CMake安装时附带工具文件。默认开启。"      ON)
+
 
 # compiler flags
 
@@ -93,6 +96,9 @@ message(STATUS "Features:")
 message(STATUS "    ENABLE_CLIPBOARD: ${ENABLE_CLIPBOARD}")
 message(STATUS "    ENABLE_REMOTE_EXIT: ${ENABLE_REMOTE_EXIT}")
 message(STATUS "    ENABLE_JSON_IMAGE_PATH: ${ENABLE_JSON_IMAGE_PATH}")
+# 输出CMake功能设置
+message(STATUS "CMake Features:")
+message(STATUS "    INSTALL_WITH_TOOLS: ${INSTALL_WITH_TOOLS}")
 
 
 # 加载依赖
@@ -319,20 +325,24 @@ endforeach()
 # CMake TARGET安装路径设置
 # 参考OpenCV：
 # https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT.html
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+# 如果CMake安装路径为默认
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     # 本地编译
-    if(NOT CMAKE_TOOLCHAIN_FILE)
-        if(WIN32)
+    if (NOT CMAKE_TOOLCHAIN_FILE)
+        if (WIN32)
             set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "安装路径" FORCE)
-        else()
-            set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "安装路径" FORCE)
-        endif()
+        else ()
+            set(CMAKE_INSTALL_PREFIX "/usr/" CACHE PATH "安装路径" FORCE)
+        endif ()
     
     # 其他跨平台编译
-    else()
+    else ()
         set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "安装路径" FORCE)
-    endif()
-endif()
+    endif ()
+endif ()
+
+# 设施安装文件的运行环境路径
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 # 安装TARGET
 install(
@@ -361,18 +371,21 @@ else ()
         PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}*"
         PATTERN "${DEMO_NAME}*" EXCLUDE
     )
-    # 安装启动脚本和安装脚本
-    install(
-        FILES
-            "${CMAKE_CURRENT_SOURCE_DIR}/tools/linux_dist_tools/run.sh"
-            "${CMAKE_CURRENT_SOURCE_DIR}/tools/linux_dist_tools/install_env.sh"
-        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        DESTINATION "."
-    )
-    # 安装README.txt
-    install(
-        FILES
-            "${CMAKE_CURRENT_SOURCE_DIR}/tools/linux_dist_tools/README.txt"
-        DESTINATION "."
-    )
+    if (INSTALL_WITH_TOOLS)
+        # 安装启动脚本和安装脚本
+        install(
+            FILES
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/linux_dist_tools/run.sh"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/linux_dist_tools/install_env.sh"
+            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+            DESTINATION "."
+        )
+        # 安装README.txt
+        install(
+            FILES
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/linux_dist_tools/README.txt"
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ
+            DESTINATION "."
+        )
+    endif ()
 endif ()
