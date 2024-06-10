@@ -174,9 +174,25 @@ if (WITH_GPU)
     endif(NOT WIN32)
 endif()
 
+# 加载gflags
+
+# 将gflags编译成静态库
+set(GFLAGS_BUILD_STATIC_LIBS ON)
+
+# 隐藏帮助信息里的路径名，并且只保留最后的文件名
+set(GFLAGS_HIDE_PATH_IN_HELP "Basename")
+
+# 设置gflags的C++ namespace为 google
+set(GFLAGS_NAMESPACE "google")
+
+# 添加gflags cmake项目
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/third_party/gflags")
+include_directories(${gflags_BINARY_DIR}/include)
+
+
+# 加载paddle_inference里面的其他第三方库
 include_directories("${PADDLE_LIB}/third_party/install/protobuf/include")
 include_directories("${PADDLE_LIB}/third_party/install/glog/include")
-include_directories("${PADDLE_LIB}/third_party/install/gflags/include")
 include_directories("${PADDLE_LIB}/third_party/install/xxhash/include")
 include_directories("${PADDLE_LIB}/third_party/install/zlib/include")
 include_directories("${PADDLE_LIB}/third_party/install/onnxruntime/include")
@@ -197,7 +213,6 @@ link_directories("${PADDLE_LIB}/third_party/install/zlib/lib")
 
 link_directories("${PADDLE_LIB}/third_party/install/protobuf/lib")
 link_directories("${PADDLE_LIB}/third_party/install/glog/lib")
-link_directories("${PADDLE_LIB}/third_party/install/gflags/lib")
 link_directories("${PADDLE_LIB}/third_party/install/xxhash/lib")
 link_directories("${PADDLE_LIB}/third_party/install/onnxruntime/lib")
 link_directories("${PADDLE_LIB}/third_party/install/paddle2onnx/lib")
@@ -260,10 +275,10 @@ if (NOT WIN32)
     if (EXISTS "${PADDLE_LIB}/third_party/install/snappy/lib")
         set(DEPS ${DEPS} snappy)
     endif()
-else()
+else() # WIN32
     set(DEPS ${DEPS}
         ${MATH_LIB} ${MKLDNN_LIB}
-        glog gflags_static libprotobuf xxhash)
+        glog gflags libprotobuf xxhash)
     set(DEPS ${DEPS} libcmt shlwapi)
     if (EXISTS "${PADDLE_LIB}/third_party/install/snappy/lib")
         set(DEPS ${DEPS} snappy)
@@ -341,7 +356,7 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     endif ()
 endif ()
 
-# 设施安装文件的运行环境路径
+# 设置安装文件的运行环境路径
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 # 安装TARGET

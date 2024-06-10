@@ -145,7 +145,7 @@ cmake -S . -B build/ \
 * `-DPADDLE_LIB=$PADDLE_LIB` 命令会使用刚才设置的环境变量 `$PADDLE_LIB` 去指定预测库的位置
 * 最后，`-DCMAKE_BUILD_TYPE=Release` 命令会将这个工程设置为 `Release` 工程。你也可以把它改成 `Debug`。
 
-1. 使用 CMake 编译项目
+3. 使用 CMake 编译项目
 
 ```sh
 cmake --build build/
