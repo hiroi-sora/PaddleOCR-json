@@ -21,7 +21,10 @@ project(example)
 
 # hide pathname in help message
 # set(GFLAGS_HIDE_PATH_IN_HELP "All") # Hide entire pathname
- set(GFLAGS_HIDE_PATH_IN_HELP "Basename") # Hide only the basename of pathname
+set(GFLAGS_HIDE_PATH_IN_HELP "Basename") # Hide only the basename of pathname
+
+# Use shortest possible double precision in help message
+set(GFLAGS_USE_SHORTEST_DOUBLE_PRECISION ON)
 
 # set C++ namespace for gflags. (default "gflags")
 # you can use GFLAGS_NAMESLACE::function() in your code.

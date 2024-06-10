@@ -54,6 +54,7 @@
 ## - GFLAGS_ATTRIBUTE_UNUSED
 ## - GFLAGS_INTTYPES_FORMAT
 ## - GFLAGS_HIDE_PATH_IN_HELP
+## - GFLAGS_USE_SHORTEST_DOUBLE_PRECISION
 ##
 ## Variables to configure the build:
 ## - GFLAGS_SOVERSION
@@ -315,6 +316,10 @@ elseif (NOT "${GFLAGS_HIDE_PATH_IN_HELP}" STREQUAL "") # Invalid input
   message (FATAL_ERROR "Cannot parse input GFLAGS_HIDE_PATH_IN_HELP: ${GFLAGS_HIDE_PATH_IN_HELP}."
                        " Please choose between: \"All\" for hiding the entire file path."
                        " Or \"Basename\" for hiding file path basename only.")
+endif ()
+gflags_define (BOOL USE_SHORTEST_DOUBLE_PRECISION "Use the shortest possible double precision in help message." ON ON)
+if (${GFLAGS_USE_SHORTEST_DOUBLE_PRECISION}) # Enable compiler flag
+  add_definitions (-DGFLAGS_USE_SHORTEST_DOUBLE_PRECISION)
 endif ()
 
 if (MSVC)

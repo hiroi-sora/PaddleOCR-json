@@ -190,6 +190,9 @@ set(GFLAGS_BUILD_STATIC_LIBS ON)
 # 隐藏帮助信息里的路径名，并且只保留最后的文件名
 set(GFLAGS_HIDE_PATH_IN_HELP "Basename")
 
+# 使用尽可能短的浮点数精度
+set(GFLAGS_USE_SHORTEST_DOUBLE_PRECISION ON)
+
 # 设置gflags的C++ namespace为 google
 set(GFLAGS_NAMESPACE "google")
 

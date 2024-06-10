@@ -385,7 +385,11 @@ string FlagValue::ToString() const {
       snprintf(intbuf, sizeof(intbuf), "%" PRIu64, VALUE_AS(uint64));
       return intbuf;
     case FV_DOUBLE:
+#ifdef GFLAGS_USE_SHORTEST_DOUBLE_PRECISION
+      snprintf(intbuf, sizeof(intbuf), "%g", VALUE_AS(double));
+#else
       snprintf(intbuf, sizeof(intbuf), "%.17g", VALUE_AS(double));
+#endif
       return intbuf;
     case FV_STRING:
       return VALUE_AS(string);
