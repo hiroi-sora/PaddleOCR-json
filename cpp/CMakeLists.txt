@@ -350,6 +350,7 @@ endforeach()
 
 # CMake TARGET安装路径设置
 # 参考OpenCV：
+# https://github.com/opencv/opencv/blob/a03b81316782ae30038b288fd3568993fa1e3538/CMakeLists.txt#L141-L152
 # https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT.html
 # 如果CMake安装路径为默认
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
