@@ -98,7 +98,9 @@ void structure(std::vector<cv::String> &cv_all_img_names)
 int main(int argc, char **argv)
 {
     std::cout << PROJECT_NAME << std::endl; // 版本提示
-    // 读取命令行
+    // 设置gflags并读取命令行
+    google::SetUsageMessage("PaddleOCR-json [FLAG1=ARG1] [FLAG2=ARG2]");
+    google::SetVersionString(PROJECT_VER);
     google::ParseCommandLineFlags(&argc, &argv, true);
     // 读取配置文件
     std::string configMsg = read_config();
