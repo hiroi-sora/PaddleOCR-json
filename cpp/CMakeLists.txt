@@ -131,7 +131,6 @@ elseif(NOT "$ENV{OpenCV_DIR}" STREQUAL "")
     find_package(OpenCV PATHS $ENV{OpenCV_DIR} NO_DEFAULT_PATH)
 # 没有提供OpenCV路径，尝试让CMake自己寻找
 else()
-    message("last opencv")
     find_package(OpenCV REQUIRED)
 endif()
 include_directories(${OpenCV_INCLUDE_DIRS})
