@@ -1,11 +1,5 @@
 #! /bin/bash -e
 
-# 如果没有配置参数
-if [ $# -eq 0 ]; then
-    echo "用法：./tools/linux_run.sh [配置参数]"
-    exit 0
-fi
-
 # 获取当前脚本路径
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
