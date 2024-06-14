@@ -8,7 +8,7 @@ ARG ENABLE_REMOTE_EXIT="ON" \
 SHELL ["/bin/bash", "-c"]
 
 # 检查AVX指令集，如果不支持就退出
-RUN if [[ -z $(lscpu | grep Flags | grep avx) ]] ; \
+RUN if [[ -z $(lscpu | grep avx) ]] ; \
     then echo "Current CPU doesn't support AVX." ; \
     exit -1 ; \
     fi
