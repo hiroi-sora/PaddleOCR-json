@@ -193,7 +193,7 @@ CMake会将 `build` 文件夹下的可执行文件和运行库给安装到 `buil
 
 ## 使用 Docker 部署
 
-你可以使用将本项目部署到Docker容器里，然后通过套接字来连接使用。
+你可以将本项目部署到Docker容器里，然后通过套接字来连接使用。
 
 部署步骤：
 
@@ -207,8 +207,8 @@ docker build -t paddleocr-json .
 
 > [!TIP]
 > 你可以使用docker `--build-arg` 参数来开/关镜像的一些功能。
-> * `ENABLE_REMOTE_EXIT`: 控制是否启用远程关停服务器命令，[详情](#cmake构建参数)。默认开启。
-> * `ENABLE_JSON_IMAGE_PATH`: 控制是否启用json命令image_path，[详情](#cmake构建参数)。默认关闭。
+> * `ENABLE_REMOTE_EXIT`: 控制是否启用远程关停服务器命令，[详情如下](#cmake构建参数)。默认开启。
+> * `ENABLE_JSON_IMAGE_PATH`: 控制是否启用json命令image_path，[详情如下](#cmake构建参数)。默认关闭。
 > 
 > 比如下面这条修改过的命令。它会禁用远程关停服务器与image_path json命令，这样一来这个镜像就变成了一个纯服务器镜像。用户无法轻易的关停服务器或令服务器读取容器内的文件。
 > ```sh
