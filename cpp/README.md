@@ -247,10 +247,12 @@ docker run -d \
    paddleocr-json
 ```
 
-* 这里我们使用参数 `--name` 来命名Docker容器。
+* 这里我们使用参数 `-d` 来以后台模式运行容器。
+* 使用参数 `--name` 来命名Docker容器。
 * 使用参数 `-p` 来暴露容器端口 `3746` 到本地端口 `3746`。容器在运行时会默认将套接字服务器开在容器端口 `3746` 上。
+* 最后使用我们刚刚构建的镜像 `paddleocr-json` 来创建容器。
 
 > [!TIP]
-> * 你可以输入各种PaddleOCR-json参数来修改服务器。更多配置参数请参考[简单试用](../README.md#简单试用)和[常用配置参数说明](../README.md#常用配置参数说明)
+> * 你可以在这条docker命令的末尾加上各种PaddleOCR-json参数来修改服务器。更多配置参数请参考[简单试用](../README.md#简单试用)和[常用配置参数说明](../README.md#常用配置参数说明)
 > * 并且，PaddleOCR-json已经被安装到了容器系统里，你可以在容器里直接用 `PaddleOCR-json` 来运行它。当然，你需要模型库。
 > * 容器自带一套[模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/models%2Fv1.3)，存放在 `/app/models` 路径下。如果你希望使用自己的模型库，你可以[使用Docker挂载一个数据卷到容器里](https://yeasy.gitbook.io/docker_practice/data_management/volume#qi-dong-yi-ge-gua-zai-shu-ju-juan-de-rong-qi)，然后使用参数 `-models_path` 来指定新的模型库路径。

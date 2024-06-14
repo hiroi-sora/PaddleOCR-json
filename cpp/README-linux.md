@@ -233,7 +233,7 @@ ls ./build/bin/PaddleOCR-json
 > [!NOTE]
 > 这是因为系统没法在环境变量 `LD_LIBRARY_PATH` 里列出的路径下找到上面这个共享库 `libiomp5.so`。
 
-3. 这里我们直接更新另一个环境变量 `LD_LIBRARY_PATH` 来解决。
+3. 这里我们直接更新环境变量 `LD_LIBRARY_PATH` 来解决。
 
 ```sh
 # 所有的预测库共享库都已经被自动复制到 "build/bin" 文件夹下了，这里我们把它存到一个变量里。
