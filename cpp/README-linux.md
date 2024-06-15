@@ -8,7 +8,7 @@
 
 相关文档：
 - [Windows 构建指南](./README.md)
-- [Docker 部署](./README-docker.md#使用-docker-部署)
+- [Docker 部署](./README-docker.md)
 - 其他平台 [移植指南](docs/移植指南.md)
 
 ## 1. 前期准备

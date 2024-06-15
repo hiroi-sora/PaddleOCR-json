@@ -20,7 +20,7 @@
 
 # PaddleOCR-json
 
-> 系统支持： `Win7 x64`、`Linux x64`
+> 支持： **Win7 x64**、**Linux x64**、[Docker](cpp/README-docker.md)
 
 这是一个基于 [PaddleOCR v2.6 C++](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) 的离线图片OCR文字识别程序，可快速让你的程序拥有OCR能力。它可以作为一个子进程被上层程序调用，也可以作为一个单独的进程通过TCP调用。本项目提供了Python等语言的API，你可以无视技术细节，通过两行代码使用它。
 
@@ -344,10 +344,8 @@ ocr = GetOcrApi(enginePath, argument)
 
 - [Windows 平台](cpp/README.md)
 - [Linux 平台](cpp/README-linux.md)
-
-### [移植指南](cpp/docs/移植指南.md)
-
-👆当你需要移植项目到不同平台时欢迎参考。
+- [Docker 部署](cpp/README-docker.md)
+- [移植指南](cpp/docs/移植指南.md) （需要移植项目到不同平台时可供参考）
 
 ### 感谢
 
