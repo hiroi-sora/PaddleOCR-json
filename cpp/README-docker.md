@@ -131,4 +131,4 @@ docker run -d --name mycontainer
 
 ## 通过API调用OCR
 
-我们提供了 Python、Java 等语言的API，详见 [README-通过API调用](./README.md/#通过API调用) 。您可以通过这些API的 **套接字模式** 来调用Docker中的OCR服务，向API接口传入容器的IP和暴露端口即可。
+我们提供了 Python、Java 等语言的API，详见 [README-通过API调用](../README.md/#通过API调用) 。您可以通过这些API的 **套接字模式** 来调用Docker中的OCR服务，向API接口传入容器的IP和暴露端口即可。
