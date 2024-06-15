@@ -8,7 +8,7 @@
 
 相关文档：
 - [Windows 构建指南](./README.md)
-- [Docker 部署](./README.md#使用-docker-部署)
+- [Docker 部署](./README-docker.md#使用-docker-部署)
 - 其他平台 [移植指南](docs/移植指南.md)
 
 ## 1. 前期准备
@@ -187,12 +187,12 @@ cmake --build build/
 | 参数名                   | 描述                               |
 | ------------------------ | ---------------------------------- |
 | `ENABLE_CLIPBOARD`       | 启用剪贴板功能。默认关闭。         |
-| `ENABLE_REMOTE_EXIT`     | 启用远程关停服务器命令。默认开启。 |
+| `ENABLE_REMOTE_EXIT`     | 启用远程关停引擎进程命令。默认开启。 |
 | `ENABLE_JSON_IMAGE_PATH` | 启用json命令image_path。默认开启。 |
 
 > [!NOTE]
 > * `ENABLE_CLIPBOARD`: Linux下没有剪贴板功能，启用了也无法使用。
-> * `ENABLE_REMOTE_EXIT`: 这个参数控制着 “传入 `exit` 关停服务器” 的功能。
+> * `ENABLE_REMOTE_EXIT`: 这个参数控制着 “[传入 `exit` 关停引擎进程](../docs/详细使用指南.md#4-关闭引擎进程)” 的功能。
 > * `ENABLE_JSON_IMAGE_PATH`: 这个参数控制着 “使用`{"image_path":""}`指定路径” 的功能。
 
 以下是一些CMake功能相关参数。

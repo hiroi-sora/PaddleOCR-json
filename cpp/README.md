@@ -6,7 +6,7 @@
 
 相关文档：
 - [Linux 构建指南](./README-linux.md)
-- [Docker 部署](#使用-docker-部署)
+- [Docker 部署](./README-docker.md#使用-docker-部署)
 - 其他平台 [移植指南](docs/移植指南.md)
 
 
@@ -111,11 +111,11 @@ PADDLE_LIB:
 | 参数名                   | 描述                               |
 | ------------------------ | ---------------------------------- |
 | `ENABLE_CLIPBOARD`       | 启用剪贴板功能。默认关闭。         |
-| `ENABLE_REMOTE_EXIT`     | 启用远程关停服务器命令。默认开启。 |
+| `ENABLE_REMOTE_EXIT`     | 启用远程关停引擎进程命令。默认开启。 |
 | `ENABLE_JSON_IMAGE_PATH` | 启用json命令image_path。默认开启。 |
 
 > [!NOTE]
-> * `ENABLE_REMOTE_EXIT`: 这个参数控制着 “传入 `exit` 关停服务器” 的功能。
+> * `ENABLE_REMOTE_EXIT`: 这个参数控制着 “[传入 `exit` 关停引擎进程](../docs/详细使用指南.md#4-关闭引擎进程)” 的功能。
 > * `ENABLE_JSON_IMAGE_PATH`: 这个参数控制着 “使用`{"image_path":""}`指定路径” 的功能。
 
 #### 关于剪贴板读取
@@ -189,70 +189,3 @@ cmake --install build
 CMake会将 `build` 文件夹下的可执行文件和运行库给安装到 `build/install/bin` 文件夹下。CMake无法在Windows下把软件安装到系统文件夹中，不过你可以将文件夹 `cpp/build/install/bin` 添加到Windows的 `PATH` 环境变量中。参考[这篇文档](https://cloud.baidu.com/article/3297806)。
 
 如果你希望安装到指定位置，你可以为上面这条命令加上参数 `--prefix /安装路径/` 来指定一个安装路径。比如 `--prefix build/install` 会将所有的文件都安装到 `build/install` 文件夹下。
-
-
-## 使用 Docker 部署
-
-你可以将本项目部署到Docker容器里，然后通过套接字来连接使用。
-
-部署步骤：
-
-1. [安装Docker](https://yeasy.gitbook.io/docker_practice/install)
-2. clone 本仓库，**然后在 `cpp` 文件夹下打开一个终端（或PowerShell）**。
-3. 接着使用Docker来构建镜像
-
-```sh
-docker build -t paddleocr-json .
-```
-
-> [!TIP]
-> 你可以使用docker `--build-arg` 参数来开/关镜像的一些功能。
-> * `ENABLE_REMOTE_EXIT`: 控制是否启用远程关停服务器命令，[详情如下](#cmake构建参数)。默认开启。
-> * `ENABLE_JSON_IMAGE_PATH`: 控制是否启用json命令image_path，[详情如下](#cmake构建参数)。默认关闭。
-> 
-> 比如下面这条修改过的命令。它会禁用远程关停服务器与image_path json命令，这样一来这个镜像就变成了一个纯服务器镜像。用户无法轻易的关停服务器或令服务器读取容器内的文件。
-> ```sh
-> docker build -t paddleocr-json \
->     --build-arg "ENABLE_REMOTE_EXIT=OFF" \
->     --build-arg "ENABLE_JSON_IMAGE_PATH=OFF" .
-> ```
-> * 最后那个 `.` 必须放在整段命令的末尾，它指定了当前文件夹为docker镜像构建的基础文件夹。
-> [了解更多关于 `--build-arg` 的信息](https://yeasy.gitbook.io/docker_practice/image/dockerfile/arg)
-
-> [!NOTE]
-> 可能出现的错误：
-> * 如果在镜像构建的过程中出现了类似下面这样的错误。这大概率是网络问题，建议更换docker镜像源或者更换dns。
->
-> ```
-> Ign:516 http://deb.debian.org/debian stable/main amd64 va-driver-all amd64 2.17.0-1
-> Ign:517 http://deb.debian.org/debian stable/main amd64 vdpau-driver-all amd64 1.5-2
-> Ign:518 http://deb.debian.org/debian stable/main amd64 xauth amd64 1:1.1.2-1
-> Ign:519 http://deb.debian.org/debian stable/main amd64 xdg-user-dirs amd64 0.18-1
-> Ign:520 http://deb.debian.org/debian stable/main amd64 zip amd64 3.0-13
-> Err:402 http://deb.debian.org/debian stable/main amd64 libmunge2 amd64 0.5.15-2
-> Could not connect to deb.debian.org:80 (146.75.94.132), connection timed out [IP: 146.75.94.132 80]
-> Err:403 http://deb.debian.org/debian stable/main amd64 libtbbmalloc2 amd64 2021.8.0-2
-> Unable to connect to deb.debian.org:80: [IP: 146.75.94.132 80]
-> Err:404 http://deb.debian.org/debian stable/main amd64 libtbbbind-2-5 amd64 2021.8.0-2
-> Unable to connect to deb.debian.org:80: [IP: 146.75.94.132 80]
-> Err:405 http://deb.debian.org/debian stable/main amd64 libtbb12 amd64 2021.8.0-2
-> ```
-
-4. 接着就可以部署了
-
-```sh
-docker run -d \
-   --name paddleocr-json \
-   -p 3746:3746 \
-   paddleocr-json
-```
-
-* 这里我们使用参数 `-d` 来以后台模式运行容器。
-* 使用参数 `--name` 来命名Docker容器。
-* 使用参数 `-p` 来暴露容器端口 `3746` 到本地端口 `3746`。容器在运行时会默认将套接字服务器开在容器端口 `3746` 上。
-* 最后使用我们刚刚构建的镜像 `paddleocr-json` 来创建容器。
-
-> [!TIP]
-> * 你可以在这条docker命令的末尾加上各种PaddleOCR-json参数来修改服务器。更多配置参数请参考[简单试用](../README.md#简单试用)和[常用配置参数说明](../README.md#常用配置参数说明)
-> * 并且，PaddleOCR-json已经被安装到了容器系统里，你可以在容器里直接用 `PaddleOCR-json` 来运行它。当然，你需要模型库。
-> * 容器自带一套[模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/models%2Fv1.3)，存放在 `/app/models` 路径下。如果你希望使用自己的模型库，你可以[使用Docker挂载一个数据卷到容器里](https://yeasy.gitbook.io/docker_practice/data_management/volume#qi-dong-yi-ge-gua-zai-shu-ju-juan-de-rong-qi)，然后使用参数 `-models_path` 来指定新的模型库路径。
