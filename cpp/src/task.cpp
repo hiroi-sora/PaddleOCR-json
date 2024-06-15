@@ -145,15 +145,12 @@ namespace PaddleOCR
             return cv::Mat();
         }
         for (auto& el : j.items()) { // 遍历键值 
-            if (el.key() == "exit") { // 退出指令 
 #ifdef ENABLE_REMOTE_EXIT
+            if (el.key() == "exit") { // 退出指令 
                 is_exit = true;
                 return cv::Mat();
-#else
-                set_state(CODE_ERR_JSON_PARSE_KEY, MSG_ERR_JSON_PARSE_KEY(el.key())); // 报告状态：解析键失败 
-                return cv::Mat();
-#endif
             }
+#endif
             try {
                 std::string value = to_string(el.value());
                 int vallen = value.length();
@@ -162,21 +159,18 @@ namespace PaddleOCR
                 }
                 // 提取图片 
                 if (!is_image_found) {
-                    if (el.key() == "image_path") { // 图片路径
-#ifdef ENABLE_JSON_IMAGE_PATH
-                        FLAGS_image_path = value;
-                        img = imread_u8(value); // 读取图片 
-                        is_image_found = true;
-#else
-                        set_state(CODE_ERR_JSON_PARSE_KEY, MSG_ERR_JSON_PARSE_KEY(el.key())); // 报告状态：解析键失败 
-                        return cv::Mat();
-#endif
-                    }
-                    else if (el.key() == "image_base64") { // base64字符串 
+                    if (el.key() == "image_base64") { // base64字符串 
                         FLAGS_image_path = "base64"; // 设置图片路径标记，以便于无文字时的信息输出 
                         img = imread_base64(value); // 读取图片 
                         is_image_found = true;
                     }
+#ifdef ENABLE_JSON_IMAGE_PATH
+                    else if (el.key() == "image_path") { // 图片路径
+                        FLAGS_image_path = value;
+                        img = imread_u8(value); // 读取图片 
+                        is_image_found = true;
+                    }
+#endif
                 }
                 //else {} // TODO: 其它参数热更新
             }
