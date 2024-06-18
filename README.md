@@ -51,7 +51,7 @@
 下载可执行文件包：
 
 - Windows： [Release](https://github.com/hiroi-sora/PaddleOCR-json/releases/latest)
-- Linux： [Gavin1937/Release](https://github.com/Gavin1937/PaddleOCR-json/releases/tag/v1.4.0)
+- Linux： [Gavin1937/Release](https://github.com/Gavin1937/PaddleOCR-json/releases/tag/v1.4.0-alpha.2)
 
 ### 简单试用
 
