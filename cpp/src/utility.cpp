@@ -236,7 +236,7 @@ namespace PaddleOCR
         return array_index;
     }
 
-    // trim系列函数，删除前面、后面、两头的：空格、\n、\r
+    // trim系列函数，删除前面、后面、两头的：空格、\n、\r、\t
     inline void Utility::ltrim(std::string &str)
     {
         std::size_t found = str.find_first_not_of(" \n\r\t");
@@ -245,7 +245,7 @@ namespace PaddleOCR
             str = "";
             return;
         }
-        str = std::string(str.begin()+found, str.end());
+        str.assign(str.begin()+found, str.end());
     }
     inline void Utility::rtrim(std::string &str)
     {
@@ -255,7 +255,7 @@ namespace PaddleOCR
             str = "";
             return;
         }
-        str = std::string(str.begin(), str.begin()+found+1);
+        str.assign(str.begin(), str.begin()+found+1);
     }
     inline void Utility::trim(std::string &str)
     {
@@ -271,7 +271,7 @@ namespace PaddleOCR
             str = "";
             return;
         }
-        str = std::string(str.begin()+left, str.begin()+right+1);
+        str.assign(str.begin()+left, str.begin()+right+1);
     }
     inline std::string Utility::ltrim_copy(std::string str)
     {
