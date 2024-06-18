@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.14)
+project(PaddleOCR-json CXX C)
+
 # 消除CMake Policy CMP0048警告
 # 让CMake以新的模式来处理policy CMP0048
 # https://cmake.org/cmake/help/latest/policy/CMP0048.html
@@ -5,9 +8,6 @@ if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif ()
 
-
-project(PaddleOCR-json CXX C)
-cmake_minimum_required(VERSION 3.14)
 
 set(DEMO_NAME "PaddleOCR-json") 
 
