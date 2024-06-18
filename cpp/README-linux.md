@@ -286,7 +286,6 @@ LD_LIBRARY_PATH=$LIBS ./build/bin/PaddleOCR-json \
 ./tools/linux_run.sh [配置参数]
 ```
 
-* **请注意：所有的相对路径都将以 .source 文件夹为基准**
 * [常用配置参数](../README.md#常用配置参数说明)
 
 ## 5. 安装
@@ -305,4 +304,4 @@ CMake会将 `build` 文件夹下的可执行文件和运行库给安装到系统
 > 在Linux下安装时，CMake会额外安装一些工具脚本和文档以方便用户直接使用（[就是 `linux_dist_tools/` 文件夹下的东西](./tools/linux_dist_tools/)）。这个功能可以帮助开发者更方便的打包软件。但是，如果你希望将PaddleOCR-json安装到系统文件夹里，你则不需要这些工具文件。你可以通过关闭CMake参数 `INSTALL_WITH_TOOLS` 来禁用这些工具文件的安装。
 
 > [!TIP]
-> CMake在安装PaddleOCR-json时，会将所有在 `build/bin` 文件夹下的共享依赖库给复制到安装目录的 `lib` 文件夹下。但是，Linux的很多共享库是被拆分在系统文件夹里的（比如 `/usr/lib/` ）。CMake无法自动找到这些共享依赖库。如果你需要将PaddleOCR-json打包成一个无依赖的软件，你需要手动将所有在系统文件夹里的共享依赖库给复制到 `build/bin` 文件夹下。这样一来CMake就可以在安装时将完整的依赖共享库一起打包了。
+> CMake在安装PaddleOCR-json时，会将所有在 `build/bin` 文件夹下的共享依赖库给复制到安装目录的 `lib` 文件夹下。但是，Linux的很多共享库是被拆分在系统文件夹里的（比如 `/usr/lib/` ）。CMake无法自动找到这些共享依赖库。如果你需要将PaddleOCR-json打包成一个无依赖的软件，你需要手动将所需的共享依赖库从系统文件夹里找出并复制到 `build/bin` 文件夹下。这样一来CMake就可以在安装时将完整的共享依赖库一起打包了。
