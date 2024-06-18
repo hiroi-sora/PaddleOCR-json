@@ -122,7 +122,7 @@ docker build -t myimage .
 ```
 
 ```sh
-docker run -d --name mycontainer
+docker run -d --name mycontainer myimage
 ```
 
 更多例子请看：
