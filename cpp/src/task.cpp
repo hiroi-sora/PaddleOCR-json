@@ -372,11 +372,11 @@ namespace PaddleOCR
     {
         const std::lock_guard<std::mutex> lock(mutex);
         auto now = std::chrono::high_resolution_clock::now();
-        auto time_intval = std::chrono::duration_cast<std::chrono::seconds>(now - last_active_time);
+        auto time_interval = std::chrono::duration_cast<std::chrono::seconds>(now - last_active_time);
         
         if (FLAGS_auto_memory_cleanup > 0 // 启用自动内存清理
             && !is_active // 并且当前没有OCR工作
-            && time_intval.count() > FLAGS_auto_memory_cleanup // 并且现在距离上次OCR结束的时间间隔大于参数的值
+            && time_interval.count() > FLAGS_auto_memory_cleanup // 并且现在距离上次OCR结束的时间间隔大于参数的值
         )
         {
             // 清理内存
@@ -387,12 +387,12 @@ namespace PaddleOCR
         }
     }
     
-    void Task::cleanup_thread_loop(int check_intval)
+    void Task::cleanup_thread_loop(int check_interval)
     {
         // 如果启用自动内存清理
         while (FLAGS_auto_memory_cleanup > 0)
         {
-            std::this_thread::sleep_for(std::chrono::seconds(check_intval));
+            std::this_thread::sleep_for(std::chrono::seconds(check_interval));
             cleanup_ppocr_if_needed();
         }
     }
@@ -404,8 +404,8 @@ namespace PaddleOCR
         {
             // 使用内存清理时间参数来计算清理检查的间隔时间
             // 使用参数的 1/10 来减少不必要的检查
-            int check_intval = static_cast<int>(FLAGS_auto_memory_cleanup * 0.1);
-            cleanup_thread = std::thread(&Task::cleanup_thread_loop, this, check_intval);
+            int check_interval = static_cast<int>(FLAGS_auto_memory_cleanup * 0.1);
+            cleanup_thread = std::thread(&Task::cleanup_thread_loop, this, check_interval);
         }
     }
     

@@ -90,7 +90,7 @@ namespace PaddleOCR
         std::string t_msg;      // 本轮任务状态消息 
         // 上一次结束OCR的时间
         std::chrono::high_resolution_clock::time_point last_active_time;
-        bool is_active = false; // 是否正在进行OCR
+        bool is_active = false;     // 是否正在进行OCR
         std::mutex mutex;           // 互斥锁
         std::thread cleanup_thread; // 内存清理线程
 
