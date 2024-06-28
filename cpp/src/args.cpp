@@ -21,7 +21,7 @@
 // 工作模式
 DEFINE_string(image_path, "", "Set image_path to run a single task."); // 若填写了图片路径，则执行一次OCR。
 DEFINE_int32(port, -1, "Set to 0 enable random port, set to 1~65535 enables specified port.");      // 填写0随机端口号，填1^65535指定端口号。默认则启用匿名管道模式。
-DEFINE_string(addr, "loopback", "Socket server addr, the value can be 'loopback', 'any', or other IPv4 address."); // 套接字服务器的地址模式，本地环回/任何可用。 
+DEFINE_string(addr, "loopback", "Socket server addr, the value can be 'loopback', 'localhost', 'any', or other IPv4 address."); // 套接字服务器的地址模式，本地环回/任何可用。 
 
 // common args 常用参数
 DEFINE_bool(use_gpu, false, "Infering with GPU or CPU.");                                              // true时启用GPU（需要推理库支持）
