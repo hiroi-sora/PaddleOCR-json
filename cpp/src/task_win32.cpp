@@ -294,6 +294,9 @@ namespace PaddleOCR
         //int server_port = ntohs(addr.sin_port);
         std::cout << "Socket init completed. " << server_ip << ":" << server_port << std::endl;
 
+        // 启动内存清理线程
+        cleanup_thread_start();
+        
         // 循环等待接收连接
         while (true) {
             // 接受连接请求
@@ -357,6 +360,9 @@ namespace PaddleOCR
 
         // 清理Winsock库资源
         WSACleanup();
+
+        // 结束内存清理线程
+        cleanup_thread_join();
 
         return 0;
     }

@@ -117,7 +117,7 @@ int main(int argc, char **argv)
     }
 
     // 启动任务
-    Task task = Task();
+    Task task;
     if (FLAGS_type == "ocr")
     { // OCR图片模式
         return task.ocr();
