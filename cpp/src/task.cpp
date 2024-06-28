@@ -240,6 +240,7 @@ namespace PaddleOCR
         // 初始化引擎
         ppocr = new PPOCR(); // 创建引擎对象
         int flag;
+        last_active_time = std::chrono::high_resolution_clock::now();
         
 #if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
         std::cout << "OCR clipboard enbaled." << std::endl;
