@@ -132,3 +132,9 @@ docker run -d --name mycontainer myimage
 ## 通过API调用OCR
 
 我们提供了 Python、Java 等语言的API，详见 [README-通过API调用](../README.md/#通过API调用) 。您可以通过这些API的 **套接字模式** 来调用Docker中的OCR服务，向API接口传入容器的IP和暴露端口即可。
+
+## 其他问题
+
+### [关于内存泄漏 / 长期高内存占用](./README.md#关于内存泄漏--长期高内存占用)
+
+如果你打算使用文档中提到的方法2，由于docker镜像在构建时就会自动构建编译整个项目，所以您只需要重新clone一遍本仓库并重新构建一遍docker镜像就行了。
