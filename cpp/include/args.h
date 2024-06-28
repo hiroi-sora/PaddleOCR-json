@@ -20,6 +20,7 @@
 DECLARE_string(image_path);
 DECLARE_int32(port);
 DECLARE_string(addr);
+DECLARE_int32(auto_memory_cleanup);
 
 // common args
 DECLARE_bool(use_gpu);

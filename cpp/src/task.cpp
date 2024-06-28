@@ -371,20 +371,25 @@ namespace PaddleOCR
     {
         const std::lock_guard<std::mutex> lock(mutex);
         auto now = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - last_active_time);
+        auto time_intval = std::chrono::duration_cast<std::chrono::seconds>(now - last_active_time);
         
-        // not active & > 30 min
-        if (!is_active && duration.count() > 1800)
+        if (FLAGS_auto_memory_cleanup > 0 // 启用自动内存清理
+            && !is_active // 并且当前没有OCR工作
+            && time_intval.count() > FLAGS_auto_memory_cleanup // 并且现在距离上次OCR结束的时间间隔大于参数的值
+        )
         {
+            // 清理内存
             delete ppocr; // 清理引擎对象
             ppocr = new PPOCR(); // 重新创建引擎对象
+            // 更新时间
             last_active_time = std::chrono::high_resolution_clock::now();
         }
     }
     
     void Task::cleanup_thread_loop(int check_intval)
     {
-        while (true)
+        // 如果启用自动内存清理
+        while (FLAGS_auto_memory_cleanup > 0)
         {
             std::this_thread::sleep_for(std::chrono::seconds(check_intval));
             cleanup_ppocr_if_needed();
@@ -393,14 +398,25 @@ namespace PaddleOCR
     
     void Task::cleanup_thread_start()
     {
-        cleanup_thread = std::thread(&Task::cleanup_thread_loop, this, 600);
+        // 如果启用自动内存清理
+        if (FLAGS_auto_memory_cleanup > 0)
+        {
+            // 使用内存清理时间参数来计算清理检查的间隔时间
+            // 使用参数的 1/10 来减少不必要的检查
+            int check_intval = static_cast<int>(FLAGS_auto_memory_cleanup * 0.1);
+            cleanup_thread = std::thread(&Task::cleanup_thread_loop, this, check_intval);
+        }
     }
     
     void Task::cleanup_thread_join()
     {
-        while (!cleanup_thread.joinable())
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        cleanup_thread.join();
+        // 如果启用自动内存清理
+        if (FLAGS_auto_memory_cleanup > 0)
+        {
+            while (!cleanup_thread.joinable())
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+            cleanup_thread.join();
+        }
     }
     
 

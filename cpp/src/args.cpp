@@ -22,6 +22,8 @@
 DEFINE_string(image_path, "", "Set image_path to run a single task."); // 若填写了图片路径，则执行一次OCR。
 DEFINE_int32(port, -1, "Set to 0 enable random port, set to 1~65535 enables specified port.");      // 填写0随机端口号，填1^65535指定端口号。默认则启用匿名管道模式。
 DEFINE_string(addr, "loopback", "Socket server addr, the value can be 'loopback', 'localhost', 'any', or other IPv4 address."); // 套接字服务器的地址模式，本地环回/任何可用。 
+// 设置无OCR工作时自动清理内存来减少占用。值 <= 0 时禁用功能。 值 > 0 时将值作为时间（秒），每当无OCR工作一段时间后就清理一次内存。默认值 1800 秒（30分钟）。
+DEFINE_int32(auto_memory_cleanup, 1800, "Set automatically cleanup memory usage when there is no ocr jobs. Value <= 0 to disable. Value > 0 means value as seconds, run a cleanup after no ocr job for specified time. Default 1800 seconds (30 minutes).");
 
 // common args 常用参数
 DEFINE_bool(use_gpu, false, "Infering with GPU or CPU.");                                              // true时启用GPU（需要推理库支持）
