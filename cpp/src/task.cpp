@@ -301,7 +301,7 @@ namespace PaddleOCR
     int Task::addr_to_uint32(const std::string& addr, uint32_t& addr_out)
     {
         // 处理特殊情况
-        if (addr == "loopback")
+        if (addr == "loopback" || addr == "localhost")
         {
             addr_out = htonl(INADDR_LOOPBACK);
             return 0;
