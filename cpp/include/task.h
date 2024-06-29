@@ -4,6 +4,10 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include <chrono>
+#include <thread>
+#include <mutex>
+
 #include "include/nlohmann/json.hpp" // json库
 
 namespace PaddleOCR
@@ -65,13 +69,30 @@ namespace PaddleOCR
     {
 
     public:
+        // 使用默认constructor
+        Task() = default;
+        // 自定义destructor，会自动释放指针和线程
+        ~Task();
+        // 禁用复制和赋值
+        // class Task底下有PPOCR指针，还是多线程的class，不应该被复制。
+        // 可以直接用 `Task task;` 来创建对象。
+        Task(Task&) = delete;
+        Task(Task&&) = delete;
+        Task& operator=(Task&) = delete;
+        Task& operator=(Task&&) = delete;
+        
         int ocr(); // OCR图片
 
     private:
-        bool is_exit = false; // 为true时退出任务循环 
-        PPOCR *ppocr;      // OCR引擎指针 
-        int t_code;        // 本轮任务状态码 
-        std::string t_msg; // 本轮任务状态消息 
+        bool is_exit = false;   // 为true时退出任务循环 
+        PPOCR *ppocr = nullptr; // OCR引擎指针 
+        int t_code;             // 本轮任务状态码 
+        std::string t_msg;      // 本轮任务状态消息 
+        // 上一次结束OCR的时间
+        std::chrono::high_resolution_clock::time_point last_active_time;
+        bool is_active = false;     // 是否正在进行OCR
+        std::mutex mutex;           // 互斥锁
+        std::thread cleanup_thread; // 内存清理线程
 
     private:
         // 任务流程
@@ -99,6 +120,12 @@ namespace PaddleOCR
         
         // ipv4 地址转 uint32_t
         int addr_to_uint32(const std::string& addr, uint32_t& addr_out);
+        
+        // 内存清理相关
+        void cleanup_ppocr_if_needed();
+        void cleanup_thread_loop(int check_intval);
+        void cleanup_thread_start();
+        void cleanup_thread_join();
     };
 
 } // namespace PaddleOCR

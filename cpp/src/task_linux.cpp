@@ -134,6 +134,8 @@ namespace PaddleOCR
         char* serverIp = inet_ntoa(socketAddr.sin_addr);
         std::cout << "Socket init completed. " << serverIp << ":" << serverPort << std::endl;
         
+        // 启动内存清理线程
+        cleanup_thread_start();
         
         // 循环等待接收连接
         while (true)
@@ -208,6 +210,9 @@ namespace PaddleOCR
         
         // 关闭套接字
         close(socketFd);
+        
+        // 结束内存清理线程
+        cleanup_thread_join();
         
         return 0;
     }

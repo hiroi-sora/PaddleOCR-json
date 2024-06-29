@@ -196,8 +196,21 @@ namespace PaddleOCR
         if (img.empty()) { // 读图失败 
             return get_state_json();
         }
-        // 执行OCR 
-        std::vector<OCRPredictResult> res_ocr = ppocr->ocr(img, FLAGS_det, FLAGS_rec, FLAGS_cls);
+        // 执行OCR
+        std::vector<OCRPredictResult> res_ocr;
+        { 
+            const std::lock_guard<std::mutex> lock(mutex);
+            
+            // 更新OCR状态：正在运行
+            is_active = true;
+            
+            // OCR
+            res_ocr = ppocr->ocr(img, FLAGS_det, FLAGS_rec, FLAGS_cls);
+            
+            // 更新OCR状态和时间：已完成OCR
+            is_active = false;
+            last_active_time = std::chrono::high_resolution_clock::now();
+        }
         // 获取结果 
         std::string res_json = get_ocr_result_json(res_ocr);
         // 结果1：识别成功，无文字（rec未检出）
@@ -210,12 +223,24 @@ namespace PaddleOCR
         }
     }
 
+    Task::~Task()
+    {
+        if (ppocr)
+        {
+            delete ppocr;
+            ppocr = nullptr;
+        }
+        
+        cleanup_thread_join();
+    }
+    
     // 入口
     int Task::ocr()
     {
         // 初始化引擎
         ppocr = new PPOCR(); // 创建引擎对象
         int flag;
+        last_active_time = std::chrono::high_resolution_clock::now();
         
 #if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
         std::cout << "OCR clipboard enbaled." << std::endl;
@@ -260,7 +285,8 @@ namespace PaddleOCR
             std::cout << get_state_json() << std::endl;
             return 0;
         }
-        // 执行OCR 
+        // 执行OCR
+        // 这里只会运行一次OCR，就不用做内存清理了。
         std::vector<OCRPredictResult> res_ocr = ppocr->ocr(img, FLAGS_det, FLAGS_rec, FLAGS_cls);
         // 获取结果 
         std::string res_json = get_ocr_result_json(res_ocr);
@@ -277,6 +303,7 @@ namespace PaddleOCR
     
     // 匿名管道模式 
     int Task::anonymous_pipe_mode() {
+        cleanup_thread_start(); // 启动内存清理线程
         while (1) {
             set_state(); // 初始化状态 
             // 读取一行输入 
@@ -284,11 +311,13 @@ namespace PaddleOCR
             getline(std::cin, str_in);
             // 获取ocr结果并输出 
             std::string str_out = run_ocr(str_in);
-            if (is_exit) { // 退出 
+            if (is_exit) { // 退出
+                cleanup_thread_join();
                 return 0;
             }
             std::cout << str_out << std::endl;
         }
+        cleanup_thread_join(); // 结束内存清理线程
         return 0;
     }
     
@@ -337,6 +366,61 @@ namespace PaddleOCR
         addr_out = htonl(output);
         return 0;
     }
+    
+    // 内存清理相关
+    void Task::cleanup_ppocr_if_needed()
+    {
+        const std::lock_guard<std::mutex> lock(mutex);
+        auto now = std::chrono::high_resolution_clock::now();
+        auto time_interval = std::chrono::duration_cast<std::chrono::seconds>(now - last_active_time);
+        
+        if (FLAGS_auto_memory_cleanup > 0 // 启用自动内存清理
+            && !is_active // 并且当前没有OCR工作
+            && time_interval.count() > FLAGS_auto_memory_cleanup // 并且现在距离上次OCR结束的时间间隔大于参数的值
+        )
+        {
+            // 清理内存
+            delete ppocr; // 清理引擎对象
+            ppocr = new PPOCR(); // 重新创建引擎对象
+            // 更新时间
+            last_active_time = std::chrono::high_resolution_clock::now();
+        }
+    }
+    
+    void Task::cleanup_thread_loop(int check_interval)
+    {
+        // 如果启用自动内存清理
+        while (FLAGS_auto_memory_cleanup > 0)
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(check_interval));
+            cleanup_ppocr_if_needed();
+        }
+    }
+    
+    void Task::cleanup_thread_start()
+    {
+        // 如果启用自动内存清理
+        if (FLAGS_auto_memory_cleanup > 0)
+        {
+            // 使用内存清理时间参数来计算清理检查的间隔时间
+            // 使用参数的 1/10 来减少不必要的检查
+            int check_interval = static_cast<int>(FLAGS_auto_memory_cleanup * 0.1);
+            cleanup_thread = std::thread(&Task::cleanup_thread_loop, this, check_interval);
+        }
+    }
+    
+    void Task::cleanup_thread_join()
+    {
+        // 如果启用自动内存清理
+        if (FLAGS_auto_memory_cleanup > 0)
+        {
+            while (!cleanup_thread.joinable())
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+            cleanup_thread.join();
+        }
+    }
+    
+
 }
 
 // ./PaddleOCR-json.exe -config_path="models/zh_CN.txt" -image_path="D:/Test/t2.png" -ensure_ascii=0
