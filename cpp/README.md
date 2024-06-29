@@ -189,3 +189,25 @@ cmake --install build
 CMake会将 `build` 文件夹下的可执行文件和运行库给安装到 `build/install/bin` 文件夹下。CMake无法在Windows下把软件安装到系统文件夹中，不过你可以将文件夹 `cpp/build/install/bin` 添加到Windows的 `PATH` 环境变量中。参考[这篇文档](https://cloud.baidu.com/article/3297806)。
 
 如果你希望安装到指定位置，你可以为上面这条命令加上参数 `--prefix /安装路径/` 来指定一个安装路径。比如 `--prefix build/install` 会将所有的文件都安装到 `build/install` 文件夹下。
+
+## 5. 其他问题
+
+### 关于内存泄漏 / 长期高内存占用
+
+由于本项目是基于 [PaddleOCR v2.6 C++](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) 写的，它的内存占用非常激进。但是占用率不会无限制的上升，达到一定值后会放缓直至停止。官方在 PaddleOCR v2.7+ 之后修复了这个问题，不过本项目在短期内还无法跟进新版本。
+
+当前，可以绕过内存问题的方法有：
+
+1. 外部重启引擎，用另一个程序 / 脚本来监听引擎的输出，然后在引擎不工作时重启引擎进程（Umi-OCR就是这么做的）。
+2. 从引擎内部来清理内存。在分支 `autoclean` 里面是一个修改过的引擎。新增了一个参数 `-auto_memory_cleanup`，它会开启一条线程来检查引擎状态，然后在其闲置时释放内存。
+
+> [!CAUTION]
+> **但是，这个方法无法清理干净内存里所有的资源，PaddleOCR底层的某些库所调用的资源会一直占用着一小块内存。到最后引擎闲置时的内存占用大约为600MB。这些没有正常释放资源的操作有可能会引发一些问题。**
+
+更多细节请看这些Issue：[#43](https://github.com/hiroi-sora/PaddleOCR-json/issues/43)、[#90](https://github.com/hiroi-sora/PaddleOCR-json/issues/90)、[#135](https://github.com/hiroi-sora/PaddleOCR-json/issues/135)
+
+如果你打算使用上面提到的方法2，你可以重新clone本仓库的 `autoclean` 分支，然后再自行构建编译整个项目。
+
+```sh
+git clone --single-branch --branch autoclean https://github.com/hiroi-sora/PaddleOCR-json.git
+```
