@@ -109,6 +109,12 @@ PaddleOCR-json
     └─ src
 ```
 
+回到 `cpp` 目录下
+
+```sh
+cd ..
+```
+
 5. 最后一步，为了方便之后的使用，设置两个环境变量。
 
 ```sh
@@ -123,7 +129,6 @@ echo $PADDLE_LIB
 echo $MODELS
 ```
 
-
 ## 2. 构建 & 编译项目
 
 1. 在 `PaddleOCR-json/cpp` 下，新建一个文件夹 `build`
@@ -132,7 +137,7 @@ echo $MODELS
 mkdir build
 ```
 
-2. 使用 CMake 构建项目
+2. 使用 CMake 构建项目。参数含义见 [CMake构建参数](#cmake-args)
 
 ```sh
 cmake -S . -B build/ \
@@ -151,7 +156,9 @@ cmake -S . -B build/ \
 cmake --build build/
 ```
 
-* 这里我们使用 `--build build/` 命令来指定要编译的工程文件夹 `build`。
+- 这里我们使用 `--build build/` 命令来指定要编译的工程文件夹 `build`。
+
+<a id="cmake-args"></a>
 
 #### CMake构建参数
 
@@ -177,18 +184,18 @@ cmake --build build/
 | `OPENCV_DIR`   | 库的路径                     |
 | `CUDA_LIB`     | 库的路径                     |
 | `CUDNN_LIB`    | 库的路径                     |
-| `TENSORRT_DIR` | 使用TensorRT编译并设置其路径  |
+| `TENSORRT_DIR` | 使用TensorRT编译并设置其路径 |
 
 > [!NOTE]
 > * `OPENCV_DIR`: Linux下，如果已经安装到系统之中就不用指定了。
 
 以下是一些PaddleOCR-json功能相关参数。
 
-| 参数名                   | 描述                               |
-| ------------------------ | ---------------------------------- |
-| `ENABLE_CLIPBOARD`       | 启用剪贴板功能。默认关闭。         |
+| 参数名                   | 描述                                 |
+| ------------------------ | ------------------------------------ |
+| `ENABLE_CLIPBOARD`       | 启用剪贴板功能。默认关闭。           |
 | `ENABLE_REMOTE_EXIT`     | 启用远程关停引擎进程命令。默认开启。 |
-| `ENABLE_JSON_IMAGE_PATH` | 启用json命令image_path。默认开启。 |
+| `ENABLE_JSON_IMAGE_PATH` | 启用json命令image_path。默认开启。   |
 
 > [!NOTE]
 > * `ENABLE_CLIPBOARD`: Linux下没有剪贴板功能，启用了也无法使用。
@@ -197,9 +204,9 @@ cmake --build build/
 
 以下是一些CMake功能相关参数。
 
-| 参数名                   | 描述                               |
-| ------------------------ | --------------------------------- |
-| `INSTALL_WITH_TOOLS`     | CMake安装时附带工具文件。默认开启。  |
+| 参数名               | 描述                                |
+| -------------------- | ----------------------------------- |
+| `INSTALL_WITH_TOOLS` | CMake安装时附带工具文件。默认开启。 |
 
 #### 关于剪贴板读取
 

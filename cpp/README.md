@@ -54,7 +54,7 @@ PaddleOCR-json
 ## 2. 构建项目
 
 1. cmake安装完后系统里会有一个cmake-gui程序，打开cmake-gui。在第一个输入框处填写源代码路径，第二个输入框处填写编译输出路径，见下面的模板。  
-然后，点击左下角第一个按钮Configure，第一次点它会弹出提示框进行Visual Studio配置，选择你的Visual Studio版本即可，目标平台选择x64。然后点击finish按钮即开始自动执行配置。
+然后，点击左下角第一个按钮Configure，第一次点它会弹出提示框进行Visual Studio配置，选择你的Visual Studio版本（2019、2022均可），目标平台选择x64。然后点击finish按钮即开始自动执行配置。
 
 Where is the source code: `……/PaddleOCR-json/cpp`
 
@@ -108,11 +108,11 @@ PADDLE_LIB:
 
 以下是一些PaddleOCR-json功能相关参数。
 
-| 参数名                   | 描述                               |
-| ------------------------ | ---------------------------------- |
-| `ENABLE_CLIPBOARD`       | 启用剪贴板功能。默认关闭。         |
+| 参数名                   | 描述                                 |
+| ------------------------ | ------------------------------------ |
+| `ENABLE_CLIPBOARD`       | 启用剪贴板功能。默认关闭。           |
 | `ENABLE_REMOTE_EXIT`     | 启用远程关停引擎进程命令。默认开启。 |
-| `ENABLE_JSON_IMAGE_PATH` | 启用json命令image_path。默认开启。 |
+| `ENABLE_JSON_IMAGE_PATH` | 启用json命令image_path。默认开启。   |
 
 > [!NOTE]
 > * `ENABLE_REMOTE_EXIT`: 这个参数控制着 “[传入 `exit` 关停引擎进程](../docs/详细使用指南.md#4-关闭引擎进程)” 的功能。
@@ -140,7 +140,7 @@ PADDLE_LIB:
 
 ![](docs/imgs/b9.png)
 
-3. 按F5编译。如果输出`生成：成功2个，失败0个……`，弹窗`无法启动程序：……系统找不到指定的文件` 是正常的。但你应该能在 `build/bin/Release` 下找到生成的 `PaddleOCR-json.exe` 。请跳到第6步。
+3. 按F5编译。如果输出类似 `生成：成功4个，失败0个……` 的语句，能在 `build/bin/Release` 下找到生成的 `PaddleOCR-json.exe` ，那么编译正常。如果弹窗 `无法启动程序：……系统找不到指定的文件/拒绝访问` 是正常的。
 
 4. 如果编译时，报了大量的语法错误，如：
    ```
@@ -151,9 +151,9 @@ PADDLE_LIB:
    ```
    那么可能是源代码文件的换行符编码问题。解决方法一：通过`git clone`下载本仓库代码，而不要直接在Github下载zip文件包。解决方法二：批量将所有`.h`和`.cpp`文件的 [换行符转换为CRLF](https://www.bing.com/search?q=%E6%89%B9%E9%87%8F%E8%BD%AC%E6%8D%A2+LF+%E5%92%8C+CRLF) 。
 
-5. 拷贝必要的运行库。在 `.source` 中的 `paddle_inference_cpu_avx_mkl` 及 `opencv` 目录中。`paddle_inference_cpu_avx_mkl` 里面的运行库会在项目构建时自带被拷贝到 `build/bin/Release` 文件夹下。你需要拷贝 `opencv` 的运行库到 `build/bin/Release` 文件夹下。
+5. 拷贝必要的运行库。将以下文件拷贝到 `build/bin/Release` 文件夹下。
 
-- `opencv/build/x64/vc16/bin/opencv_world***.dll`
+- `PaddleOCR-json/cpp/.source/opencv/build/x64/vc16/bin/opencv_world***.dll`
 
 > 当然，你也可以直接将 `opencv` 的运行库放到Windows的 `PATH` 环境变量中。参考[这篇文档](https://cloud.baidu.com/article/3297806)，把路径 `opencv/build/x64/vc16/bin/` 加入 `PATH`。这样就不需要拷贝 `opencv` 运行库了。
 
