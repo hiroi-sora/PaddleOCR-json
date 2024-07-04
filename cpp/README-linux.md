@@ -109,12 +109,6 @@ PaddleOCR-json
     └─ src
 ```
 
-回到 `cpp` 目录下
-
-```sh
-cd ..
-```
-
 5. 最后一步，为了方便之后的使用，设置两个环境变量。
 
 ```sh
@@ -127,6 +121,12 @@ export MODELS="$(pwd)/models"
 ```sh
 echo $PADDLE_LIB
 echo $MODELS
+```
+
+回到 `cpp` 目录下
+
+```sh
+cd ..
 ```
 
 ## 2. 构建 & 编译项目
