@@ -121,9 +121,9 @@ ls -d opencv*/  # 检查解压后得到的目录名
 
 ```sh
 mkdir -p opencv-lib
-cp "./opencv-release/lib64/libopencv_core.so.4.10.0" "./opencv-lib/libopencv_core.so.410"
-cp "./opencv-release/lib64/libopencv_imgcodecs.so.4.10.0" "./opencv-lib/libopencv_imgcodecs.so.410"
-cp "./opencv-release/lib64/libopencv_imgproc.so.4.10.0" "./opencv-lib/libopencv_imgproc.so.410"
+cp "./opencv-release/lib/libopencv_core.so.4.10.0" "./opencv-lib/libopencv_core.so.410"
+cp "./opencv-release/lib/libopencv_imgcodecs.so.4.10.0" "./opencv-lib/libopencv_imgcodecs.so.410"
+cp "./opencv-release/lib/libopencv_imgproc.so.4.10.0" "./opencv-lib/libopencv_imgproc.so.410"
 ```
 
 在 PaddleOCR-json 本体编译完成之后，将上述三个文件放到 PaddleOCR-json 库目录中，就能打包到其他设备上使用。（直接放置这三个文件，无需带 `opencv-lib` 的目录。）
@@ -172,6 +172,8 @@ cd ..
 ```
 
 ## 2. 构建 & 编译项目
+
+0. 如果无需自定义项目，可跳转到 [4.一键编译+运行](#compile-run)
 
 1. 在 `PaddleOCR-json/cpp` 下，新建一个文件夹 `build`
 
@@ -314,6 +316,7 @@ LD_LIBRARY_PATH=$LIBS ./build/bin/PaddleOCR-json \
 > [!TIP]
 > 更多配置参数请参考[简单试用](../README.md#简单试用)和[常用配置参数说明](../README.md#常用配置参数说明)
 
+<a id="compile-run"></a>
 
 ## 4. 一键编译 + 运行
 
