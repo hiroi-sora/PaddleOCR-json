@@ -161,7 +161,7 @@ ocr.flush({ image_path: 'path/to/test/img' })
 
 ### 语言库与切换识别语言：
 
-`v1.3`版本的Release压缩包中，默认附带了 `简中,繁中,英,日,韩,俄,德,法` 的语言库与配置文件，在 `models` 目录下。
+`v1.3`之后版本的Release压缩包中，默认附带了 `简中,繁中,英,日,韩,俄,德,法` 的语言库与配置文件，在 `models` 目录下。
 
 `models` 目录中，每一个 `config_xxx.txt` 是一组语言配置文件（如英文是`congfig_en.txt`）。只需将这个文件的路径传入 `config_path` 参数，即可切换为对应的语言。以 Python API 为例：
 
@@ -363,6 +363,10 @@ ocr = GetOcrApi(enginePath, argument)
 ## 更新日志
 
 版本号链接可前往对应备份分支。
+
+#### v1.4.0 beta `2024.7.5` 
+- 兼容 Linux 。
+- 调整：默认禁用剪贴板识图功能，需自行编译开启。
 
 #### v1.3.1 `2023.10.10` 
 - 兼容 Win7 x64 。
