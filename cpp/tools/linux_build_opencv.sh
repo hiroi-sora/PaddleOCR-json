@@ -20,12 +20,13 @@ cd ${build_dir}
 cmake ../ \
     -DCMAKE_INSTALL_PREFIX=${release_dir} \
     -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_LIST=core,imgcodecs,imgproc \
     -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_opencv_world=OFF \
     -DWITH_IPP=OFF \
     -DBUILD_IPP_IW=OFF \
     -DWITH_LAPACK=OFF \
     -DWITH_EIGEN=OFF \
-    -DCMAKE_INSTALL_LIBDIR=lib64 \
     -DWITH_ZLIB=ON \
     -DBUILD_ZLIB=ON \
     -DWITH_JPEG=ON \
@@ -34,8 +35,6 @@ cmake ../ \
     -DBUILD_PNG=ON \
     -DWITH_TIFF=ON \
     -DBUILD_TIFF=ON
-
-    # -DBUILD_LIST=core,imgcodecs,imgproc \ # 加了后似乎有问题？
 
 make -j
 make install
