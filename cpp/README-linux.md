@@ -1,6 +1,6 @@
-# PaddleOCR-json V1.3 Linux 构建指南
+# PaddleOCR-json V1.4 Linux 构建指南
 
-本文档帮助如何在Linux上编译 PaddleOCR-json V1.3 （对应PaddleOCR v2.6）。推荐给具有一定Linux命令行使用经验的读者。
+本文档帮助如何在Linux上编译 PaddleOCR-json V1.4 （对应PaddleOCR v2.6）。推荐给具有一定Linux命令行使用经验的读者。
 
 本文参考了 PaddleOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/readme_ch.md) ，但建议以本文为准。
 
@@ -94,13 +94,19 @@ unzip -x models.zip
 sudo apt install libopencv-dev
 ```
 
-[可选] 如果需要构建 PaddleOCR-json 后转移到其他设备上使用，建议自行编译 OpenCV ，以便生成数量更少的依赖项。
+[可选] 如果需要构建 PaddleOCR-json 后转移到其他设备上使用，可以自行编译 OpenCV 包，以便生成数量更少的依赖项。
 
-在 `cpp/.source` 目录中，下载OpenCV源码 ，解压得到 `opencv-4.10.0` ：
+可参考 [OpenCV 官方文档](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html) ，或下列步骤：
+
+<details>
+<summary>展开</summary>
+
+以下步骤和脚本的目标，是得到可供 PaddleOCR-json 使用的、体积最小的 OpenCV 包。步骤不一定兼容所有系统，仅供参考。
+
+在 `cpp/.source` 目录中，下载 OpenCV release v4.10.0 源码 ，解压得到 `opencv-4.10.0` ：
 
 ```sh
-# wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.10.0.zip
-wget -O opencv.zip https://github.com/opencv/opencv/archive/4.x.zip
+wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.10.0.zip
 unzip opencv.zip
 ls -d opencv*/  # 检查解压后得到的目录名
 ```
@@ -120,6 +126,10 @@ cp "./opencv-release/lib64/libopencv_imgcodecs.so.4.10.0" "./opencv-lib/libopenc
 cp "./opencv-release/lib64/libopencv_imgproc.so.4.10.0" "./opencv-lib/libopencv_imgproc.so.410"
 ```
 
+在 PaddleOCR-json 本体编译完成之后，将上述三个文件放到 PaddleOCR-json 库目录中，就能打包到其他设备上使用。（直接放置这三个文件，无需带 `opencv-lib` 的目录。）
+
+</details>
+
 ### 1.4 检查
 
 完成后应该是这样：
@@ -128,10 +138,7 @@ PaddleOCR-json
 └─ cpp
     ├─ .source
     │    ├─ models
-    │    ├─ paddle_inference_manylinux_cpu_avx_mkl_gcc8.2
-    │    ├─ opencv-release  # OpenCV 编译生成
-    │    ├─ opencv-lib      # OpenCV 库文件
-    │    └─ …………
+    │    └─ paddle_inference_manylinux_cpu_avx_mkl_gcc8.2
     ├─ CMakeLists.txt
     ├─ README.md
     ├─ docs
@@ -146,7 +153,7 @@ PaddleOCR-json
 export PADDLE_LIB="$(pwd)/$(ls -d *paddle_inference*/ | head -n1)"
 export MODELS="$(pwd)/models"
 
-# 可选：自编译 OpenCV 路径。如果安装 libopencv-dev 则无需进行
+# 可选：自编译 OpenCV 路径。如果安装 libopencv-dev 则无需进行。
 export OPENCV_DIR="$(pwd)/opencv-release"
 ```
 
