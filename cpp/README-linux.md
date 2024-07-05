@@ -1,6 +1,6 @@
-# PaddleOCR-json V1.3 Linux 构建指南
+# PaddleOCR-json V1.4 Linux 构建指南
 
-本文档帮助如何在Linux上编译 PaddleOCR-json V1.3 （对应PaddleOCR v2.6）。推荐给具有一定Linux命令行使用经验的读者。
+本文档帮助如何在Linux上编译 PaddleOCR-json V1.4 （对应PaddleOCR v2.6）。推荐给具有一定Linux命令行使用经验的读者。
 
 本文参考了 PaddleOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/readme_ch.md) ，但建议以本文为准。
 
@@ -10,6 +10,11 @@
 - [Windows 构建指南](./README.md)
 - [Docker 部署](./README-docker.md)
 - 其他平台 [移植指南](docs/移植指南.md)
+
+可参考的文档：
+- [PaddleOCR 官方文档](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/readme_ch.md#12-%E7%BC%96%E8%AF%91opencv%E5%BA%93)
+- [OpenCV 官方文档](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html)
+
 
 ## 1. 前期准备
 
@@ -36,63 +41,96 @@ Flags:                              fpu vme de pse tsc msr pae mce cx8 apic sep 
 >
 > 当然，你也可以更换一个不需要AVX指令集的预测库来编译PaddleOCR-json（比如 `manylinux_cpu_noavx_openblas_gcc8.2` ）。不过大概率运行不了。
 
-### 1.1 需要安装的工具：
+### 1.1 安装所需工具
+
+```sh
+sudo apt install wget tar zip unzip git gcc g++ cmake make libgomp1
+```
 
 - wget（下载预测库用）
 - tar、zip、unzip（解压软件）
 - git
 - gcc 和 g++
 - cmake 和 make
-- libopencv-dev（OpenCV开发工具，PaddleOCR官方推荐至少是3.4.7版本）
+- libgomp1（OpenMP共享库，PaddleOCR底层依赖）
 
-安装以上工具
+### 1.2 下载所需资源
 
-```sh
-sudo apt install wget tar zip unzip git gcc g++ cmake make libopencv-dev
-```
-
-> [!TIP]
-> 如果你需要自行编译OpenCV，可以参考[OpenCV官方文档](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html)
-
-### 1.2 需要下载的资源：
-
-- [paddle_inference](https://paddleinference.paddlepaddle.org.cn/user_guides/download_lib.html#linux) (Linux, 2.3.2, C++预测库, gcc编译器版本, manylinux_cpu_avx_mkl_gcc8.2)
-- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/models%2Fv1.3) (models.zip)
-
-### 1.3 放置资源
-
-1. clone 本仓库。
+PaddleOCR-json 源码：
 
 ```sh
 git clone https://github.com/hiroi-sora/PaddleOCR-json.git
 cd PaddleOCR-json
 ```
 
-2. 在 `PaddleOCR-json/cpp` 下新建一个文件夹 `.source` 来存放外部资源（前面加点是为了按文件名排列更顺眼）。如果 `.source` 文件夹已经存在则不需要创建。
+> [可选] 如果需要自动内存清理功能，拉取并切换到 `autoclean` 分支：  
+> ```sh
+> git fetch origin autoclean
+> git checkout -b autoclean origin/autoclean
+> ```
+
+下载资源库：
 ```sh
+# 存放目录
 mkdir -p cpp/.source
 cd cpp/.source
-```
-
-3. 下载paddle_inference并解压到 `.source` 文件夹下。
-
-```sh
+# 推理库
 wget https://paddle-inference-lib.bj.bcebos.com/2.3.2/cxx_c/Linux/CPU/gcc8.2_avx_mkl/paddle_inference.tgz
 tar -xf paddle_inference.tgz
-```
-
-* [可选] 这一步之后可以根据预测库的版本来重命名一下 `paddle_inference` 文件夹。这里我们用的是 `manylinux_cpu_avx_mkl_gcc8.2` 的版本。
-
-```sh
 mv paddle_inference paddle_inference_manylinux_cpu_avx_mkl_gcc8.2
-```
-
-4. 下载模型库并解压到 `.source` 文件夹下。
-
-```sh
+# 模型库
 wget https://github.com/hiroi-sora/PaddleOCR-json/releases/download/models%2Fv1.3/models.zip
 unzip -x models.zip
 ```
+
+- [paddle_inference](https://paddleinference.paddlepaddle.org.cn/user_guides/download_lib.html#linux) (Linux, 2.3.2, C++预测库, gcc编译器版本, manylinux_cpu_avx_mkl_gcc8.2)
+- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/models%2Fv1.3) (models.zip)
+
+### 1.3 准备 OpenCV
+
+如果只是在本地使用 PaddleOCR-json ，则可直接安装OpenCV开发工具到本地：
+
+```sh
+sudo apt install libopencv-dev
+```
+
+[可选] 如果需要构建 PaddleOCR-json 后转移到其他设备上使用，可以自行编译 OpenCV 包，以便生成数量更少的依赖项。
+
+可参考 [OpenCV 官方文档](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html) ，或下列步骤：
+
+<details>
+<summary>展开</summary>
+
+以下步骤和脚本的目标，是得到可供 PaddleOCR-json 使用的、体积最小的 OpenCV 包。步骤不一定兼容所有系统，仅供参考。
+
+在 `cpp/.source` 目录中，下载 OpenCV release v4.10.0 源码 ，解压得到 `opencv-4.10.0` ：
+
+```sh
+wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.10.0.zip
+unzip opencv.zip
+ls -d opencv*/  # 检查解压后得到的目录名
+```
+
+一键编译，传入OpenCV源码解压后的目录名：
+
+```sh
+../tools/linux_build_opencv.sh opencv-4.10.0
+```
+
+如果编译成功，则将三个关键库文件复制出来，并修改一下后缀（`4.10.0`→`410`）：
+
+```sh
+mkdir -p opencv-lib
+cp "./opencv-release/lib/libopencv_core.so.4.10.0" "./opencv-lib/libopencv_core.so.410"
+cp "./opencv-release/lib/libopencv_imgcodecs.so.4.10.0" "./opencv-lib/libopencv_imgcodecs.so.410"
+cp "./opencv-release/lib/libopencv_imgproc.so.4.10.0" "./opencv-lib/libopencv_imgproc.so.410"
+```
+
+在 PaddleOCR-json 本体编译完成之后，将上述三个文件放到 PaddleOCR-json 库目录中，就能打包到其他设备上使用。（直接放置这三个文件，无需带 `opencv-lib` 的目录。）
+
+</details>
+
+### 1.4 检查
 
 完成后应该是这样：
 ```
@@ -109,11 +147,14 @@ PaddleOCR-json
     └─ src
 ```
 
-5. 最后一步，为了方便之后的使用，设置两个环境变量。
+为了方便后续 PaddleOCR-json 本体的编译，将依赖库路径设置为环境变量：
 
 ```sh
 export PADDLE_LIB="$(pwd)/$(ls -d *paddle_inference*/ | head -n1)"
 export MODELS="$(pwd)/models"
+
+# 可选：自编译 OpenCV 路径。如果安装 libopencv-dev 则无需进行。
+export OPENCV_DIR="$(pwd)/opencv-release"
 ```
 
 可以用echo来检查一下
@@ -121,6 +162,7 @@ export MODELS="$(pwd)/models"
 ```sh
 echo $PADDLE_LIB
 echo $MODELS
+echo $OPENCV_DIR  # 可选
 ```
 
 回到 `cpp` 目录下
@@ -130,6 +172,8 @@ cd ..
 ```
 
 ## 2. 构建 & 编译项目
+
+0. 如果无需自定义项目，可跳转到 [4.一键编译+运行](#compile-run)
 
 1. 在 `PaddleOCR-json/cpp` 下，新建一个文件夹 `build`
 
@@ -142,15 +186,18 @@ mkdir build
 ```sh
 cmake -S . -B build/ \
     -DPADDLE_LIB=$PADDLE_LIB \
-    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_BUILD_TYPE=Release \
+    -DOPENCV_DIR=$OPENCV_DIR  # 可选：自编译OpenCV
 ```
 
-* 这里我们使用 `-S .` 命令来指定当前文件夹 `PaddleOCR-json/cpp` 为CMake项目根文件夹
-* 使用 `-B build/` 命令来指定 `PaddleOCR-json/cpp/build` 文件夹为工程文件夹
-* `-DPADDLE_LIB=$PADDLE_LIB` 命令会使用刚才设置的环境变量 `$PADDLE_LIB` 去指定预测库的位置
-* 最后，`-DCMAKE_BUILD_TYPE=Release` 命令会将这个工程设置为 `Release` 工程。你也可以把它改成 `Debug`。
+说明：
+* `-S .` ：指定当前文件夹 `PaddleOCR-json/cpp` 为CMake项目根文件夹
+* `-B build/` ：指定 `PaddleOCR-json/cpp/build` 文件夹为工程文件夹
+* `-DPADDLE_LIB=$PADDLE_LIB` ：使用刚才设置的环境变量 `$PADDLE_LIB` 去指定预测库的位置
+* `-DCMAKE_BUILD_TYPE=Release` ：将这个工程设置为 `Release` 工程。你也可以把它改成 `Debug`。
+* `-DOPENCV_DIR=$OPENCV_DIR` ：使用刚才设置的环境变量 `$OPENCV_DIR` 去指定自编译OpenCV的位置。如果安装 libopencv-dev ，则无需设置此参数
 
-3. 使用 CMake 编译项目
+1. 使用 CMake 编译项目
 
 ```sh
 cmake --build build/
@@ -269,6 +316,7 @@ LD_LIBRARY_PATH=$LIBS ./build/bin/PaddleOCR-json \
 > [!TIP]
 > 更多配置参数请参考[简单试用](../README.md#简单试用)和[常用配置参数说明](../README.md#常用配置参数说明)
 
+<a id="compile-run"></a>
 
 ## 4. 一键编译 + 运行
 
