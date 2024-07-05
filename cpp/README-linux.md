@@ -44,11 +44,12 @@ Flags:                              fpu vme de pse tsc msr pae mce cx8 apic sep 
 - gcc 和 g++
 - cmake 和 make
 - libopencv-dev（OpenCV开发工具，PaddleOCR官方推荐至少是3.4.7版本）
+- libgomp1（OpenMP共享库，PaddleOCR底层依赖）
 
 安装以上工具
 
 ```sh
-sudo apt install wget tar zip unzip git gcc g++ cmake make libopencv-dev
+sudo apt install wget tar zip unzip git gcc g++ cmake make libopencv-dev libgomp1
 ```
 
 > [!TIP]
