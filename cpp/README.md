@@ -83,7 +83,7 @@ PADDLE_LIB:
 
 点击左下角 **第二个按钮Generate** 即可生成Visual Studio 项目的sln文件。看到输出 `Generating done` 即可。那么，你会看到 `PaddleOCR-json/cpp/build` 下生成了 `PaddleOCR-json.sln` 及一堆文件。
 
-#### CMake构建参数
+#### CMake构建参数说明
 
 像刚才我们勾选/填写的那些CMake选项（`WITH_GPU`、`OPENCV_DIR`、`PADDLE_LIB`这些），它们是CMake的参数。你也可以自行参考并修改这些参数。
 
@@ -136,45 +136,47 @@ PADDLE_LIB:
 
 ![](docs/imgs/b5.png)
 
-2. 调整项目字符集。在解决方案管理器的PaddleOCR-json上，右键→属性→高级→`字符集`改为`使用Unicode字符集`。
+2. 调整项目设置。
 
-![](docs/imgs/b9.png)
+- 解决方案管理器 → **ALL_BUILD** → 右键 → 属性，进行修改：
+  - 常规 → 输出目录：`$(ProjectDir)\bin\Release`
+  - 调试 → 命令：`$(ProjectDir)\bin\Release\PaddleOCR-json.exe`
+  - 调试 → 工作目录：`$(ProjectDir)\bin\Release`
+- 解决方案管理器 → **PaddleOCR-json** → 右键 → 属性，进行修改：
+  - 常规 → 输出目录：`$(ProjectDir)\bin\Release`
 
-3. 按F5编译。如果输出类似 `生成：成功4个，失败0个……` 的语句，能在 `build/bin/Release` 下找到生成的 `PaddleOCR-json.exe` ，那么编译正常。如果弹窗 `无法启动程序：……系统找不到指定的文件/拒绝访问` 是正常的。
+![](docs/imgs/b6.png)
 
-4. 如果编译时，报了大量的语法错误，如：
-   ```
-   C2447 "{"缺少函数标题
-   C2059 语法错误："if"
-   C2143 语法错误：缺少";"
-   …………等等
-   ```
-   那么可能是源代码文件的换行符编码问题。解决方法一：通过`git clone`下载本仓库代码，而不要直接在Github下载zip文件包。解决方法二：批量将所有`.h`和`.cpp`文件的 [换行符转换为CRLF](https://www.bing.com/search?q=%E6%89%B9%E9%87%8F%E8%BD%AC%E6%8D%A2+LF+%E5%92%8C+CRLF) 。
+1. 按F5编译。如果输出类似 `生成：成功4个，失败0个……` 的语句，然后弹出一个控制台窗口，并报错 `找不到 opencv_world***.dll` ，那么**编译正常**。你能在 `build/bin/Release` 下找到生成的 `PaddleOCR-json.exe` 。
 
-5. 拷贝必要的运行库。将以下文件拷贝到 `build/bin/Release` 文件夹下。
+![](docs/imgs/b7.png)
 
-- `PaddleOCR-json/cpp/.source/opencv/build/x64/vc16/bin/opencv_world***.dll`
+> [!TIP]
+> 如果编译时，报了大量的语法错误，如：
+> ```
+> C2447 "{"缺少函数标题
+> C2059 语法错误："if"
+> C2143 语法错误：缺少";"
+> …………等等
+> ```
+> 那么可能是源代码文件的换行符编码问题。  
+> 解决方法一：通过`git clone`下载本仓库代码，而不要直接在Github下载zip文件包。  
+> 解决方法二：批量将所有`.h`和`.cpp`文件的 [换行符转换为CRLF](https://www.bing.com/search?q=%E6%89%B9%E9%87%8F%E8%BD%AC%E6%8D%A2+LF+%E5%92%8C+CRLF) 。
+
+4. 拷贝必要的运行库。将以下文件拷贝到 `build/bin/Release` 文件夹下。
+
+- `opencv_world***.dll`: `PaddleOCR-json/cpp/.source/opencv/build/x64/vc16/bin/opencv_world***.dll`
 
 > 当然，你也可以直接将 `opencv` 的运行库放到Windows的 `PATH` 环境变量中。参考[这篇文档](https://cloud.baidu.com/article/3297806)，把路径 `opencv/build/x64/vc16/bin/` 加入 `PATH`。这样就不需要拷贝 `opencv` 运行库了。
 
-6. 拷贝模型库。将 `.source` 中的 `models` 整个拷贝到 `build/bin/Release` 文件夹下。
+5. 拷贝模型库。将 `.source` 中的 `models` 整个拷贝到 `build/bin/Release` 文件夹下。
 
-7. 在`build/bin/Release`下，Shift+右键，在此处打开终端（或PowerShell），输入 `./PaddleOCR-json.exe` 。如果输出下列文字，就正常。
+6. 在`build/bin/Release`下，Shift+右键，在此处打开终端（或PowerShell），输入 `./PaddleOCR-json.exe` 。如果输出下列文字，就正常。
 
 ```
 OCR anonymous pipe mode.
 OCR init completed.
 ```
-
-8. 回到 Visual Studio 中，再进行一些配置。  
-- 首先在 `ALL BUILD` 上，右键→属性→常规，**输出目录** 原本是 `$(SolutionDir)$(Platform)/$(Configuration)/` ，现在改成exe生成的目录，即为 `$(ProjectDir)/Release` 。  
-- **目标文件名** 改成 `PaddleOCR-json` 。  
-- 修改工作目录：调试→**工作目录**，原来是`$(ProjectDir)` ，将它改为 `$(ProjectDir)/Release`。
-
-![](docs/imgs/b6.png)
-![](docs/imgs/b7.png)
-
-9. 尝试按F5重新编译。如果成功生成，并且有一个命令行窗口一闪而过，那就说明配置正确了。
 
 如果你需要移植其他平台，可以参考文档 [移植指南](docs/移植指南.md)
 
