@@ -147,7 +147,7 @@ PADDLE_LIB:
 
 ![](docs/imgs/b6.png)
 
-1. 按F5编译。如果输出类似 `生成：成功4个，失败0个……` 的语句，然后弹出一个控制台窗口，并报错 `找不到 opencv_world***.dll` ，那么**编译正常**。你能在 `build/bin/Release` 下找到生成的 `PaddleOCR-json.exe` 。
+3. 按F5编译。如果输出类似 `生成：成功4个，失败0个……` 的语句，然后弹出一个控制台窗口，并报错 `找不到 opencv_world***.dll` ，那么**编译正常**。你能在 `build/bin/Release` 下找到生成的 `PaddleOCR-json.exe` 。
 
 ![](docs/imgs/b7.png)
 
