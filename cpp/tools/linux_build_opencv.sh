@@ -44,7 +44,14 @@ cmake ../ \
     -DWITH_WEBP=ON \
     -DWITH_IPP=ON \
     -DWITH_LAPACK=ON \
-    -DWITH_EIGEN=ON
+    -DWITH_EIGEN=ON \
+    -DBUILD_PERF_TESTS=OFF \
+    -DBUILD_TESTS=OFF \
+    -DBUILD_DOCSL=OFF \
+    -DBUILD_JAVA=OFF \
+    -DBUILD_opencv_python2=OFF \
+    -DBUILD_opencv_python3=OFF
+
 
 make -j
 make install
