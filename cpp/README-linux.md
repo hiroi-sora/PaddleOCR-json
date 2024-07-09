@@ -201,7 +201,8 @@ PaddleOCR-json
 export PADDLE_LIB="$(pwd)/$(ls -d *paddle_inference*/ | head -n1)"
 export MODELS="$(pwd)/models"
 
-# 可选：自编译 OpenCV 路径。如果安装 libopencv-dev 则无需进行。
+# 如果使用方式1或3准备 OpenCV ，那么记录 OpenCV 路径。
+# 如果使用方式2安装 libopencv-dev ，则无需进行。
 export OPENCV_DIR="$(pwd)/opencv-release"
 ```
 
@@ -235,7 +236,7 @@ mkdir build
 cmake -S . -B build/ \
     -DPADDLE_LIB=$PADDLE_LIB \
     -DCMAKE_BUILD_TYPE=Release \
-    -DOPENCV_DIR=$OPENCV_DIR  # 可选：自编译OpenCV
+    -DOPENCV_DIR=$OPENCV_DIR  # 可选：OpenCV 路径
 ```
 
 说明：
