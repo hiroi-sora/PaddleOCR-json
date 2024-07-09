@@ -88,22 +88,35 @@ unzip -x models.zip
 
 ### 1.3 准备 OpenCV
 
-如果只是在本地使用 PaddleOCR-json ，则可直接安装OpenCV开发工具到本地：
+#### 方式1：下载预编译的轻量化 OpenCV 包（推荐）
+
+```sh
+wget https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.0-beta.2/opencv-release_debian_x86-64.zip
+unzip -x opencv-release_debian_x86-64.zip
+```
+
+此OpenCV库仅编译了 PaddleOCR-json 所需的少数依赖项，更轻量和简洁。
+
+不过，它仅在 Debian 系的系统上进行过测试。如果发现不兼容您的系统，可改用下列方式准备 OpenCV 。
+
+#### 方式2：安装 libopencv-dev 到系统中
+
+如果只是在本地使用 PaddleOCR-json ，则可直接安装 OpenCV 开发工具到本地。
+
+安装过程简单，但如果后续要将构建好的 PaddleOCR-json 转移到其他设备上使用，则需要手动收集系统路径中的 OpenCV 依赖库。
 
 ```sh
 sudo apt install libopencv-dev
 ```
 
-[可选] 如果需要构建 PaddleOCR-json 后转移到其他设备上使用，可以自行编译 OpenCV 包，以便生成数量更少的依赖项。
+#### 方式3：本地编译 OpenCV
 
 可参考 [OpenCV 官方文档](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html) ，或下列步骤：
 
-<details>
-<summary>展开</summary>
+> [!TIP]
+> 步骤和编译脚本不一定兼容所有系统，仅供参考。
 
-以下步骤和脚本的目标，是得到可供 PaddleOCR-json 使用的、体积最小的 OpenCV 包。步骤不一定兼容所有系统，仅供参考。
-
-在 `cpp/.source` 目录中，下载 OpenCV release v4.10.0 源码 ，解压得到 `opencv-4.10.0` ：
+1. 在 `cpp/.source` 目录中，下载 OpenCV release v4.10.0 源码 ，解压得到 `opencv-4.10.0` ：
 
 ```sh
 wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.10.0.zip
@@ -111,24 +124,59 @@ unzip opencv.zip
 ls -d opencv*/  # 检查解压后得到的目录名
 ```
 
-一键编译，传入OpenCV源码解压后的目录名：
+2. 调用一键编译脚本，传入OpenCV源码解压后的目录名：
 
 ```sh
 ../tools/linux_build_opencv.sh opencv-4.10.0
 ```
 
-如果编译成功，则将三个关键库文件复制出来，并修改一下后缀（`4.10.0`→`410`）：
+3. 如果编译成功，则会在 `.source` 目录中生成 `opencv-lib` 目录。
 
-```sh
-mkdir -p opencv-lib
-cp "./opencv-release/lib/libopencv_core.so.4.10.0" "./opencv-lib/libopencv_core.so.410"
-cp "./opencv-release/lib/libopencv_imgcodecs.so.4.10.0" "./opencv-lib/libopencv_imgcodecs.so.410"
-cp "./opencv-release/lib/libopencv_imgproc.so.4.10.0" "./opencv-lib/libopencv_imgproc.so.410"
-```
+<details>
+<summary>推荐使用的编译参数及说明</summary>
+</br>
 
-在 PaddleOCR-json 本体编译完成之后，将上述三个文件放到 PaddleOCR-json 库目录中，就能打包到其他设备上使用。（直接放置这三个文件，无需带 `opencv-lib` 的目录。）
+如果您不使用一键编译脚本 `tools/linux_build_opencv.sh` ，而是手动编译，推荐使用以下参数：
+
+| 参数                                | 说明                                             |
+| ----------------------------------- | ------------------------------------------------ |
+| -DCMAKE_BUILD_TYPE=Release          |                                                  |
+| -DBUILD_LIST=core,imgcodecs,imgproc | PPOCR仅依赖这三个模块                            |
+| -DBUILD_SHARED_LIBS=ON              |                                                  |
+| -DBUILD_opencv_world=OFF            |                                                  |
+| -DOPENCV_FORCE_3RDPARTY_BUILD=ON    | 强制构建所有第三方库，避免在某些系统中缺失依赖库 |
+| -DWITH_ZLIB=ON                      | 图片格式编解码支持                               |
+| -DWITH_TIFF=ON                      | 图片格式编解码支持                               |
+| -DWITH_OPENJPEG=ON                  | 图片格式编解码支持                               |
+| -DWITH_JASPER=ON                    | 图片格式编解码支持                               |
+| -DWITH_JPEG=ON                      | 图片格式编解码支持                               |
+| -DWITH_PNG=ON                       | 图片格式编解码支持                               |
+| -DWITH_OPENEXR=ON                   | 图片格式编解码支持                               |
+| -DWITH_WEBP=ON                      | 图片格式编解码支持                               |
+| -DWITH_IPP=ON                       | 启用 Intel CPU 加速库                            |
+| -DWITH_LAPACK=ON                    | 启用数学运算加速库                               |
+| -DWITH_EIGEN=ON                     | 启用数学运算加速库                               |
+| -DBUILD_PERF_TESTS=OFF              | 关闭不需要的测试/文档/语言模块                   |
+| -DBUILD_TESTS=OFF                   | 关闭不需要的测试/文档/语言模块                   |
+| -DBUILD_DOCSL=OFF                   | 关闭不需要的测试/文档/语言模块                   |
+| -DBUILD_JAVA=OFF                    | 关闭不需要的测试/文档/语言模块                   |
+| -DBUILD_opencv_python2=OFF          | 关闭不需要的测试/文档/语言模块                   |
+| -DBUILD_opencv_python3=OFF          | 关闭不需要的测试/文档/语言模块                   |
 
 </details>
+
+#### 二进制包的放置
+
+如果使用上述方式1或方式3来准备 OpenCV ，那么在 **编译完 PaddleOCR-json 本体后** ，可以通过下列步骤将 OpenCV 二进制包复制到 PaddleOCR-json 目录中，方便转移到其他设备上使用。
+
+1. 确保当前在 `cpp/.source` 目录中。
+2. 复制三个关键库文件到 `bin` 目录，并修改一下后缀（`4.10.0`→`410`）：
+
+```sh
+cp "./opencv-release/lib/libopencv_core.so.4.10.0" "../build/bin/libopencv_core.so.410"
+cp "./opencv-release/lib/libopencv_imgcodecs.so.4.10.0" "../build/bin/libopencv_imgcodecs.so.410"
+cp "./opencv-release/lib/libopencv_imgproc.so.4.10.0" "../build/bin/libopencv_imgproc.so.410"
+```
 
 ### 1.4 检查
 
@@ -315,6 +363,8 @@ LD_LIBRARY_PATH=$LIBS ./build/bin/PaddleOCR-json \
 
 > [!TIP]
 > 更多配置参数请参考[简单试用](../README.md#简单试用)和[常用配置参数说明](../README.md#常用配置参数说明)
+
+5. 如果要打包、转移到其他设备上运行，还需 [放置OpenCV二进制包](#二进制包的放置) 。
 
 <a id="compile-run"></a>
 
