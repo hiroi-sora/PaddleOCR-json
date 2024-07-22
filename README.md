@@ -367,6 +367,11 @@ ocr = GetOcrApi(enginePath, argument)
 
 版本号链接可前往对应备份分支。
 
+#### [v1.4.0](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.4.0) `2024.7.22` 
+
+#### v1.4.0 beta 2 `2024.7.9` 
+- 返回值新增：文字方向分类相关参数。
+
 #### v1.4.0 beta `2024.7.5` 
 - 兼容 Linux 。
 - 调整：默认禁用剪贴板识图功能，需自行编译开启。
