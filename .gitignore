@@ -3,3 +3,7 @@
 *__pycache__*
 
 .vscode
+
+*.zip
+*.rar
+*.7z

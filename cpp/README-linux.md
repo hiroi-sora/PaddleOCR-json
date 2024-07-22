@@ -1,6 +1,6 @@
-# PaddleOCR-json V1.3 Linux 构建指南
+# PaddleOCR-json V1.4 Linux 构建指南
 
-本文档帮助如何在Linux上编译 PaddleOCR-json V1.3 （对应PaddleOCR v2.6）。推荐给具有一定Linux命令行使用经验的读者。
+本文档帮助如何在Linux上编译 PaddleOCR-json V1.4 （对应PaddleOCR v2.6）。推荐给具有一定Linux命令行使用经验的读者。
 
 本文参考了 PaddleOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/readme_ch.md) ，但建议以本文为准。
 
@@ -10,6 +10,11 @@
 - [Windows 构建指南](./README.md)
 - [Docker 部署](./README-docker.md)
 - 其他平台 [移植指南](docs/移植指南.md)
+
+可参考的文档：
+- [PaddleOCR 官方文档](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/readme_ch.md#12-%E7%BC%96%E8%AF%91opencv%E5%BA%93)
+- [OpenCV 官方文档](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html)
+
 
 ## 1. 前期准备
 
@@ -36,63 +41,145 @@ Flags:                              fpu vme de pse tsc msr pae mce cx8 apic sep 
 >
 > 当然，你也可以更换一个不需要AVX指令集的预测库来编译PaddleOCR-json（比如 `manylinux_cpu_noavx_openblas_gcc8.2` ）。不过大概率运行不了。
 
-### 1.1 需要安装的工具：
+### 1.1 安装所需工具
+
+```sh
+sudo apt install wget tar zip unzip git gcc g++ cmake make libgomp1
+```
 
 - wget（下载预测库用）
 - tar、zip、unzip（解压软件）
 - git
 - gcc 和 g++
 - cmake 和 make
-- libopencv-dev（OpenCV开发工具，PaddleOCR官方推荐至少是3.4.7版本）
+- libgomp1（OpenMP共享库，PaddleOCR底层依赖）
 
-安装以上工具
+### 1.2 下载所需资源
 
-```sh
-sudo apt install wget tar zip unzip git gcc g++ cmake make libopencv-dev
-```
-
-> [!TIP]
-> 如果你需要自行编译OpenCV，可以参考[OpenCV官方文档](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html)
-
-### 1.2 需要下载的资源：
-
-- [paddle_inference](https://paddleinference.paddlepaddle.org.cn/user_guides/download_lib.html#linux) (Linux, 2.3.2, C++预测库, gcc编译器版本, manylinux_cpu_avx_mkl_gcc8.2)
-- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/models%2Fv1.3) (models.zip)
-
-### 1.3 放置资源
-
-1. clone 本仓库。
+PaddleOCR-json 源码：
 
 ```sh
 git clone https://github.com/hiroi-sora/PaddleOCR-json.git
 cd PaddleOCR-json
 ```
 
-2. 在 `PaddleOCR-json/cpp` 下新建一个文件夹 `.source` 来存放外部资源（前面加点是为了按文件名排列更顺眼）。如果 `.source` 文件夹已经存在则不需要创建。
+> [可选] 如果需要自动内存清理功能，拉取并切换到 `autoclean` 分支：  
+> ```sh
+> git fetch origin autoclean
+> git checkout -b autoclean origin/autoclean
+> ```
+
+下载资源库：
 ```sh
+# 存放目录
 mkdir -p cpp/.source
 cd cpp/.source
-```
-
-3. 下载paddle_inference并解压到 `.source` 文件夹下。
-
-```sh
+# 推理库
 wget https://paddle-inference-lib.bj.bcebos.com/2.3.2/cxx_c/Linux/CPU/gcc8.2_avx_mkl/paddle_inference.tgz
 tar -xf paddle_inference.tgz
-```
-
-* [可选] 这一步之后可以根据预测库的版本来重命名一下 `paddle_inference` 文件夹。这里我们用的是 `manylinux_cpu_avx_mkl_gcc8.2` 的版本。
-
-```sh
 mv paddle_inference paddle_inference_manylinux_cpu_avx_mkl_gcc8.2
-```
-
-4. 下载模型库并解压到 `.source` 文件夹下。
-
-```sh
+# 模型库
 wget https://github.com/hiroi-sora/PaddleOCR-json/releases/download/models%2Fv1.3/models.zip
 unzip -x models.zip
 ```
+
+- [paddle_inference](https://paddleinference.paddlepaddle.org.cn/user_guides/download_lib.html#linux) (Linux, 2.3.2, C++预测库, gcc编译器版本, manylinux_cpu_avx_mkl_gcc8.2)
+- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/models%2Fv1.3) (models.zip)
+
+### 1.3 准备 OpenCV
+
+#### 方式1：下载预编译的轻量化 OpenCV 包（推荐）
+
+```sh
+wget https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.0-beta.2/opencv-release_debian_x86-64.zip
+unzip -x opencv-release_debian_x86-64.zip
+```
+
+此OpenCV库仅编译了 PaddleOCR-json 所需的少数依赖项，更轻量和简洁。
+
+不过，它仅在 Debian 系的系统上进行过测试。如果发现不兼容您的系统，可改用下列方式准备 OpenCV 。
+
+#### 方式2：安装 libopencv-dev 到系统中
+
+如果只是在本地使用 PaddleOCR-json ，则可直接安装 OpenCV 开发工具到本地。
+
+安装过程简单，但如果后续要将构建好的 PaddleOCR-json 转移到其他设备上使用，则需要手动收集系统路径中的 OpenCV 依赖库。
+
+```sh
+sudo apt install libopencv-dev
+```
+
+#### 方式3：本地编译 OpenCV
+
+可参考 [OpenCV 官方文档](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html) ，或下列步骤：
+
+> [!TIP]
+> 步骤和编译脚本不一定兼容所有系统，仅供参考。
+
+1. 在 `cpp/.source` 目录中，下载 OpenCV release v4.10.0 源码 ，解压得到 `opencv-4.10.0` ：
+
+```sh
+wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.10.0.zip
+unzip opencv.zip
+ls -d opencv*/  # 检查解压后得到的目录名
+```
+
+2. 调用一键编译脚本，传入OpenCV源码解压后的目录名：
+
+```sh
+../tools/linux_build_opencv.sh opencv-4.10.0
+```
+
+3. 如果编译成功，则会在 `.source` 目录中生成 `opencv-lib` 目录。
+
+<details>
+<summary>推荐使用的编译参数及说明</summary>
+</br>
+
+如果您不使用一键编译脚本 `tools/linux_build_opencv.sh` ，而是手动编译，推荐使用以下参数：
+
+| 参数                                | 说明                                             |
+| ----------------------------------- | ------------------------------------------------ |
+| -DCMAKE_BUILD_TYPE=Release          |                                                  |
+| -DBUILD_LIST=core,imgcodecs,imgproc | PPOCR仅依赖这三个模块                            |
+| -DBUILD_SHARED_LIBS=ON              |                                                  |
+| -DBUILD_opencv_world=OFF            |                                                  |
+| -DOPENCV_FORCE_3RDPARTY_BUILD=ON    | 强制构建所有第三方库，避免在某些系统中缺失依赖库 |
+| -DWITH_ZLIB=ON                      | 图片格式编解码支持                               |
+| -DWITH_TIFF=ON                      | 图片格式编解码支持                               |
+| -DWITH_OPENJPEG=ON                  | 图片格式编解码支持                               |
+| -DWITH_JASPER=ON                    | 图片格式编解码支持                               |
+| -DWITH_JPEG=ON                      | 图片格式编解码支持                               |
+| -DWITH_PNG=ON                       | 图片格式编解码支持                               |
+| -DWITH_OPENEXR=ON                   | 图片格式编解码支持                               |
+| -DWITH_WEBP=ON                      | 图片格式编解码支持                               |
+| -DWITH_IPP=ON                       | 启用 Intel CPU 加速库                            |
+| -DWITH_LAPACK=ON                    | 启用数学运算加速库                               |
+| -DWITH_EIGEN=ON                     | 启用数学运算加速库                               |
+| -DBUILD_PERF_TESTS=OFF              | 关闭不需要的测试/文档/语言模块                   |
+| -DBUILD_TESTS=OFF                   | 关闭不需要的测试/文档/语言模块                   |
+| -DBUILD_DOCSL=OFF                   | 关闭不需要的测试/文档/语言模块                   |
+| -DBUILD_JAVA=OFF                    | 关闭不需要的测试/文档/语言模块                   |
+| -DBUILD_opencv_python2=OFF          | 关闭不需要的测试/文档/语言模块                   |
+| -DBUILD_opencv_python3=OFF          | 关闭不需要的测试/文档/语言模块                   |
+
+</details>
+
+#### 二进制包的放置
+
+如果使用上述方式1或方式3来准备 OpenCV ，那么在 **编译完 PaddleOCR-json 本体后** ，可以通过下列步骤将 OpenCV 二进制包复制到 PaddleOCR-json 目录中，方便转移到其他设备上使用。
+
+1. 确保已经完成了后续步骤：编译 PaddleOCR-json 本体！
+2. 确保当前在 `cpp/.source` 目录中。
+3. 复制三个关键库文件到 `bin` 目录，并修改一下后缀（`4.10.0`→`410`）：
+
+```sh
+cp "./opencv-release/lib/libopencv_core.so.4.10.0" "../build/bin/libopencv_core.so.410"
+cp "./opencv-release/lib/libopencv_imgcodecs.so.4.10.0" "../build/bin/libopencv_imgcodecs.so.410"
+cp "./opencv-release/lib/libopencv_imgproc.so.4.10.0" "../build/bin/libopencv_imgproc.so.410"
+```
+
+### 1.4 检查
 
 完成后应该是这样：
 ```
@@ -109,11 +196,15 @@ PaddleOCR-json
     └─ src
 ```
 
-5. 最后一步，为了方便之后的使用，设置两个环境变量。
+为了方便后续 PaddleOCR-json 本体的编译，将依赖库路径设置为环境变量：
 
 ```sh
 export PADDLE_LIB="$(pwd)/$(ls -d *paddle_inference*/ | head -n1)"
 export MODELS="$(pwd)/models"
+
+# 如果使用方式1或3准备 OpenCV ，那么记录 OpenCV 路径。
+# 如果使用方式2安装 libopencv-dev ，则无需进行。
+export OPENCV_DIR="$(pwd)/opencv-release"
 ```
 
 可以用echo来检查一下
@@ -121,10 +212,18 @@ export MODELS="$(pwd)/models"
 ```sh
 echo $PADDLE_LIB
 echo $MODELS
+echo $OPENCV_DIR  # 可选
 ```
 
+回到 `cpp` 目录下
+
+```sh
+cd ..
+```
 
 ## 2. 构建 & 编译项目
+
+0. 如果无需自定义项目，可跳转到 [4.一键编译+运行](#compile-run)
 
 1. 在 `PaddleOCR-json/cpp` 下，新建一个文件夹 `build`
 
@@ -132,26 +231,31 @@ echo $MODELS
 mkdir build
 ```
 
-2. 使用 CMake 构建项目
+2. 使用 CMake 构建项目。参数含义见 [CMake构建参数](#cmake-args)
 
 ```sh
 cmake -S . -B build/ \
     -DPADDLE_LIB=$PADDLE_LIB \
-    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_BUILD_TYPE=Release \
+    -DOPENCV_DIR=$OPENCV_DIR  # 可选：OpenCV 路径
 ```
 
-* 这里我们使用 `-S .` 命令来指定当前文件夹 `PaddleOCR-json/cpp` 为CMake项目根文件夹
-* 使用 `-B build/` 命令来指定 `PaddleOCR-json/cpp/build` 文件夹为工程文件夹
-* `-DPADDLE_LIB=$PADDLE_LIB` 命令会使用刚才设置的环境变量 `$PADDLE_LIB` 去指定预测库的位置
-* 最后，`-DCMAKE_BUILD_TYPE=Release` 命令会将这个工程设置为 `Release` 工程。你也可以把它改成 `Debug`。
+说明：
+* `-S .` ：指定当前文件夹 `PaddleOCR-json/cpp` 为CMake项目根文件夹
+* `-B build/` ：指定 `PaddleOCR-json/cpp/build` 文件夹为工程文件夹
+* `-DPADDLE_LIB=$PADDLE_LIB` ：使用刚才设置的环境变量 `$PADDLE_LIB` 去指定预测库的位置
+* `-DCMAKE_BUILD_TYPE=Release` ：将这个工程设置为 `Release` 工程。你也可以把它改成 `Debug`。
+* `-DOPENCV_DIR=$OPENCV_DIR` ：使用刚才设置的环境变量 `$OPENCV_DIR` 去指定自编译OpenCV的位置。如果安装 libopencv-dev ，则无需设置此参数
 
-3. 使用 CMake 编译项目
+1. 使用 CMake 编译项目
 
 ```sh
 cmake --build build/
 ```
 
-* 这里我们使用 `--build build/` 命令来指定要编译的工程文件夹 `build`。
+- 这里我们使用 `--build build/` 命令来指定要编译的工程文件夹 `build`。
+
+<a id="cmake-args"></a>
 
 #### CMake构建参数
 
@@ -177,18 +281,18 @@ cmake --build build/
 | `OPENCV_DIR`   | 库的路径                     |
 | `CUDA_LIB`     | 库的路径                     |
 | `CUDNN_LIB`    | 库的路径                     |
-| `TENSORRT_DIR` | 使用TensorRT编译并设置其路径  |
+| `TENSORRT_DIR` | 使用TensorRT编译并设置其路径 |
 
 > [!NOTE]
 > * `OPENCV_DIR`: Linux下，如果已经安装到系统之中就不用指定了。
 
 以下是一些PaddleOCR-json功能相关参数。
 
-| 参数名                   | 描述                               |
-| ------------------------ | ---------------------------------- |
-| `ENABLE_CLIPBOARD`       | 启用剪贴板功能。默认关闭。         |
+| 参数名                   | 描述                                 |
+| ------------------------ | ------------------------------------ |
+| `ENABLE_CLIPBOARD`       | 启用剪贴板功能。默认关闭。           |
 | `ENABLE_REMOTE_EXIT`     | 启用远程关停引擎进程命令。默认开启。 |
-| `ENABLE_JSON_IMAGE_PATH` | 启用json命令image_path。默认开启。 |
+| `ENABLE_JSON_IMAGE_PATH` | 启用json命令image_path。默认开启。   |
 
 > [!NOTE]
 > * `ENABLE_CLIPBOARD`: Linux下没有剪贴板功能，启用了也无法使用。
@@ -197,9 +301,9 @@ cmake --build build/
 
 以下是一些CMake功能相关参数。
 
-| 参数名                   | 描述                               |
-| ------------------------ | --------------------------------- |
-| `INSTALL_WITH_TOOLS`     | CMake安装时附带工具文件。默认开启。  |
+| 参数名               | 描述                                |
+| -------------------- | ----------------------------------- |
+| `INSTALL_WITH_TOOLS` | CMake安装时附带工具文件。默认开启。 |
 
 #### 关于剪贴板读取
 
@@ -262,6 +366,9 @@ LD_LIBRARY_PATH=$LIBS ./build/bin/PaddleOCR-json \
 > [!TIP]
 > 更多配置参数请参考[简单试用](../README.md#简单试用)和[常用配置参数说明](../README.md#常用配置参数说明)
 
+5. 如果要打包、转移到其他设备上运行，还需 [放置OpenCV二进制包](#二进制包的放置) 。
+
+<a id="compile-run"></a>
 
 ## 4. 一键编译 + 运行
 

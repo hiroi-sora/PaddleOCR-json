@@ -88,6 +88,13 @@ namespace PaddleOCR
             {
                 j["box"] = {{b[0][0], b[0][1]}, {b[1][0], b[1][1]}, {b[2][0], b[2][1]}, {b[3][0], b[3][1]}};
             }
+            // 如果启用了cls，则cls_label有实际值，那么写入方向分类相关参数  
+            if (ocr_result[i].cls_label != -1)
+            {
+                j["cls_label"] = ocr_result[i].cls_label; // 方向标签，0表示顺时针0°或90°，1表示180°或270°  
+                j["cls_score"] = ocr_result[i].cls_score; // 方向标签置信度，越接近1越可信  
+            }
+
             outJ["data"].push_back(j);
             isEmpty = false;
         }
