@@ -63,10 +63,10 @@ git clone https://github.com/hiroi-sora/PaddleOCR-json.git
 cd PaddleOCR-json
 ```
 
-> [可选] 如果需要自动内存清理功能，拉取并切换到 `autoclean` 分支：  
+> [可选] 如果需要自动内存清理功能，拉取并切换到 `release/1.4.0_autoclean` 分支：  
 > ```sh
-> git fetch origin autoclean
-> git checkout -b autoclean origin/autoclean
+> git fetch origin release/1.4.0_autoclean
+> git checkout -b release/1.4.0_autoclean origin/release/1.4.0_autoclean
 > ```
 
 下载资源库：
