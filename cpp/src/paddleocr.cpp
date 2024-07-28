@@ -24,30 +24,31 @@ namespace PaddleOCR
     {
         if (FLAGS_det)
         {
-            this->detector_ = new DBDetector(
+            // 使用智能指针，创建一个新的 DBDetector 对象，并将其管理权转移给 detector_
+            this->detector_.reset(new DBDetector(
                 FLAGS_det_model_dir, FLAGS_use_gpu, FLAGS_gpu_id, FLAGS_gpu_mem,
                 FLAGS_cpu_threads, FLAGS_enable_mkldnn, FLAGS_limit_type,
                 FLAGS_limit_side_len, FLAGS_det_db_thresh, FLAGS_det_db_box_thresh,
                 FLAGS_det_db_unclip_ratio, FLAGS_det_db_score_mode, FLAGS_use_dilation,
-                FLAGS_use_tensorrt, FLAGS_precision);
+                FLAGS_use_tensorrt, FLAGS_precision));
         }
 
         if (FLAGS_cls && FLAGS_use_angle_cls)
         {
-            this->classifier_ = new Classifier(
+            this->classifier_.reset(new Classifier(
                 FLAGS_cls_model_dir, FLAGS_use_gpu, FLAGS_gpu_id, FLAGS_gpu_mem,
                 FLAGS_cpu_threads, FLAGS_enable_mkldnn, FLAGS_cls_thresh,
-                FLAGS_use_tensorrt, FLAGS_precision, FLAGS_cls_batch_num);
+                FLAGS_use_tensorrt, FLAGS_precision, FLAGS_cls_batch_num));
         }
         if (FLAGS_rec)
         {
-            this->recognizer_ = new CRNNRecognizer(
+            this->recognizer_.reset(new CRNNRecognizer(
                 FLAGS_rec_model_dir, FLAGS_use_gpu, FLAGS_gpu_id, FLAGS_gpu_mem,
                 FLAGS_cpu_threads, FLAGS_enable_mkldnn, FLAGS_rec_char_dict_path,
                 FLAGS_use_tensorrt, FLAGS_precision, FLAGS_rec_batch_num,
-                FLAGS_rec_img_h, FLAGS_rec_img_w);
+                FLAGS_rec_img_h, FLAGS_rec_img_w));
         }
-    };
+    }
 
     std::vector<std::vector<OCRPredictResult>> // 对一批Mat列表进行OCR
     PPOCR::ocr(std::vector<cv::Mat> img_list, bool det, bool rec, bool cls)
@@ -58,7 +59,7 @@ namespace PaddleOCR
         { // 不需要det的流程
             std::vector<OCRPredictResult> ocr_result;
             ocr_result.resize(img_list.size());
-            if (cls && this->classifier_ != nullptr)
+            if (cls && this->classifier_)
             {
                 this->cls(img_list, ocr_result);
                 for (int i = 0; i < img_list.size(); i++)
@@ -103,8 +104,8 @@ namespace PaddleOCR
         // det
         if (det)
         {
-            this->det(img, ocr_result); // 取det结果 
-            // 按det结果，裁切图片 
+            this->det(img, ocr_result); // 取det结果
+            // 按det结果，裁切图片
             for (int j = 0; j < ocr_result.size(); j++)
             {
                 cv::Mat crop_img;
@@ -114,15 +115,15 @@ namespace PaddleOCR
         }
         else
         {
-            // 创建一个box，大小与整张图片相同 
-            std::vector<std::vector<int>> box = { {0, 0}, {img.cols - 1, 0}, {img.cols - 1, img.rows - 1}, {0, img.rows - 1} };
+            // 创建一个box，大小与整张图片相同
+            std::vector<std::vector<int>> box = {{0, 0}, {img.cols - 1, 0}, {img.cols - 1, img.rows - 1}, {0, img.rows - 1}};
             OCRPredictResult res;
             res.box = box;
             ocr_result.push_back(res);
             img_list.push_back(img);
         }
         // cls
-        if (cls && this->classifier_ != nullptr)
+        if (cls && this->classifier_)
         {
             this->cls(img_list, ocr_result);
             for (int i = 0; i < img_list.size(); i++)
@@ -234,21 +235,5 @@ namespace PaddleOCR
             autolog_cls.report();
         }
     }
-
-    PPOCR::~PPOCR()
-    {
-        if (this->detector_ != nullptr)
-        {
-            delete this->detector_;
-        }
-        if (this->classifier_ != nullptr)
-        {
-            delete this->classifier_;
-        }
-        if (this->recognizer_ != nullptr)
-        {
-            delete this->recognizer_;
-        }
-    };
 
 } // namespace PaddleOCR

@@ -18,49 +18,57 @@
 #include <include/structure_layout.h>
 #include <include/structure_table.h>
 
-namespace PaddleOCR {
+namespace PaddleOCR
+{
 
-class PaddleStructure : public PPOCR {
-public:
-  explicit PaddleStructure();
-  ~PaddleStructure();
+    class PaddleStructure : public PPOCR
+    {
+    public:
+        explicit PaddleStructure();
+        ~PaddleStructure() = default;
 
-  std::vector<StructurePredictResult> structure(cv::Mat img,
-                                                bool layout = false,
-                                                bool table = true,
-                                                bool ocr = false);
+        std::vector<StructurePredictResult> structure(cv::Mat img,
+                                                      bool layout = false,
+                                                      bool table = true,
+                                                      bool ocr = false);
 
-  void reset_timer();
-  void benchmark_log(int img_num);
+        void reset_timer();
+        void benchmark_log(int img_num);
 
-private:
-  std::vector<double> time_info_table = {0, 0, 0};
-  std::vector<double> time_info_layout = {0, 0, 0};
+    private:
+        std::vector<double> time_info_table = {0, 0, 0};
+        std::vector<double> time_info_layout = {0, 0, 0};
 
-  StructureTableRecognizer *table_model_ = nullptr;
-  StructureLayoutRecognizer *layout_model_ = nullptr;
+        std::unique_ptr<StructureTableRecognizer> table_model_;
+        std::unique_ptr<StructureLayoutRecognizer> layout_model_;
 
-  void layout(cv::Mat img,
-              std::vector<StructurePredictResult> &structure_result);
+        void layout(cv::Mat img,
+                    std::vector<StructurePredictResult> &structure_result);
 
-  void table(cv::Mat img, StructurePredictResult &structure_result);
+        void table(cv::Mat img, StructurePredictResult &structure_result);
 
-  std::string rebuild_table(std::vector<std::string> rec_html_tags,
-                            std::vector<std::vector<int>> rec_boxes,
-                            std::vector<OCRPredictResult> &ocr_result);
+        std::string rebuild_table(std::vector<std::string> rec_html_tags,
+                                  std::vector<std::vector<int>> rec_boxes,
+                                  std::vector<OCRPredictResult> &ocr_result);
 
-  float dis(std::vector<int> &box1, std::vector<int> &box2);
+        float dis(std::vector<int> &box1, std::vector<int> &box2);
 
-  static bool comparison_dis(const std::vector<float> &dis1,
-                             const std::vector<float> &dis2) {
-    if (dis1[1] < dis2[1]) {
-      return true;
-    } else if (dis1[1] == dis2[1]) {
-      return dis1[0] < dis2[0];
-    } else {
-      return false;
-    }
-  }
-};
+        static bool comparison_dis(const std::vector<float> &dis1,
+                                   const std::vector<float> &dis2)
+        {
+            if (dis1[1] < dis2[1])
+            {
+                return true;
+            }
+            else if (dis1[1] == dis2[1])
+            {
+                return dis1[0] < dis2[0];
+            }
+            else
+            {
+                return false;
+            }
+        }
+    };
 
 } // namespace PaddleOCR

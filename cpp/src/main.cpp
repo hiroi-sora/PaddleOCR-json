@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // 版本信息
-#define PROJECT_VER "v1.4.0"
+#define PROJECT_VER "v1.4.1 dev"
 #define PROJECT_NAME "PaddleOCR-json " PROJECT_VER
 
 #include "opencv2/core.hpp"
@@ -31,7 +31,7 @@ using namespace PaddleOCR;
 
 void structure(std::vector<cv::String> &cv_all_img_names)
 {
-    PaddleOCR::PaddleStructure engine = PaddleOCR::PaddleStructure();
+    PaddleOCR::PaddleStructure engine;
 
     if (FLAGS_benchmark)
     {
