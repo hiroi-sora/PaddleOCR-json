@@ -244,6 +244,7 @@ namespace PaddleOCR
     int Task::ocr()
     {
         // 初始化引擎
+        auto init_start = std::chrono::steady_clock::now();
         ppocr.reset(new PPOCR()); // 创建引擎实例，管理权移交给智能指针 ppocr
         int flag;
 
@@ -269,6 +270,9 @@ namespace PaddleOCR
             std::cout << "OCR anonymous pipe mode." << std::endl;
             flag = 3;
         }
+        auto init_end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> duration = init_end - init_start;
+        std::cout << "OCR init time: " << duration.count() << "s" << std::endl;
         std::cout << "OCR init completed." << std::endl;
 
         switch (flag)
