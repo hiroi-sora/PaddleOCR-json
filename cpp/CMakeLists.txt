@@ -237,6 +237,8 @@ if(WITH_MKL)
     else ()
         set(MATH_LIB ${PADDLE_LIB}/third_party/install/mklml/lib/libmklml_intel${CMAKE_SHARED_LIBRARY_SUFFIX}
                     ${PADDLE_LIB}/third_party/install/mklml/lib/libiomp5${CMAKE_SHARED_LIBRARY_SUFFIX})
+        # 添加库搜索目录，寻找 third_party/install/onednn/lib/libdnnl.so.3
+        link_directories("${PADDLE_LIB}/third_party/install/onednn/lib")
     endif ()
     set(MKLDNN_PATH "${PADDLE_LIB}/third_party/install/mkldnn")
     if(EXISTS ${MKLDNN_PATH})
