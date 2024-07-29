@@ -39,7 +39,7 @@ DEFINE_string(models_path, "", "Path of models folder.");                       
 DEFINE_bool(ensure_ascii, true, "Enable JSON ascii escape.");                                          // true时json开启ascii转义
 
 // detection related DET检测相关
-DEFINE_string(det_model_dir, "models/ch_PP-OCRv3_det_infer", "Path of det inference model.");                                                 // det模型库路径
+DEFINE_string(det_model_dir, "models/ch_PP-OCRv4_det_infer", "Path of det inference model.");                                                 // det模型库路径
 DEFINE_string(limit_type, "max", "limit_type of input image, the value is selected in ['max','min'].");           // 对图片尺寸限制采用长边还是短边
 DEFINE_int32(limit_side_len, 960, "limit_side_len of input image.");                                              // 对长/短边限制值
 DEFINE_double(det_db_thresh, 0.3, "Threshold of det_db_thresh.");                                                 // 用于过滤DB预测的二值化图像，设置为0.-0.3对结果影响不明显
@@ -56,7 +56,7 @@ DEFINE_double(cls_thresh, 0.9, "Threshold of cls_thresh.");       // 方向分�
 DEFINE_int32(cls_batch_num, 1, "cls_batch_num.");                 // 方向分类器batchsize
 
 // recognition related REC文本识别相关
-DEFINE_string(rec_model_dir, "models/ch_PP-OCRv3_rec_infer", "Path of rec inference model.");
+DEFINE_string(rec_model_dir, "models/ch_PP-OCRv4_rec_infer", "Path of rec inference model.");
 DEFINE_int32(rec_batch_num, 6, "rec_batch_num.");                                                // 文字识别模型batchsize
 DEFINE_string(rec_char_dict_path, "models/dict_chinese.txt", "Path of dictionary."); // 字典路径
 DEFINE_int32(rec_img_h, 48, "rec image height");                                                 // 文字识别模型输入图像高度。V3模型是48，V2应该改为32
