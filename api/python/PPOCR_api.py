@@ -28,19 +28,20 @@ class PPOCR_pipe:  # 调用OCR（管道模式）
         # 处理启动参数
         if modelsPath is not None:
             if os.path.exists(modelsPath) and os.path.isdir(modelsPath):
-                cmds += [
-                    "--models_path",
-                    os.path.abspath(modelsPath)
-                ]
+                cmds += ["--models_path", os.path.abspath(modelsPath)]
             else:
-                raise Exception(f"Input modelsPath doesn't exits or isn't a directory. modelsPath: [{modelsPath}]")
+                raise Exception(
+                    f"Input modelsPath doesn't exits or isn't a directory. modelsPath: [{modelsPath}]"
+                )
         if isinstance(argument, dict):
             for key, value in argument.items():
                 # Popen() 要求输入list里所有的元素都是 str 或 bytes
-                cmds += [
-                    f"--{key}",
-                    str(value),
-                ]
+                if isinstance(value, bool):
+                    cmds += [f"--{key}={value}"]  # 布尔参数必须键和值连在一起
+                elif isinstance(value, str):
+                    cmds += [f"--{key}", value]
+                else:
+                    cmds += [f"--{key}", str(value)]
         # 设置子进程启用静默模式，不显示控制台窗口
         self.ret = None
         startupinfo = None
@@ -314,7 +315,9 @@ class PPOCR_socket(PPOCR_pipe):
             return None
 
 
-def GetOcrApi(exePath: str, modelsPath: str = None, argument: dict = None, ipcMode: str = "pipe"):
+def GetOcrApi(
+    exePath: str, modelsPath: str = None, argument: dict = None, ipcMode: str = "pipe"
+):
     """获取识别器API对象。\n
     `exePath`: 识别器`PaddleOCR_json.exe`的路径。\n
     `modelsPath`: 识别库`models`文件夹的路径。若为None则默认识别库与识别器在同一目录下。\n
