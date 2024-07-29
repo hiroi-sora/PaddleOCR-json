@@ -142,6 +142,10 @@ namespace PaddleOCR
             {
                 config.EnableMKLDNN();
             }
+            else
+            {
+                config.DisableMKLDNN();
+            }
             config.SetCpuMathLibraryNumThreads(this->cpu_math_library_num_threads_);
         }
 
