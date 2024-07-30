@@ -1,8 +1,8 @@
-# PaddleOCR-json V1.4 Linux 构建指南
+# PaddleOCR-json V1.4.1 Linux 构建指南
 
-本文档帮助如何在Linux上编译 PaddleOCR-json V1.4 （对应PaddleOCR v2.6）。推荐给具有一定Linux命令行使用经验的读者。
+本文档帮助如何在Linux上编译 PaddleOCR-json V1.4.1 （对应PaddleOCR v2.8）。推荐给具有一定Linux命令行使用经验的读者。
 
-本文参考了 PaddleOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/readme_ch.md) ，但建议以本文为准。
+本文参考了 PaddleOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.8/deploy/cpp_infer/readme_ch.md) ，但建议以本文为准。
 
 另外，本文将使用Debian/Ubuntu系列linux为例子进行讲解。其他linux发行版的用户请自行替换一些对应的命令（比如apt这类的）。
 
@@ -12,7 +12,7 @@
 - 其他平台 [移植指南](docs/移植指南.md)
 
 可参考的文档：
-- [PaddleOCR 官方文档](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/readme_ch.md#12-%E7%BC%96%E8%AF%91opencv%E5%BA%93)
+- [PaddleOCR 官方文档](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.8/deploy/cpp_infer/readme_ch.md#12-%E7%BC%96%E8%AF%91opencv%E5%BA%93)
 - [OpenCV 官方文档](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html)
 
 
@@ -63,28 +63,23 @@ git clone https://github.com/hiroi-sora/PaddleOCR-json.git
 cd PaddleOCR-json
 ```
 
-> [可选] 如果需要自动内存清理功能，拉取并切换到 `release/1.4.0_autoclean` 分支：  
-> ```sh
-> git fetch origin release/1.4.0_autoclean
-> git checkout -b release/1.4.0_autoclean origin/release/1.4.0_autoclean
-> ```
-
 下载资源库：
+
 ```sh
 # 存放目录
 mkdir -p cpp/.source
 cd cpp/.source
 # 推理库
-wget https://paddle-inference-lib.bj.bcebos.com/2.3.2/cxx_c/Linux/CPU/gcc8.2_avx_mkl/paddle_inference.tgz
+wget https://paddle-inference-lib.bj.bcebos.com/3.0.0-beta1/cxx_c/Linux/CPU/gcc8.2_avx_mkl/paddle_inference.tgz
 tar -xf paddle_inference.tgz
 mv paddle_inference paddle_inference_manylinux_cpu_avx_mkl_gcc8.2
 # 模型库
-wget https://github.com/hiroi-sora/PaddleOCR-json/releases/download/models%2Fv1.3/models.zip
-unzip -x models.zip
+wget https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.1/models_v1.4.1.zip
+unzip -x models_v1.4.1.zip
 ```
 
-- [paddle_inference](https://paddleinference.paddlepaddle.org.cn/user_guides/download_lib.html#linux) (Linux, 2.3.2, C++预测库, gcc编译器版本, manylinux_cpu_avx_mkl_gcc8.2)
-- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/models%2Fv1.3) (models.zip)
+- [paddle_inference](https://www.paddlepaddle.org.cn/inference/master/guides/install/download_lib.html) (Linux, C++预测库, gcc编译器版本, manylinux_cpu_avx_mkl_gcc8.2)
+- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.1) (models.zip)
 
 ### 1.3 准备 OpenCV
 
@@ -247,7 +242,7 @@ cmake -S . -B build/ \
 * `-DCMAKE_BUILD_TYPE=Release` ：将这个工程设置为 `Release` 工程。你也可以把它改成 `Debug`。
 * `-DOPENCV_DIR=$OPENCV_DIR` ：使用刚才设置的环境变量 `$OPENCV_DIR` 去指定自编译OpenCV的位置。如果安装 libopencv-dev ，则无需设置此参数
 
-1. 使用 CMake 编译项目
+3. 使用 CMake 编译项目
 
 ```sh
 cmake --build build/
@@ -415,4 +410,6 @@ CMake会将 `build` 文件夹下的可执行文件和运行库给安装到系统
 
 ## 6. 其他问题
 
-### [关于内存泄漏 / 长期高内存占用](./README.md#关于内存泄漏--长期高内存占用)
+### [切换语言/模型库/预设](./README.md#5.-切换语言/模型库/预设)
+
+### [关于内存占用](./README.md#关于内存占用)
