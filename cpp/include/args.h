@@ -27,6 +27,7 @@ DECLARE_bool(use_tensorrt);
 DECLARE_int32(gpu_id);
 DECLARE_int32(gpu_mem);
 DECLARE_int32(cpu_threads);
+DECLARE_int32(cpu_mem);
 DECLARE_bool(enable_mkldnn);
 DECLARE_string(precision);
 DECLARE_bool(benchmark);

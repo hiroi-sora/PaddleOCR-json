@@ -74,10 +74,13 @@ namespace PaddleOCR
         std::string t_msg;            // 本轮任务状态消息
 
         // 任务流程
+        void init_engine();               // 初始化OCR引擎
+        void memory_check_cleanup();        // 检查内存占用，达到上限时释放内存
         std::string run_ocr(std::string); // 输入用户传入值（字符串），返回结果json字符串
         int single_image_mode();          // 单次识别模式
         int socket_mode();                // 套接字模式
         int anonymous_pipe_mode();        // 匿名管道模式
+        int get_memory_mb();           // 获取当前内存占用。返回整数，单位MB。失败时返回-1。
 
         // 输出相关
         void set_state(int code = CODE_INIT, std::string msg = "");             // 设置状态

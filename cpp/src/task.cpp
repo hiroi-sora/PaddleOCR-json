@@ -240,12 +240,85 @@ namespace PaddleOCR
         }
     }
 
+    void Task::init_engine()
+    {
+        auto init_start = std::chrono::steady_clock::now();
+        this->ppocr.reset(new PPOCR()); // 创建引擎实例，管理权移交给智能指针 ppocr
+        auto init_end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> duration = init_end - init_start;
+        std::cerr << "OCR init time: " << duration.count() << "s" << std::endl;
+    }
+
+    void Task::memory_check_cleanup()
+    {
+        /*int mem1 = Task::get_memory_mb();
+        auto time1 = std::chrono::steady_clock::now();
+        if (this->ppocr->detector_)
+        {
+            this->ppocr->detector_->predictor_->ClearIntermediateTensor();
+            this->ppocr->detector_->predictor_->TryShrinkMemory();
+        }
+        if (this->ppocr->classifier_)
+        {
+            this->ppocr->classifier_->predictor_->ClearIntermediateTensor();
+            this->ppocr->classifier_->predictor_->TryShrinkMemory();
+        }
+        if (this->ppocr->recognizer_)
+        {
+            this->ppocr->recognizer_->predictor_->ClearIntermediateTensor();
+            this->ppocr->recognizer_->predictor_->TryShrinkMemory();
+        }
+        int mem2 = Task::get_memory_mb();
+        auto time2 = std::chrono::steady_clock::now();
+        std::chrono::duration<double> time_change = time2 - time1;
+        std::cerr << "memory cleanup: " << mem1 << "->" << mem2 << "MB, time: " << time_change.count() << "s" << std::endl;
+        return;*/
+        auto cleanup_start = std::chrono::steady_clock::now();
+        if (FLAGS_cpu_mem <= 0) // 无限制
+        {
+            return;
+        }
+        int mem = Task::get_memory_mb(); // 当前内存占用
+        if (mem <= 0)                    // 获取失败
+        {
+            return;
+        }
+        // 达到上限，进行清理
+        if (mem >= FLAGS_cpu_mem)
+        { 
+            // Task::init_engine();
+            // 调用 det cls rec 实例的内存清理方法
+			if (this->ppocr->detector_)
+			{
+				this->ppocr->detector_->predictor_->ClearIntermediateTensor();
+				this->ppocr->detector_->predictor_->TryShrinkMemory();
+			}
+            if (this->ppocr->classifier_)
+            {
+                this->ppocr->classifier_->predictor_->ClearIntermediateTensor();
+                this->ppocr->classifier_->predictor_->TryShrinkMemory();
+            }
+            if (this->ppocr->recognizer_)
+            {
+                this->ppocr->recognizer_->predictor_->ClearIntermediateTensor();
+                this->ppocr->recognizer_->predictor_->TryShrinkMemory();
+            }
+            auto cleanup_end = std::chrono::steady_clock::now();
+            std::chrono::duration<double> duration = cleanup_end - cleanup_start;
+            int mem2 = Task::get_memory_mb(); // 当前内存占用
+            std::cerr << "memory cleanup: " << mem << "->" << mem2 << "MB, time: " << duration.count() << "s" << std::endl;
+            // Task::init_engine();
+        }
+        else
+        {
+            std::cerr << "memory used: " << mem << std::endl;
+        }
+    }
+
     // 入口
     int Task::ocr()
     {
-        // 初始化引擎
-        auto init_start = std::chrono::steady_clock::now();
-        ppocr.reset(new PPOCR()); // 创建引擎实例，管理权移交给智能指针 ppocr
+        Task::init_engine(); // 初始化引擎
         int flag;
 
 #if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
@@ -270,9 +343,6 @@ namespace PaddleOCR
             std::cout << "OCR anonymous pipe mode." << std::endl;
             flag = 3;
         }
-        auto init_end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> duration = init_end - init_start;
-        std::cout << "OCR init time: " << duration.count() << "s" << std::endl;
         std::cout << "OCR init completed." << std::endl;
 
         switch (flag)
@@ -329,7 +399,10 @@ namespace PaddleOCR
             { // 退出
                 return 0;
             }
+            // 回传结果
             std::cout << str_out << std::endl;
+            // 检查、清理内存
+            Task::memory_check_cleanup();
         }
         return 0;
     }

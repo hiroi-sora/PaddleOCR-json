@@ -20,70 +20,72 @@
 #include <include/ocr_cls.h>
 #include <include/utility.h>
 
-namespace PaddleOCR {
+namespace PaddleOCR
+{
 
-class CRNNRecognizer {
-public:
-  explicit CRNNRecognizer(const std::string &model_dir, const bool &use_gpu,
-                          const int &gpu_id, const int &gpu_mem,
-                          const int &cpu_math_library_num_threads,
-                          const bool &use_mkldnn, const std::string &label_path,
-                          const bool &use_tensorrt,
-                          const std::string &precision,
-                          const int &rec_batch_num, const int &rec_img_h,
-                          const int &rec_img_w) {
-    this->use_gpu_ = use_gpu;
-    this->gpu_id_ = gpu_id;
-    this->gpu_mem_ = gpu_mem;
-    this->cpu_math_library_num_threads_ = cpu_math_library_num_threads;
-    this->use_mkldnn_ = use_mkldnn;
-    this->use_tensorrt_ = use_tensorrt;
-    this->precision_ = precision;
-    this->rec_batch_num_ = rec_batch_num;
-    this->rec_img_h_ = rec_img_h;
-    this->rec_img_w_ = rec_img_w;
-    std::vector<int> rec_image_shape = {3, rec_img_h, rec_img_w};
-    this->rec_image_shape_ = rec_image_shape;
+    class CRNNRecognizer
+    {
+    public:
+        explicit CRNNRecognizer(const std::string &model_dir, const bool &use_gpu,
+                                const int &gpu_id, const int &gpu_mem,
+                                const int &cpu_math_library_num_threads,
+                                const bool &use_mkldnn, const std::string &label_path,
+                                const bool &use_tensorrt,
+                                const std::string &precision,
+                                const int &rec_batch_num, const int &rec_img_h,
+                                const int &rec_img_w)
+        {
+            this->use_gpu_ = use_gpu;
+            this->gpu_id_ = gpu_id;
+            this->gpu_mem_ = gpu_mem;
+            this->cpu_math_library_num_threads_ = cpu_math_library_num_threads;
+            this->use_mkldnn_ = use_mkldnn;
+            this->use_tensorrt_ = use_tensorrt;
+            this->precision_ = precision;
+            this->rec_batch_num_ = rec_batch_num;
+            this->rec_img_h_ = rec_img_h;
+            this->rec_img_w_ = rec_img_w;
+            std::vector<int> rec_image_shape = {3, rec_img_h, rec_img_w};
+            this->rec_image_shape_ = rec_image_shape;
 
-    this->label_list_ = Utility::ReadDict(label_path);
-    this->label_list_.insert(this->label_list_.begin(),
-                             "#"); // blank char for ctc
-    this->label_list_.push_back(" ");
+            this->label_list_ = Utility::ReadDict(label_path);
+            this->label_list_.insert(this->label_list_.begin(),
+                                     "#"); // blank char for ctc
+            this->label_list_.push_back(" ");
 
-    LoadModel(model_dir);
-  }
+            LoadModel(model_dir);
+        }
 
-  // Load Paddle inference model
-  void LoadModel(const std::string &model_dir);
+        // Load Paddle inference model
+        void LoadModel(const std::string &model_dir);
 
-  void Run(std::vector<cv::Mat> img_list, std::vector<std::string> &rec_texts,
-           std::vector<float> &rec_text_scores, std::vector<double> &times);
+        void Run(std::vector<cv::Mat> img_list, std::vector<std::string> &rec_texts,
+                 std::vector<float> &rec_text_scores, std::vector<double> &times);
+        std::shared_ptr<paddle_infer::Predictor> predictor_; // 推理库实例
 
-private:
-  std::shared_ptr<paddle_infer::Predictor> predictor_;
+    private:
+        bool use_gpu_ = false;
+        int gpu_id_ = 0;
+        int gpu_mem_ = 4000;
+        int cpu_math_library_num_threads_ = 4;
+        bool use_mkldnn_ = false;
 
-  bool use_gpu_ = false;
-  int gpu_id_ = 0;
-  int gpu_mem_ = 4000;
-  int cpu_math_library_num_threads_ = 4;
-  bool use_mkldnn_ = false;
+        std::vector<std::string> label_list_;
 
-  std::vector<std::string> label_list_;
+        std::vector<float> mean_ = {0.5f, 0.5f, 0.5f};
+        std::vector<float> scale_ = {1 / 0.5f, 1 / 0.5f, 1 / 0.5f};
+        bool is_scale_ = true;
+        bool use_tensorrt_ = false;
+        std::string precision_ = "fp32";
+        int rec_batch_num_ = 6;
+        int rec_img_h_ = 32;
+        int rec_img_w_ = 320;
+        std::vector<int> rec_image_shape_ = {3, rec_img_h_, rec_img_w_};
+        // pre-process
+        CrnnResizeImg resize_op_;
+        Normalize normalize_op_;
+        PermuteBatch permute_op_;
 
-  std::vector<float> mean_ = {0.5f, 0.5f, 0.5f};
-  std::vector<float> scale_ = {1 / 0.5f, 1 / 0.5f, 1 / 0.5f};
-  bool is_scale_ = true;
-  bool use_tensorrt_ = false;
-  std::string precision_ = "fp32";
-  int rec_batch_num_ = 6;
-  int rec_img_h_ = 32;
-  int rec_img_w_ = 320;
-  std::vector<int> rec_image_shape_ = {3, rec_img_h_, rec_img_w_};
-  // pre-process
-  CrnnResizeImg resize_op_;
-  Normalize normalize_op_;
-  PermuteBatch permute_op_;
-
-}; // class CrnnRecognizer
+    }; // class CrnnRecognizer
 
 } // namespace PaddleOCR

@@ -38,6 +38,11 @@ namespace PaddleOCR
         void reset_timer();              // 重置计时器
         void benchmark_log(int img_num); // 记录基准测试日志，参数为图像数量
 
+        // 智能指针
+        std::unique_ptr<DBDetector> detector_;       // 指向 文本检测器实例
+        std::unique_ptr<Classifier> classifier_;     // 指向 方向分类器实例
+        std::unique_ptr<CRNNRecognizer> recognizer_; // 指向 文本识别器实例
+
     protected:
         // 时间信息
         std::vector<double> time_info_det = {0, 0, 0};
@@ -53,12 +58,5 @@ namespace PaddleOCR
         // 文本识别：输入单行碎图向量，在ocr_results向量中存放每个碎图的文本
         void rec(std::vector<cv::Mat> img_list,
                  std::vector<OCRPredictResult> &ocr_results);
-
-    private:
-        // 智能指针
-        std::unique_ptr<DBDetector> detector_;       // 指向 文本检测器实例
-        std::unique_ptr<Classifier> classifier_;     // 指向 方向分类器实例
-        std::unique_ptr<CRNNRecognizer> recognizer_; // 指向 文本识别器实例
     };
-
 } // namespace PaddleOCR
