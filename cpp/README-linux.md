@@ -74,12 +74,12 @@ wget https://paddle-inference-lib.bj.bcebos.com/3.0.0-beta1/cxx_c/Linux/CPU/gcc8
 tar -xf paddle_inference.tgz
 mv paddle_inference paddle_inference_manylinux_cpu_avx_mkl_gcc8.2
 # 模型库
-wget https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.1/models_v1.4.1.zip
+wget https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.1-dev/models_v1.4.1.zip
 unzip -x models_v1.4.1.zip
 ```
 
 - [paddle_inference](https://www.paddlepaddle.org.cn/inference/master/guides/install/download_lib.html) (Linux, C++预测库, gcc编译器版本, manylinux_cpu_avx_mkl_gcc8.2)
-- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.1) (models.zip)
+- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.1-dev) (models.zip)
 
 ### 1.3 准备 OpenCV
 
