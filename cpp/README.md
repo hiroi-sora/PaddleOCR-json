@@ -24,7 +24,7 @@
 
 - [paddle_inference.zip](https://paddle-inference-lib.bj.bcebos.com/3.0.0-beta1/cxx_c/Windows/CPU/x86-64_avx-mkl-vs2019/paddle_inference.zip) (Windows C++预测库, 3.0.0, cpu_avx_mkl)
 - [Opencv](https://github.com/opencv/opencv/releases) (windows.exe)
-- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.1-dev) (models.zip)
+- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.1-dev/models_v1.4.1.zip) (models.zip)
 
 ### 1.3 放置资源
 

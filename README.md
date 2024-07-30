@@ -384,6 +384,7 @@ ocr = GetOcrApi(enginePath, argument)
 - 支持 `PP-OCR V4` 系列模型库，及PPOCR算法挑战赛 [冠军方案模型库](https://github.com/PaddlePaddle/PaddleOCR/blob/main/doc/doc_ch/algorithm_rec_svtrv2.md) 。
 - 由于后端依赖库的更新，在 **非AVX512** 的CPU上，OCR速度可能有 **小幅下降** 。
 - 由于语言库`cyrillic`（斯拉夫字母/俄语）的准确度较低、使用频率较低，发行包中不再包含此语言库。有需要的用户可 [自行下载](https://paddleocr.bj.bcebos.com/PP-OCRv3/multilingual/cyrillic_PP-OCRv3_rec_infer.tar) 。
+- Python API： 修复了布尔类型启动参数设为 `False` 不生效的问题。
 
 #### [v1.4.0](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.4.0) `2024.7.22` 
 

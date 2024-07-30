@@ -79,7 +79,7 @@ unzip -x models_v1.4.1.zip
 ```
 
 - [paddle_inference](https://www.paddlepaddle.org.cn/inference/master/guides/install/download_lib.html) (Linux, C++预测库, gcc编译器版本, manylinux_cpu_avx_mkl_gcc8.2)
-- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.1-dev) (models.zip)
+- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.4.1-dev) (models.zip)
 
 ### 1.3 准备 OpenCV
 
