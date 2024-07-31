@@ -48,7 +48,7 @@
 
 下载可执行文件包：
 
-- https://github.com/hiroi-sora/PaddleOCR-json/releases
+- https://github.com/hiroi-sora/PaddleOCR-json/releases/latest
 
 ### 简单试用
 
