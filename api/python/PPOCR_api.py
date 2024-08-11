@@ -36,10 +36,12 @@ class PPOCR_pipe:  # 调用OCR（管道模式）
         if isinstance(argument, dict):
             for key, value in argument.items():
                 # Popen() 要求输入list里所有的元素都是 str 或 bytes
-                cmds += [
-                    f"--{key}",
-                    str(value),
-                ]
+                if isinstance(value, bool):
+                    cmds += [f"--{key}={value}"]  # 布尔参数必须键和值连在一起
+                elif isinstance(value, str):
+                    cmds += [f"--{key}", value]
+                else:
+                    cmds += [f"--{key}", str(value)]
         # 设置子进程启用静默模式，不显示控制台窗口
         self.ret = None
         startupinfo = None

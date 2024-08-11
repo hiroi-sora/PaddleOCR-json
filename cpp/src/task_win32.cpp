@@ -6,12 +6,13 @@
 #include "include/paddleocr.h"
 #include "include/args.h"
 #include "include/task.h"
-// 剪贴板和套接字 
+// 剪贴板和套接字
 #include <windows.h>
+#include <psapi.h> // 内存管理
 // 编码转换
 #include <codecvt>
 std::wstring_convert<std::codecvt_utf8<wchar_t>> conv_Ustr_Wstr; // string utf-8 与 wstring utf-16 的双向转换器
-// 套接字 
+// 套接字
 #pragma comment(lib, "ws2_32.lib")
 
 namespace PaddleOCR
@@ -19,7 +20,7 @@ namespace PaddleOCR
 
     // ==================== 工具函数 ====================
 
-    // 多字节ANSI字符数组转宽字符数组 
+    // 多字节ANSI字符数组转宽字符数组
     wchar_t *char_2_wchar(char *c)
     {
         setlocale(LC_ALL, "");                   // 程序的区域设置为windows系统当前区域
@@ -30,7 +31,7 @@ namespace PaddleOCR
         return wc;
     }
 
-    // 专门用于消息的wstring转string，转换失败时返回默认提示文字 
+    // 专门用于消息的wstring转string，转换失败时返回默认提示文字
     std::string msg_wstr_2_ustr(std::wstring &msg)
     {
         try
@@ -65,54 +66,71 @@ namespace PaddleOCR
 
     // ==================== 类的实现 ====================
 
+    // 获取当前内存占用。返回整数，单位MB。失败时返回-1。
+    int Task::get_memory_mb()
+    {
+        PROCESS_MEMORY_COUNTERS pmc;
+        if (GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc)))
+        {
+            return static_cast<int>(pmc.WorkingSetSize / (1024 * 1024)); // 单位MB
+        }
+        else
+        {
+            std::cerr << "Error: GetProcessMemoryInfo" << std::endl;
+            return -1; // 获取失败
+        }
+    }
+
     // 代替 cv::imread ，从路径pathW读入一张图片。pathW必须为unicode的wstring
     cv::Mat Task::imread_wstr(std::wstring pathW, int flag)
     {
-        std::string pathU8 = msg_wstr_2_ustr(pathW); // 再转回utf-8，以备输出错误。 
-        // ↑ 由于这个函数要被剪贴板CF_UNICODETEXT等复用，可能调用方只能提供wstring，所以多此一举转换一次。 
+        std::string pathU8 = msg_wstr_2_ustr(pathW); // 再转回utf-8，以备输出错误。
+        // ↑ 由于这个函数要被剪贴板CF_UNICODETEXT等复用，可能调用方只能提供wstring，所以多此一举转换一次。
         if (!is_exists_wstr(pathW))
-        {                                                               // 路径不存在 
-            set_state(CODE_ERR_PATH_EXIST, MSG_ERR_PATH_EXIST(pathU8)); // 报告状态：路径不存在且无法输出 
+        {                                                               // 路径不存在
+            set_state(CODE_ERR_PATH_EXIST, MSG_ERR_PATH_EXIST(pathU8)); // 报告状态：路径不存在且无法输出
             return cv::Mat();
         }
-        FILE *fp = _wfopen((wchar_t *)pathW.c_str(), L"rb"); // wpath强制类型转换到whar_t，尝试打开文件 
+        FILE *fp = _wfopen((wchar_t *)pathW.c_str(), L"rb"); // wpath强制类型转换到whar_t，尝试打开文件
         if (!fp)
-        {                                                             // 打开失败 
-            set_state(CODE_ERR_PATH_READ, MSG_ERR_PATH_READ(pathU8)); // 报告状态：无法读取 
+        {                                                             // 打开失败
+            set_state(CODE_ERR_PATH_READ, MSG_ERR_PATH_READ(pathU8)); // 报告状态：无法读取
             return cv::Mat();
         }
         // 将文件读到内存
-        fseek(fp, 0, SEEK_END);                // 设置流 fp 的文件位置为 SEEK_END 文件的末尾 
-        long sz = ftell(fp);                   // 获取流 fp 的当前文件位置，即总大小（字节） 
-        char *buf = new char[sz];              // 存放文件字节内容 
-        fseek(fp, 0, SEEK_SET);                // 设置流 fp 的文件位置为 SEEK_SET 文件的开头 
-        long n = fread(buf, 1, sz, fp);        // 从给定流 fp 读取数据到 buf 所指向的数组中，返回成功读取的元素总数 
-        cv::_InputArray arr(buf, sz);          // 转换为OpenCV数组 
-        cv::Mat img = cv::imdecode(arr, flag); // 解码内存数据，变成cv::Mat数据 
-        delete[] buf;                          // 释放buf空间 
-        fclose(fp);                            // 关闭文件 
+        fseek(fp, 0, SEEK_END);                // 设置流 fp 的文件位置为 SEEK_END 文件的末尾
+        long sz = ftell(fp);                   // 获取流 fp 的当前文件位置，即总大小（字节）
+        char *buf = new char[sz];              // 存放文件字节内容
+        fseek(fp, 0, SEEK_SET);                // 设置流 fp 的文件位置为 SEEK_SET 文件的开头
+        long n = fread(buf, 1, sz, fp);        // 从给定流 fp 读取数据到 buf 所指向的数组中，返回成功读取的元素总数
+        cv::_InputArray arr(buf, sz);          // 转换为OpenCV数组
+        cv::Mat img = cv::imdecode(arr, flag); // 解码内存数据，变成cv::Mat数据
+        delete[] buf;                          // 释放buf空间
+        fclose(fp);                            // 关闭文件
         if (img.empty())
         {
-            set_state(CODE_ERR_PATH_DECODE, MSG_ERR_PATH_DECODE(pathU8)); // 报告状态：解码失败 
+            set_state(CODE_ERR_PATH_DECODE, MSG_ERR_PATH_DECODE(pathU8)); // 报告状态：解码失败
         }
         return img;
     }
-
 
     // 代替cv imread，接收utf-8字符串传入，返回Mat。
     cv::Mat Task::imread_u8(std::string pathU8, int flag)
     {
 #if defined(_WIN32) && defined(ENABLE_CLIPBOARD)
-        if (pathU8 == u8"clipboard") { // 若为剪贴板任务 
+        if (pathU8 == u8"clipboard")
+        { // 若为剪贴板任务
             return imread_clipboard(flag);
         }
 #endif
         // string u8 转 wchar_t
         std::wstring wpath;
-        try {
+        try
+        {
             wpath = conv_Ustr_Wstr.from_bytes(pathU8); // 利用转换器转换
         }
-        catch (...) {
+        catch (...)
+        {
             set_state(CODE_ERR_PATH_CONV, MSG_ERR_PATH_CONV(pathU8)); // 报告状态：转wstring失败
             return cv::Mat();
         }
@@ -238,24 +256,27 @@ namespace PaddleOCR
     }
 #endif
 
-    // 套接字模式 
-    int Task::socket_mode() {
+    // 套接字模式
+    int Task::socket_mode()
+    {
         // 初始化Winsock库
-        WSADATA wsa_data; // winsock结构 
-        if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
+        WSADATA wsa_data; // winsock结构
+        if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0)
+        {
             std::cerr << "Failed to initialize Winsock." << std::endl;
             return -1;
         }
         // 创建套接字，协议族为TCP/IP
         SOCKET server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-        if (server_fd == INVALID_SOCKET) {
+        if (server_fd == INVALID_SOCKET)
+        {
             std::cerr << "Failed to create socket." << std::endl;
             WSACleanup();
             return -1;
         }
-        // 配置地址和端口号 
+        // 配置地址和端口号
         struct sockaddr_in addr;
-        addr.sin_family = AF_INET; // 地址族：IPv4 
+        addr.sin_family = AF_INET; // 地址族：IPv4
         // IP地址模式：本地环回/任何可用/其他IPv4
         unsigned int my_s_addr;
         if (addr_to_uint32(FLAGS_addr, my_s_addr) < 0)
@@ -265,91 +286,104 @@ namespace PaddleOCR
             return -1;
         }
         addr.sin_addr.s_addr = static_cast<ULONG>(my_s_addr);
-        addr.sin_port = htons(FLAGS_port); // 端口号 
+        addr.sin_port = htons(FLAGS_port); // 端口号
         // 绑定地址和端口号到套接字句柄server_fd
-        if (bind(server_fd, (struct sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) {
+        if (bind(server_fd, (struct sockaddr *)&addr, sizeof(addr)) == SOCKET_ERROR)
+        {
             std::cerr << "Failed to bind address." << std::endl;
             closesocket(server_fd);
             WSACleanup();
             return -1;
         }
-        // 将套接字server_fd设为监听状态，只允许1个客户端排队连接 
-        if (listen(server_fd, 1) == SOCKET_ERROR) {
+        // 将套接字server_fd设为监听状态，只允许1个客户端排队连接
+        if (listen(server_fd, 1) == SOCKET_ERROR)
+        {
             std::cerr << "Failed to set listen." << std::endl;
             closesocket(server_fd);
             WSACleanup();
             return -1;
         }
-        // 获取服务端实际ip和端口 
+        // 获取服务端实际ip和端口
         struct sockaddr_in server_addr;
         int len = sizeof server_addr;
-        if (getsockname(server_fd, (SOCKADDR*)&server_addr, &len) != 0) {
+        if (getsockname(server_fd, (SOCKADDR *)&server_addr, &len) != 0)
+        {
             std::cerr << "Failed to get sockname." << std::endl;
             closesocket(server_fd);
             WSACleanup();
             return -1;
         }
-        int server_port = ntohs(server_addr.sin_port); // 获取端口号  
-        char* server_ip = inet_ntoa(addr.sin_addr); // 获取ip地址  
-        //int server_port = ntohs(addr.sin_port);
+        int server_port = ntohs(server_addr.sin_port); // 获取端口号
+        char *server_ip = inet_ntoa(addr.sin_addr);    // 获取ip地址
+        // int server_port = ntohs(addr.sin_port);
         std::cout << "Socket init completed. " << server_ip << ":" << server_port << std::endl;
 
         // 循环等待接收连接
-        while (true) {
+        while (true)
+        {
             // 接受连接请求
             struct sockaddr_in client_addr;
             int client_addr_len = sizeof(client_addr);
-            SOCKET client_fd = accept(server_fd, (sockaddr*)&client_addr, &client_addr_len);
-            if (client_fd == INVALID_SOCKET) {
+            SOCKET client_fd = accept(server_fd, (sockaddr *)&client_addr, &client_addr_len);
+            if (client_fd == INVALID_SOCKET)
+            {
                 std::cerr << "Failed to accept connection." << std::endl;
                 continue;
             }
-            // 获取客户端实际ip和端口 
-            char* client_ip = inet_ntoa(client_addr.sin_addr);
+            // 获取客户端实际ip和端口
+            char *client_ip = inet_ntoa(client_addr.sin_addr);
             int client_port = ntohs(client_addr.sin_port);
             std::cerr << "Client connected. IP address: " << client_ip << ":" << client_port << std::endl;
 
-            // 接收任意长度数据 
-            std::string str_in; // 接收数据存放处 
-            char buffer[1024]; // 缓冲区 
+            // 接收任意长度数据
+            std::string str_in; // 接收数据存放处
+            char buffer[1024];  // 缓冲区
             int n = 0;
-            while (true) {
+            while (true)
+            {
                 n = recv(client_fd, buffer, sizeof(buffer), 0);
-                if (n <= 0) { // 可能客户端断开连接或连接错误 
+                if (n <= 0)
+                { // 可能客户端断开连接或连接错误
                     break;
                 }
-                str_in.append(buffer, n); // 将本次接收到的数据追加到存放处末尾 
-                if (buffer[n - 1] == '\0' || buffer[n - 1] == '\n') { // 到达末尾符，认为数据已全部接收完毕 
+                str_in.append(buffer, n); // 将本次接收到的数据追加到存放处末尾
+                if (buffer[n - 1] == '\0' || buffer[n - 1] == '\n')
+                { // 到达末尾符，认为数据已全部接收完毕
                     break;
                 }
             }
-            if (n <= 0) {
+            if (n <= 0)
+            {
                 std::cerr << "Failed to receive data." << std::endl;
                 closesocket(client_fd);
                 continue;
             }
             std::cerr << "Get string. Length: " << str_in.length() << std::endl;
 
-            // =============== OCR开始 =============== 
-            set_state(); // 初始化状态 
-            // 获取ocr结果 
+            // =============== OCR开始 ===============
+            set_state(); // 初始化状态
+            // 获取ocr结果
             std::string str_out = run_ocr(str_in);
-            if (is_exit) { // 退出 
+            if (is_exit)
+            { // 退出
                 // 关闭连接
                 closesocket(client_fd);
                 break;
             }
-            // =============== OCR完毕 =============== 
+            // =============== OCR完毕 ===============
 
             // 发送数据
             std::cerr << str_out << std::endl;
             int m = send(client_fd, str_out.c_str(), strlen(str_out.c_str()), 0);
-            if (m <= 0) {
+            if (m <= 0)
+            {
                 std::cerr << "Failed to send data." << std::endl;
             }
 
             // 关闭连接
             closesocket(client_fd);
+            // 检查、清理内存
+            Task::memory_check_cleanup();
         }
 
         // 关闭套接字

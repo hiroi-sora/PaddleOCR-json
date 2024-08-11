@@ -20,81 +20,83 @@
 #include <include/postprocess_op.h>
 #include <include/preprocess_op.h>
 
-namespace PaddleOCR {
+namespace PaddleOCR
+{
 
-class DBDetector {
-public:
-  explicit DBDetector(const std::string &model_dir, const bool &use_gpu,
-                      const int &gpu_id, const int &gpu_mem,
-                      const int &cpu_math_library_num_threads,
-                      const bool &use_mkldnn, const std::string &limit_type,
-                      const int &limit_side_len, const double &det_db_thresh,
-                      const double &det_db_box_thresh,
-                      const double &det_db_unclip_ratio,
-                      const std::string &det_db_score_mode,
-                      const bool &use_dilation, const bool &use_tensorrt,
-                      const std::string &precision) {
-    this->use_gpu_ = use_gpu;
-    this->gpu_id_ = gpu_id;
-    this->gpu_mem_ = gpu_mem;
-    this->cpu_math_library_num_threads_ = cpu_math_library_num_threads;
-    this->use_mkldnn_ = use_mkldnn;
+    class DBDetector
+    {
+    public:
+        explicit DBDetector(const std::string &model_dir, const bool &use_gpu,
+                            const int &gpu_id, const int &gpu_mem,
+                            const int &cpu_math_library_num_threads,
+                            const bool &use_mkldnn, const std::string &limit_type,
+                            const int &limit_side_len, const double &det_db_thresh,
+                            const double &det_db_box_thresh,
+                            const double &det_db_unclip_ratio,
+                            const std::string &det_db_score_mode,
+                            const bool &use_dilation, const bool &use_tensorrt,
+                            const std::string &precision)
+        {
+            this->use_gpu_ = use_gpu;
+            this->gpu_id_ = gpu_id;
+            this->gpu_mem_ = gpu_mem;
+            this->cpu_math_library_num_threads_ = cpu_math_library_num_threads;
+            this->use_mkldnn_ = use_mkldnn;
 
-    this->limit_type_ = limit_type;
-    this->limit_side_len_ = limit_side_len;
+            this->limit_type_ = limit_type;
+            this->limit_side_len_ = limit_side_len;
 
-    this->det_db_thresh_ = det_db_thresh;
-    this->det_db_box_thresh_ = det_db_box_thresh;
-    this->det_db_unclip_ratio_ = det_db_unclip_ratio;
-    this->det_db_score_mode_ = det_db_score_mode;
-    this->use_dilation_ = use_dilation;
+            this->det_db_thresh_ = det_db_thresh;
+            this->det_db_box_thresh_ = det_db_box_thresh;
+            this->det_db_unclip_ratio_ = det_db_unclip_ratio;
+            this->det_db_score_mode_ = det_db_score_mode;
+            this->use_dilation_ = use_dilation;
 
-    this->use_tensorrt_ = use_tensorrt;
-    this->precision_ = precision;
+            this->use_tensorrt_ = use_tensorrt;
+            this->precision_ = precision;
 
-    LoadModel(model_dir);
-  }
+            LoadModel(model_dir);
+        }
 
-  // Load Paddle inference model
-  void LoadModel(const std::string &model_dir);
+        // Load Paddle inference model
+        void LoadModel(const std::string &model_dir);
 
-  // Run predictor
-  void Run(cv::Mat &img, std::vector<std::vector<std::vector<int>>> &boxes,
-           std::vector<double> &times);
+        // Run predictor
+        void Run(cv::Mat &img, std::vector<std::vector<std::vector<int>>> &boxes,
+                 std::vector<double> &times);
+        std::shared_ptr<paddle_infer::Predictor> predictor_; // 推理库实例
 
-private:
-  std::shared_ptr<paddle_infer::Predictor> predictor_;
+    private:
+        bool use_gpu_ = false;
+        int gpu_id_ = 0;
+        int gpu_mem_ = 4000;
+        int cpu_math_library_num_threads_ = 4;
+        bool use_mkldnn_ = false;
 
-  bool use_gpu_ = false;
-  int gpu_id_ = 0;
-  int gpu_mem_ = 4000;
-  int cpu_math_library_num_threads_ = 4;
-  bool use_mkldnn_ = false;
+        std::string limit_type_ = "max";
+        int limit_side_len_ = 960;
 
-  std::string limit_type_ = "max";
-  int limit_side_len_ = 960;
+        double det_db_thresh_ = 0.3;
+        double det_db_box_thresh_ = 0.5;
+        double det_db_unclip_ratio_ = 2.0;
+        std::string det_db_score_mode_ = "slow";
+        bool use_dilation_ = false;
 
-  double det_db_thresh_ = 0.3;
-  double det_db_box_thresh_ = 0.5;
-  double det_db_unclip_ratio_ = 2.0;
-  std::string det_db_score_mode_ = "slow";
-  bool use_dilation_ = false;
+        bool visualize_ = true;
+        bool use_tensorrt_ = false;
+        std::string precision_ = "fp32";
 
-  bool visualize_ = true;
-  bool use_tensorrt_ = false;
-  std::string precision_ = "fp32";
+        std::vector<float> mean_ = {0.485f, 0.456f, 0.406f};
+        std::vector<float> scale_ = {1 / 0.229f, 1 / 0.224f, 1 / 0.225f};
+        bool is_scale_ = true;
 
-  std::vector<float> mean_ = {0.485f, 0.456f, 0.406f};
-  std::vector<float> scale_ = {1 / 0.229f, 1 / 0.224f, 1 / 0.225f};
-  bool is_scale_ = true;
+        // pre-process
+        ResizeImgType0 resize_op_;
+        Normalize normalize_op_;
+        Permute permute_op_;
 
-  // pre-process
-  ResizeImgType0 resize_op_;
-  Normalize normalize_op_;
-  Permute permute_op_;
-
-  // post-process
-  DBPostProcessor post_processor_;
-};
+        // post-process
+        DBPostProcessor post_processor_;
+    };
 
 } // namespace PaddleOCR

@@ -8,13 +8,11 @@
 |                  | 凌动Atom，安腾Itanium，赛扬Celeron，奔腾Pentium |                      |
 | 推理加速库       | mkldnn 👍                                        | 无                   |
 | 识别速度         | 快（启用mkldnn加速）👍                           | 中等                 |
-|                  | 极慢（不启用mkldnn）                            |                      |
-| 初始化耗时       | 约2s，慢                                        | 0.1s内，快 👍         |
-| 组件体积（压缩） | 52MB                                            | 15MB 👍               |
-| 组件体积（部署） | 250MB                                           | 30MB 👍               |
-| CPU占用          | 高，榨干硬件性能                                | 较低，对低配机器友好 |
-| 内存占用峰值     | >2000MB（启用mkldnn）                           | ~500MB 👍             |
-|                  | ~600MB（不启用mkldnn）                          |                      |
+| 初始化耗时       | 约0.6s                                          | 0.1s内，快 👍         |
+| 组件体积（压缩） | 100MB                                           | 70MB 👍               |
+| 组件体积（部署） | 369MB                                           | 80MB 👍               |
+| CPU占用          | 较高                                            | 较低，对低配机器友好 |
+| 建议预留内存     | 2000MB                                          | 800MB 👍              |
 
 ---
 
@@ -22,20 +20,20 @@
 
 > 支持： **Win7 x64**、**Linux x64**、[Docker](cpp/README-docker.md)
 
-这是一个基于 [PaddleOCR v2.6 C++](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) 的离线图片OCR文字识别程序，可快速让你的程序拥有OCR能力。它可以作为一个子进程被上层程序调用，也可以作为一个单独的进程通过TCP调用。本项目提供了Python等语言的API，你可以无视技术细节，通过两行代码使用它。
+这是一个基于 [PaddleOCR v2.6](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) 及 [v2.8](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.8) cpp_infer 的离线图片OCR文字识别程序，可快速让你的程序拥有OCR能力。它可以作为一个子进程被上层程序调用，也可以作为一个单独的进程通过TCP调用。本项目提供了Python等语言的API，你可以无视技术细节，通过两行代码使用它。
 
 本项目旨在提供一个封装好的OCR引擎组件，使得没有C++编程基础的开发者也可以用别的语言来简单地调用OCR，享受到更快的运行效率、更便捷的打包&部署手段。
 
 - **方便** ：部署方便，解压即用，无需安装和配置环境，无需联网。发布方便，可嵌入程序包也可作为外挂组件。
-- **高速** ：基于 PPOCR C++ 版引擎，识别效率显著高于Python版本PPOCR及其他一些由Python编写的OCR引擎。
-- **精准** ：附带PPOCR-v3识别库，对非常规字形（手写、艺术字、小字、杂乱背景等）也具有不错的识别率。
-- **灵活** ：可以以多种方式指定OCR任务，支持识别本地图片路径、剪贴板图片、Base64编码的图片。
+- **高速** ：基于 PPOCR C++ 版引擎，识别效率高于Python版本PPOCR及其他一些由Python处理任务流的OCR引擎。
+- **精准** ：附带 PPOCR-v3 / v4 识别库，对非常规字形（手写、艺术字、小字、杂乱背景等）也具有不错的识别率。
+- **灵活** ：可以以多种方式指定OCR任务，支持识别本地图片路径、Base64编码的图片、TCP局域网调用。
 
 **应用：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
 
 ## 兼容性
 
-- 系统支持 Win7 x64 及以上。Linux的支持正在筹备。
+- 系统： x86-64 的 Windows 7+ 、Linux。
 - 若 Win7 报错`计算机中丢失 VCOMP140.DLL` ，请安装 [VC运行库](https://aka.ms/vs/17/release/vc_redist.x64.exe) 。
 - CPU必须具有AVX指令集。常见的家用CPU一般都满足该条件。
 
@@ -50,7 +48,7 @@
 
 下载可执行文件包：
 
-- https://github.com/hiroi-sora/PaddleOCR-json/releases
+- https://github.com/hiroi-sora/PaddleOCR-json/releases/latest
 
 ### 简单试用
 
@@ -161,7 +159,7 @@ ocr.flush({ image_path: 'path/to/test/img' })
 
 ### 语言库与切换识别语言：
 
-`v1.3`之后版本的Release压缩包中，默认附带了 `简中,繁中,英,日,韩,俄,德,法` 的语言库与配置文件，在 `models` 目录下。
+Release压缩包中，默认附带了 `简中,繁中,英,日,韩` 的语言库与配置文件，在 `models` 目录下。
 
 `models` 目录中，每一个 `config_xxx.txt` 是一组语言配置文件（如英文是`congfig_en.txt`）。只需将这个文件的路径传入 `config_path` 参数，即可切换为对应的语言。以 Python API 为例：
 
@@ -200,6 +198,8 @@ argument = {
 }
 ocr = GetOcrApi(enginePath, argument)
 ```
+
+本项目支持 PP-OCR 系列官方 V2~V4 模型，或自己训练的符合PP规范的模型。更多 PP-OCR 系列官方模型下载： https://github.com/PaddlePaddle/PaddleOCR/blob/main/doc/doc_ch/models_list.md
 
 #### 删除语言库：
 
@@ -345,8 +345,16 @@ ocr = GetOcrApi(enginePath, argument)
 
 ### 项目构建指南
 
-- [Windows 平台](cpp/README.md)
-- [Linux 平台](cpp/README-linux.md)
+#### 稳定版，基于 PP-OCR v2.6
+
+- [Windows 平台构建步骤](https://github.com/hiroi-sora/PaddleOCR-json/blob/release/1.4.0/cpp/README.md)
+- [Linux 平台构建步骤](https://github.com/hiroi-sora/PaddleOCR-json/blob/release/1.4.0/cpp/README-linux.md)
+- [Docker 部署](https://github.com/hiroi-sora/PaddleOCR-json/blob/release/1.4.0/cpp/README-docker.md)
+
+#### 最新开发版，基于 PP-OCR v2.8
+
+- [Windows 平台构建步骤](cpp/README.md)
+- [Linux 平台构建步骤](cpp/README-linux.md)
 - [Docker 部署](cpp/README-docker.md)
 - [移植指南](cpp/docs/移植指南.md) （需要移植项目到不同平台时可供参考）
 
@@ -367,6 +375,22 @@ ocr = GetOcrApi(enginePath, argument)
 
 版本号链接可前往对应备份分支。
 
+#### v1.4.1 dev 1 `2024.7.31`
+
+- 更新推理后端至 Paddle Inference `3.0.0 beta-1` 。
+- 大幅优化内存占用：峰值由 2.5GB 降至约 1.5GB 。
+- 增加命令行参数：内存自动清理界限 `--cpu_mem` 。见 [文档](cpp/README.md#关于内存占用) 。
+- 小幅优化初始化耗时。
+- 支持 `PP-OCR V4` 系列模型库，及PPOCR算法挑战赛 [冠军方案模型库](https://github.com/PaddlePaddle/PaddleOCR/blob/main/doc/doc_ch/algorithm_rec_svtrv2.md) 。
+- 由于后端依赖库的更新，在 **非AVX512** 的CPU上，OCR速度可能有 **小幅下降** 。
+- 由于语言库`cyrillic`（斯拉夫字母/俄语）的准确度较低、使用频率较低，发行包中不再包含此语言库。有需要的用户可 [自行下载](https://paddleocr.bj.bcebos.com/PP-OCRv3/multilingual/cyrillic_PP-OCRv3_rec_infer.tar) 。
+- Python API： 修复了布尔类型启动参数设为 `False` 不生效的问题。
+
+#### [v1.4.0](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.4.0) `2024.7.22` 
+
+#### v1.4.0 beta 2 `2024.7.9` 
+- 返回值新增：文字方向分类相关参数。
+
 #### v1.4.0 beta `2024.7.5` 
 - 兼容 Linux 。
 - 调整：默认禁用剪贴板识图功能，需自行编译开启。
@@ -377,7 +401,7 @@ ocr = GetOcrApi(enginePath, argument)
 #### [v1.3.0](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.3.0) `2023.6.19` 
 - 修复了一些BUG。
 
-#### v1.3.0 Alpha `2023.5.26` 
+#### v1.3.0 alpha `2023.5.26` 
 - 重构代码，条理更清晰，易于移植。
 - 新功能：Base64传图片。
 - 新功能：套接字服务器模式。
@@ -394,7 +418,7 @@ ocr = GetOcrApi(enginePath, argument)
 - 默认开启mkldnn加速。
 - 新功能：json输入及热更新。
 
-#### v1.2.0 Beta `2022.8.26` 
+#### v1.2.0 beta `2022.8.26` 
 - 重构整个工程，核心代码同步PaddleOCR 2.6。
 - 对v3版识别库的支持更好。
 - 新功能：启动参数。

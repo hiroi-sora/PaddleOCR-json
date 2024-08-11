@@ -1,8 +1,8 @@
-# PaddleOCR-json V1.4 Windows 构建指南
+# PaddleOCR-json V1.4.1 Windows 构建指南
 
-本文档帮助如何在Windows上编译 PaddleOCR-json V1.4 （对应PPOCR v2.6）。面向小白，用的最简单的步骤。大佬可酌情调整。
+本文档帮助如何在Windows上编译 PaddleOCR-json V1.4.1 （对应PPOCR v2.8）。面向小白，用的最简单的步骤。大佬可酌情调整。
 
-本文参考了 PPOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/cpp_infer/docs/windows_vs2019_build.md#12-%E4%B8%8B%E8%BD%BD-paddlepaddle-c-%E9%A2%84%E6%B5%8B%E5%BA%93%E5%92%8C-opencv) ，但建议以本文为准。
+本文参考了 PPOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.8/deploy/cpp_infer/docs/windows_vs2019_build.md) ，但建议以本文为准。
 
 相关文档：
 - [Linux 构建指南](./README-linux.md)
@@ -22,16 +22,14 @@
 
 ### 1.2 需要下载的资源：
 
-- [paddle_inference](https://paddleinference.paddlepaddle.org.cn/user_guides/download_lib.html#windows) (Windows, 2.3.2, C++预测库, cpu_avx_mkl)
+- [paddle_inference.zip](https://paddle-inference-lib.bj.bcebos.com/3.0.0-beta1/cxx_c/Windows/CPU/x86-64_avx-mkl-vs2019/paddle_inference.zip) (Windows C++预测库, 3.0.0, cpu_avx_mkl)
 - [Opencv](https://github.com/opencv/opencv/releases) (windows.exe)
-- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/models%2Fv1.3) (models.zip)
-
-如果是 Linux / Mac 平台，则paddle_inference和Opencv需选择对应平台的资源。模型库通用，无需改。
+- [模型库](https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.1-dev/models_v1.4.1.zip) (models.zip)
 
 ### 1.3 放置资源
 
 1. clone 本仓库。在 `PaddleOCR-json/cpp` 下新建一个文件夹 `.source` 来存放外部资源。（前面加点是为了按文件名排列更顺眼）
-2. 将下载好的 `models.zip` 、 `paddle_inference` 和 `Opencv` 解压进`.source`。
+2. 将下载好的 `models_v1.4.1.zip` 、 `paddle_inference` 和 `Opencv` 解压进`.source`。
    - `paddle_inference` 应该解压后放入一个单独文件夹内，并且根据版本给文件夹改个后缀，比如是cpu_avx_mkl版，就叫 `paddle_inference_cpu_avx_mkl` ，以便区分。
    - Opencv看起来是个exe，实际上是个自解压包，运行并选择目录解压。
 
@@ -175,6 +173,7 @@ PADDLE_LIB:
 
 ```
 OCR anonymous pipe mode.
+OCR init time: 0.62887s
 OCR init completed.
 ```
 
@@ -192,24 +191,94 @@ CMake会将 `build` 文件夹下的可执行文件和运行库给安装到 `buil
 
 如果你希望安装到指定位置，你可以为上面这条命令加上参数 `--prefix /安装路径/` 来指定一个安装路径。比如 `--prefix build/install` 会将所有的文件都安装到 `build/install` 文件夹下。
 
-## 5. 其他问题
+## 5. 切换语言/模型库/预设
 
-### 关于内存泄漏 / 长期高内存占用
+可通过启动时的命令行参数，指定使用模型库或者预设。
 
-由于本项目是基于 [PaddleOCR v2.6 C++](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) 写的，它的内存占用非常激进。但是占用率不会无限制的上升，达到一定值后会放缓直至停止。官方在 PaddleOCR v2.7+ 之后修复了这个问题，不过本项目在短期内还无法跟进新版本。
+| 参数               | 说明                                                                         |
+| ------------------ | ---------------------------------------------------------------------------- |
+| det_model_dir      | 文本检测模型库路径。所有语言都能使用 `models/ch_PP-OCRv4_det_infer`          |
+| cls_model_dir      | 方向分类模型库路径。所有语言都能使用 `models/ch_ppocr_mobile_v2.0_cls_infer` |
+| rec_model_dir      | 文本识别模型库路径。不同语言应该使用不同的识别库。                           |
+| rec_char_dict_path | 文本识别模型库对应的字典文件路径。                                           |
+| rec_img_h          | 文本识别模型特殊参数。V2模型需手动设为32，V3/V4模型无需设置。                |
 
-当前，可以绕过内存问题的方法有：
+`det`, `cls`, `rec` 支持使用PP-OCR系列官方模型，或自己训练的符合PP规范的模型。支持 V2~V4 模型。
 
-1. 外部重启引擎，用另一个程序 / 脚本来监听引擎的输出，然后在引擎不工作时重启引擎进程（Umi-OCR就是这么做的）。
-2. 从引擎内部来清理内存。在分支 `autoclean` 里面是一个修改过的引擎。新增了一个参数 `-auto_memory_cleanup`，它会开启一条线程来检查引擎状态，然后在其闲置时释放内存。
+路径建议填相对路径，根为 PaddleOCR-json 目录。假设模型都存放在 `models` 目录中，那么可以设定这样的参数：
+
+（Linux下， `PaddleOCR-json.exe` 换成 `run.sh`）
+
+```sh
+PaddleOCR-json.exe \
+    --det_model_dir=models/ch_PP-OCRv4_det_infer \
+    --cls_model_dir=models/ch_ppocr_mobile_v2.0_cls_infer \
+    --rec_model_dir=models/ch_PP-OCRv4_rec_infer \
+    --rec_char_dict_path=models/dict_chinese.txt
+```
+
+也可以将上述参数写进一个txt里，格式如：`config_chinese.txt`
+
+```sh
+# 这是单行注释
+
+# det 检测模型库
+det_model_dir models/ch_PP-OCRv4_det_infer
+# cls 方向分类器库
+cls_model_dir models/ch_ppocr_mobile_v2.0_cls_infer
+# rec 识别模型库
+rec_model_dir models/ch_PP-OCRv4_rec_infer
+# 字典路径
+rec_char_dict_path models/dict_chinese.txt
+```
+
+然后，将该txt传入 `config_path` 参数中：
+
+```sh
+PaddleOCR-json.exe --config_path=models/config_chinese.txt
+```
+
+我们提供的 `model.zip` 中已经包含了多种语言的预设文件：
+
+| 语言     | 预设文件                        | 模型版本 |
+| -------- | ------------------------------- | -------- |
+| 简体中文 | `models/config_chinese.txt`     | V4       |
+| English  | `models/config_en.txt`          | V4       |
+| 繁體中文 | `models/config_chinese_cht.txt` | V2       |
+| 日本語   | `models/config_japan.txt`       | V4       |
+| 한국어   | `models/config_korean.txt`      | V4       |
+
+（注：繁體中文使用V2版本模型，因为V2竖排识别的准确度比后续版本更好。）
+
+更多 PP-OCR 系列官方模型下载： https://github.com/PaddlePaddle/PaddleOCR/blob/main/doc/doc_ch/models_list.md
+
+## 6. 其他问题
+
+### 关于内存占用
+
+本项目后端推理库为 `Paddle Inference 3.0.0 beta.1 cpu_mkl` 。比起旧版本，`3.0.0` 大幅优化了内存占用率。进行大批量、连续OCR（约1000张图片）后，内存占用稳定在 1.5G 左右。
+
+建议至少在 4G 内存的机器上使用本项目，预留 2G 空闲内存给本项目。
+
+如果有必要在 2G 内存的机器上使用本项目，建议添加启动参数 `--cpu_mem=1200` ，让 PaddleOCR-json 在内存占用超过 1200MB 时执行自动内存清理。
+
+- `--cpu_mem` 是 PaddleOCR-json v1.4.1 新增参数，v1.4.0或以前的版本无法使用。
+- `--cpu_mem` 不建议低于 `1000` ，否则频繁清理内存，可能影响OCR效率。您也可以使用隔壁 [RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json) ，对低配置机器更友好。
+
+另外，本项目默认不会在空闲时自动释放内存。假设当前占用了 1500MB ，那么接下来就算不进行OCR，引擎也会永远保持该内存占用，直到达到 `--cpu_mem` 设定的上界，自动执行清理。
+
+如果你想让引擎在空闲时不要占用那么多内存，可行的方法有：
+
+1. 外部重启引擎。使用一个程序/脚本来管理引擎的输入输出。如果持续一段时间没有活动，则kill掉引擎进程，重新启动一个。Umi-OCR就是这么做的。
+2. 从引擎内部来清理内存。在分支 `release/1.4.0_autoclean` 里面是一个修改过的引擎。新增了一个参数 `--auto_memory_cleanup`，它会开启一条线程来检查引擎状态，然后在其闲置时释放内存。
 
 > [!CAUTION]
-> **但是，这个方法无法清理干净内存里所有的资源，PaddleOCR底层的某些库所调用的资源会一直占用着一小块内存。到最后引擎闲置时的内存占用大约为600MB。这些没有正常释放资源的操作有可能会引发一些问题。**
+> **无论是 `--auto_memory_cleanup` 还是 `--cpu_mem` 进行一次清理，内存占用仍会残留大约 300~600MB 。这是 Paddle Inference 推理库实例的占用下限。如果想空闲时接近0占用，只能使用方法1，外部重启引擎进程。**
 
 更多细节请看这些Issue：[#43](https://github.com/hiroi-sora/PaddleOCR-json/issues/43)、[#90](https://github.com/hiroi-sora/PaddleOCR-json/issues/90)、[#135](https://github.com/hiroi-sora/PaddleOCR-json/issues/135)
 
-如果你打算使用上面提到的方法2，你可以重新clone本仓库的 `autoclean` 分支，然后再自行构建编译整个项目。
-
-```sh
-git clone --single-branch --branch autoclean https://github.com/hiroi-sora/PaddleOCR-json.git
-```
+> 如果你打算使用上面提到的方法2，请拉取并切换到 `release/1.4.0_autoclean` 分支：  
+> ```sh
+> git fetch origin release/1.4.0_autoclean
+> git checkout -b release/1.4.0_autoclean origin/release/1.4.0_autoclean
+> ```

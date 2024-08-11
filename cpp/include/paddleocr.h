@@ -18,38 +18,45 @@
 #include <include/ocr_det.h>
 #include <include/ocr_rec.h>
 
-namespace PaddleOCR {
+namespace PaddleOCR
+{
+    class PPOCR
+    {
+    public:
+        explicit PPOCR();
+        ~PPOCR() = default; // 默认析构函数
 
-class PPOCR {
-public:
-  explicit PPOCR();
-  ~PPOCR();
+        // OCR方法，处理图像列表，返回每个图像的OCR结果向量
+        std::vector<std::vector<OCRPredictResult>> ocr(std::vector<cv::Mat> img_list,
+                                                       bool det = true,
+                                                       bool rec = true,
+                                                       bool cls = true);
+        // OCR方法，处理单个图像，返回OCR结果
+        std::vector<OCRPredictResult> ocr(cv::Mat img, bool det = true,
+                                          bool rec = true, bool cls = true);
 
-  std::vector<std::vector<OCRPredictResult>> ocr(std::vector<cv::Mat> img_list,
-                                                 bool det = true,
-                                                 bool rec = true,
-                                                 bool cls = true);
-  std::vector<OCRPredictResult> ocr(cv::Mat img, bool det = true,
-                                    bool rec = true, bool cls = true);
+        void reset_timer();              // 重置计时器
+        void benchmark_log(int img_num); // 记录基准测试日志，参数为图像数量
 
-  void reset_timer();
-  void benchmark_log(int img_num);
+        // 智能指针
+        std::unique_ptr<DBDetector> detector_;       // 指向 文本检测器实例
+        std::unique_ptr<Classifier> classifier_;     // 指向 方向分类器实例
+        std::unique_ptr<CRNNRecognizer> recognizer_; // 指向 文本识别器实例
 
-protected:
-  std::vector<double> time_info_det = {0, 0, 0};
-  std::vector<double> time_info_rec = {0, 0, 0};
-  std::vector<double> time_info_cls = {0, 0, 0};
+    protected:
+        // 时间信息
+        std::vector<double> time_info_det = {0, 0, 0};
+        std::vector<double> time_info_rec = {0, 0, 0};
+        std::vector<double> time_info_cls = {0, 0, 0};
 
-  void det(cv::Mat img, std::vector<OCRPredictResult> &ocr_results);
-  void rec(std::vector<cv::Mat> img_list,
-           std::vector<OCRPredictResult> &ocr_results);
-  void cls(std::vector<cv::Mat> img_list,
-           std::vector<OCRPredictResult> &ocr_results);
-
-private:
-  DBDetector *detector_ = nullptr;
-  Classifier *classifier_ = nullptr;
-  CRNNRecognizer *recognizer_ = nullptr;
-};
-
+        // 文本检测：输入单张图片，在ocr_results向量中存放单行文本碎图的检测信息
+        void det(cv::Mat img,
+                 std::vector<OCRPredictResult> &ocr_results);
+        // 方向分类：输入单行碎图向量，在ocr_results向量中存放每个碎图的方向标志
+        void cls(std::vector<cv::Mat> img_list,
+                 std::vector<OCRPredictResult> &ocr_results);
+        // 文本识别：输入单行碎图向量，在ocr_results向量中存放每个碎图的文本
+        void rec(std::vector<cv::Mat> img_list,
+                 std::vector<OCRPredictResult> &ocr_results);
+    };
 } // namespace PaddleOCR
