@@ -28,10 +28,10 @@ from PPOCR_api import GetOcrApi
 
 | 名称       | 默认值 | 类型 | 描述                                                           |
 | ---------- | ------ | ---- | -------------------------------------------------------------- |
-| exePath    | 必填   | str  | 引擎二进制文件的路径，或远程服务器地址，见下。                     |
-| modelsPath | None   | str  | 识别库路径，若为None则默认识别库与引擎在同一目录下。               |
-| argument   | None   | dict | 启动参数字典。可以用这个参数指定配置文件、指定识别语言。           |
-| ipcMode    | "pipe" | str  | 进程间通信方式，可选值为套接字模式`socket` 或 管道模式`pipe`。    |
+| exePath    | 必填   | str  | 引擎二进制文件的路径，或远程服务器地址，见下。                 |
+| modelsPath | None   | str  | 识别库路径，若为None则默认识别库与引擎在同一目录下。           |
+| argument   | None   | dict | 启动参数字典。可以用这个参数指定配置文件、指定识别语言。       |
+| ipcMode    | "pipe" | str  | 进程间通信方式，可选值为套接字模式`socket` 或 管道模式`pipe`。 |
 
 ##### 关于 `exePath` ：
 
@@ -342,56 +342,76 @@ img.show() # 显示
 
 使用示例详见 [demo2.py](demo2.py)
 
-# 文本后处理 tbpu 
+# 文本后处理 tbpu
 
 (text block processing unit)
 
 ```python
-import tbpu
+from tbpu import GetParser
 ```
 
-由 [Umi-OCR](https://github.com/hiroi-sora/Umi-OCR) 带来的技术。
+由 [Umi-OCR](https://github.com/hiroi-sora/Umi-OCR) 和 [间隙树排序法](https://github.com/hiroi-sora/GapTree_Sort_Algorithm) 带来的技术。
 
 OCR返回的结果中，一项包含文字、包围盒、置信度的元素，称为一个“文本块” - text block 。
 
-文块不一定是完整的一句话或一个段落。反之，一般是零散的文字。一个OCR结果常由多个文块组成。文块后处理就是：将传入的多个文块进行处理，比如合并、排序、删除文块。
+文块不一定是完整的一句话或一个段落。反之，一般是零散的文字。一个OCR结果常由多个文块组成，这项文块原始的顺序也不一定符合阅读顺序。
+
+文块后处理 tbpu 的作用就是：将OCR原始文本块进行处理，调整其顺序、并划分出段落。
 
 ### 方案列表
 
-| 名称               | 方法            | 说明                                            |
-| ------------------ | --------------- | ----------------------------------------------- |
-| 优化单行           | `MergeLine`     | 识别每一行文字，并整理所有行的顺序。            |
-| 合并自然段         | `MergePara`     | 合并属于同一自然段的文本。自动适应中/英文段落。 |
-| 合并代码段         | `MergeParaCode` | 尽量还原图片中的空格缩进。适合识别代码图片。    |
-| 竖排-从左到右-单行 | `MergeLineVlr`  |                                                 |
-| 竖排-从右至左-单行 | `MergeLineVrl`  |                                                 |
+| 方案id        | 方案名称      |
+| ------------- | ------------- |
+| `multi_para`  | 多栏-自然段   |
+| `multi_line`  | 多栏-总是换行 |
+| `multi_none`  | 多栏-无换行   |
+| `single_para` | 单栏-自然段   |
+| `single_line` | 单栏-总是换行 |
+| `single_none` | 单栏-无换行   |
+| `single_code` | 单栏-代码段   |
+
+也可以在 [Umi-OCR](https://github.com/hiroi-sora/Umi-OCR) 中直观地体验这些方案的作用。
+
+通过 `GetParser("方案名")` 来获取对应方案的后处理解析器对象。通过`run()`接口调用解析，并传入OCR结果列表，得到处理后的新列表，见下。
 
 ### 使用
 
 向接口传入文本块列表（即`['data']`部分），返回新的文本块列表。
 ```python
-import tbpu
-# 执行文本块后处理：合并自然段
-textBlocksNew = tbpu.MergePara(textBlocks)
+from tbpu import GetParser
+
+textBlocks = getObj["data"]
+
+# 获取“多栏-自然段”排版解析器对象
+parser = GetParser("multi_para")
+# 传入OCR结果列表，返回新的文本块列表
+textBlocksNew = parser.run(textBlocks)
 ```
-执行后，原列表 textBlocks 的结构可能被破坏，不要再使用原列表（或先深拷贝备份）。
+
+- 执行后，原列表 textBlocks 的结构可能被破坏，不要再使用原列表（或先深拷贝备份）。
+- 新文本块列表 textBlocksNew 中，每个文本块的顺序会根据所选方案重新排序。
+- 同时，textBlocksNew每个文本块中会增加键值 `["end"]` ，表示这个文本块的结尾符（即与下一个文本块的间隔符号）是什么。以 `multi_para` 为例：
+  - 假如一个文本块位于一个自然段的段尾，则 `["end"]=="\n"` 。
+  - 假如位于自然段的中间，且上下文为中文，则 `["end"]==""` 。
+  - 假如位于自然段的中间，且上下文为英文，则 `["end"]==" "` 。
 
 跟结果可视化配合使用：
 ```python
-textBlocks = getObj["data"]  # 提取文本块数据
+from tbpu import GetParser
 
-# OCR原始结果的可视化Image
+# OCR原始结果 可视化
+textBlocks = getObj["data"]
 img1 = visualize(textBlocks, testImg).get(isOrder=True)
 
-# 执行文本块后处理：合并自然段
-textBlocksNew = tbpu.MergePara(textBlocks)
+# 执行文本块后处理：多栏-自然段
+parser = GetParser("multi_para")
+textBlocksNew = parser.run(textBlocks)
 
-# 后处理结果的可视化Image
+# 后处理结果 可视化
 img2 = visualize(textBlocksNew, testImg).get(isOrder=True)
 
 # 左右拼接图片并展示
 visualize.createContrast(img1, img2).show()
 ```
-![对比.png](https://tupian.li/images/2022/11/03/6363afbbb2fcd.png)
 
 使用示例详见 [demo3.py](demo3.py)
