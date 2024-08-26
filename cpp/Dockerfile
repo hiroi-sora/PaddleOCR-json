@@ -22,7 +22,7 @@ RUN \
 WORKDIR /src/
 
 # 下载模型库
-RUN wget https://paddle-inference-lib.bj.bcebos.com/2.3.2/cxx_c/Linux/CPU/gcc8.2_avx_mkl/paddle_inference.tgz && \
+RUN wget https://paddle-inference-lib.bj.bcebos.com/3.0.0-beta1/cxx_c/Linux/CPU/gcc8.2_avx_mkl/paddle_inference.tgz && \
     tar -xf paddle_inference.tgz
 
 COPY . .
@@ -63,7 +63,8 @@ COPY --from=build /src/build/install/ /usr/
 WORKDIR /app
 
 # 下载预测库
-RUN wget https://github.com/hiroi-sora/PaddleOCR-json/releases/download/models%2Fv1.3/models.zip && \
+RUN wget https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.1-dev/models_v1.4.1.zip && \
+	mv models_v1.4.1.zip models.zip && \
     unzip -x models.zip && rm models.zip
 
 # 暴露端口3746，然后以套接字模式运行PaddleOCR-json
