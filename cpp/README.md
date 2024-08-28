@@ -28,9 +28,22 @@
 
 如果是 Linux / Mac 平台，则paddle_inference和Opencv需选择对应平台的资源。模型库通用，无需改。
 
+拉取 PaddleOCR-json 仓库，并切换到 v1.4.0 稳定版分支：
+
+```sh
+git clone https://github.com/hiroi-sora/PaddleOCR-json.git
+cd PaddleOCR-json
+git checkout -b release/1.4.0 origin/release/1.4.0
+```
+
+> [可选] 如果需要自动内存清理功能，拉取并切换到 `release/1.4.0_autoclean` 分支：  
+> ```sh
+> git checkout -b release/1.4.0_autoclean origin/release/1.4.0_autoclean
+> ```
+
 ### 1.3 放置资源
 
-1. clone 本仓库。在 `PaddleOCR-json/cpp` 下新建一个文件夹 `.source` 来存放外部资源。（前面加点是为了按文件名排列更顺眼）
+1. 按上述说明 clone 本仓库。在 `PaddleOCR-json/cpp` 下新建一个文件夹 `.source` 来存放外部资源。（前面加点是为了按文件名排列更顺眼）
 2. 将下载好的 `models.zip` 、 `paddle_inference` 和 `Opencv` 解压进`.source`。
    - `paddle_inference` 应该解压后放入一个单独文件夹内，并且根据版本给文件夹改个后缀，比如是cpu_avx_mkl版，就叫 `paddle_inference_cpu_avx_mkl` ，以便区分。
    - Opencv看起来是个exe，实际上是个自解压包，运行并选择目录解压。
@@ -201,7 +214,7 @@ CMake会将 `build` 文件夹下的可执行文件和运行库给安装到 `buil
 当前，可以绕过内存问题的方法有：
 
 1. 外部重启引擎，用另一个程序 / 脚本来监听引擎的输出，然后在引擎不工作时重启引擎进程（Umi-OCR就是这么做的）。
-2. 从引擎内部来清理内存。在分支 `autoclean` 里面是一个修改过的引擎。新增了一个参数 `-auto_memory_cleanup`，它会开启一条线程来检查引擎状态，然后在其闲置时释放内存。
+2. 从引擎内部来清理内存。在分支 `release/1.4.0_autoclean` 里面是一个修改过的引擎。新增了一个参数 `-auto_memory_cleanup`，它会开启一条线程来检查引擎状态，然后在其闲置时释放内存。
 
 > [!CAUTION]
 > **但是，这个方法无法清理干净内存里所有的资源，PaddleOCR底层的某些库所调用的资源会一直占用着一小块内存。到最后引擎闲置时的内存占用大约为600MB。这些没有正常释放资源的操作有可能会引发一些问题。**

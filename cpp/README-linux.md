@@ -56,16 +56,16 @@ sudo apt install wget tar zip unzip git gcc g++ cmake make libgomp1
 
 ### 1.2 下载所需资源
 
-PaddleOCR-json 源码：
+拉取 PaddleOCR-json 仓库，并切换到 v1.4.0 稳定版分支：
 
 ```sh
 git clone https://github.com/hiroi-sora/PaddleOCR-json.git
 cd PaddleOCR-json
+git checkout -b release/1.4.0 origin/release/1.4.0
 ```
 
 > [可选] 如果需要自动内存清理功能，拉取并切换到 `release/1.4.0_autoclean` 分支：  
 > ```sh
-> git fetch origin release/1.4.0_autoclean
 > git checkout -b release/1.4.0_autoclean origin/release/1.4.0_autoclean
 > ```
 
@@ -130,7 +130,7 @@ ls -d opencv*/  # 检查解压后得到的目录名
 ../tools/linux_build_opencv.sh opencv-4.10.0
 ```
 
-3. 如果编译成功，则会在 `.source` 目录中生成 `opencv-lib` 目录。
+3. 如果编译成功，则会在 `.source` 目录中生成 `opencv-release` 目录。
 
 <details>
 <summary>推荐使用的编译参数及说明</summary>
