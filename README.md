@@ -347,11 +347,13 @@ ocr = GetOcrApi(enginePath, argument)
 
 #### 稳定版，基于 PP-OCR v2.6
 
-- [Windows 平台构建步骤](https://github.com/hiroi-sora/PaddleOCR-json/blob/release/1.4.0/cpp/README.md)
-- [Linux 平台构建步骤](https://github.com/hiroi-sora/PaddleOCR-json/blob/release/1.4.0/cpp/README-linux.md)
-- [Docker 部署](https://github.com/hiroi-sora/PaddleOCR-json/blob/release/1.4.0/cpp/README-docker.md)
+- [Windows 平台构建步骤](https://github.com/hiroi-sora/PaddleOCR-json/blob/release/1.4.1/cpp/README.md)
+- [Linux 平台构建步骤](https://github.com/hiroi-sora/PaddleOCR-json/blob/release/1.4.1/cpp/README-linux.md)
+- [Docker 部署](https://github.com/hiroi-sora/PaddleOCR-json/blob/release/1.4.1/cpp/README-docker.md)
 
-#### 最新开发版，基于 PP-OCR v2.8
+#### 开发版，基于 PP-OCR v2.8
+
+> 注：此版本基于 Paddle Inference 3.0.0 推理后端，使用带 AVX512 指令集的高端 CPU 时性能更好。普通家用 CPU 则有性能劣化，建议使用上面的稳定版。
 
 - [Windows 平台构建步骤](cpp/README.md)
 - [Linux 平台构建步骤](cpp/README-linux.md)
@@ -375,7 +377,14 @@ ocr = GetOcrApi(enginePath, argument)
 
 版本号链接可前往对应备份分支。
 
-#### v1.4.1 dev 1 `2024.7.31`
+#### [v1.4.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.4.1) `2024.8.28`
+
+- 推理后端 Paddle Inference 由于 `3.0.0` 的不稳定性，沿用 `2.3.2` 旧版推理库。
+- 修复：语言库 `繁体中文` 配置文件不正确的问题。
+- 重新编译 Linux 发行版：
+  - `glibc` 依赖库向下调整至 `2.31` 版本，兼容 debian11、ubuntu20.04 等旧系统。
+
+#### 测试： v1.4.1 dev 1 `2024.7.31`
 
 - 更新推理后端至 Paddle Inference `3.0.0 beta-1` 。
 - 大幅优化内存占用：峰值由 2.5GB 降至约 1.5GB 。

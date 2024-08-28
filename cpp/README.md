@@ -1,6 +1,8 @@
-# PaddleOCR-json V1.4.1 Windows 构建指南
+# PaddleOCR-json V1.4 Windows 构建指南
 
-本文档帮助如何在Windows上编译 PaddleOCR-json V1.4.1 （对应PPOCR v2.8）。面向小白，用的最简单的步骤。大佬可酌情调整。
+> 注：此开发版基于 Paddle Inference 3.0.0 推理后端，在不带 AVX512 指令集的普通家用CPU上存在性能显著下降的问题。普通用户建议切换到本项目稳定版分支。
+
+本文档帮助如何在Windows上编译 PaddleOCR-json V1.4 （对应PPOCR v2.8）。面向小白，用的最简单的步骤。大佬可酌情调整。
 
 本文参考了 PPOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.8/deploy/cpp_infer/docs/windows_vs2019_build.md) ，但建议以本文为准。
 

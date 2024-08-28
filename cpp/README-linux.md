@@ -1,6 +1,8 @@
-# PaddleOCR-json V1.4.1 Linux 构建指南
+# PaddleOCR-json V1.4 Linux 构建指南
 
-本文档帮助如何在Linux上编译 PaddleOCR-json V1.4.1 （对应PaddleOCR v2.8）。推荐给具有一定Linux命令行使用经验的读者。
+> 注：此开发版基于 Paddle Inference 3.0.0 推理后端，在不带 AVX512 指令集的普通家用CPU上存在性能显著下降的问题。普通用户建议切换到本项目稳定版分支。
+
+本文档帮助如何在Linux上编译 PaddleOCR-json V1.4 （对应PaddleOCR v2.8）。推荐给具有一定Linux命令行使用经验的读者。
 
 本文参考了 PaddleOCR官方的[编译指南](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.8/deploy/cpp_infer/readme_ch.md) ，但建议以本文为准。
 
