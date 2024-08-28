@@ -91,8 +91,8 @@ unzip -x models.zip
 #### 方式1：下载预编译的轻量化 OpenCV 包（推荐）
 
 ```sh
-wget https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.0-beta.2/opencv-release_debian_x86-64.zip
-unzip -x opencv-release_debian_x86-64.zip
+wget https://github.com/hiroi-sora/PaddleOCR-json/releases/download/v1.4.1/opencv_410_debian_x64_glibc2.31.zip
+unzip -x opencv_410_debian_x64_glibc2.31.zip
 ```
 
 此OpenCV库仅编译了 PaddleOCR-json 所需的少数依赖项，更轻量和简洁。
