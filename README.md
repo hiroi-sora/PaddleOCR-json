@@ -367,6 +367,24 @@ ocr = GetOcrApi(enginePath, argument)
 
 版本号链接可前往对应备份分支。
 
+#### [v1.4.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.4.1) `2024.8.28`
+
+- 推理后端 Paddle Inference 由于 `3.0.0` 的不稳定性，沿用 `2.3.2` 旧版推理库。
+- 修复：语言库 `繁体中文` 配置文件不正确的问题。
+- 重新编译 Linux 发行版：
+  - `glibc` 依赖库向下调整至 `2.31` 版本，兼容 debian11、ubuntu20.04 等旧系统。
+
+#### 测试： v1.4.1 dev 1 `2024.7.31`
+
+- 更新推理后端至 Paddle Inference `3.0.0 beta-1` 。
+- 大幅优化内存占用：峰值由 2.5GB 降至约 1.5GB 。
+- 增加命令行参数：内存自动清理界限 `--cpu_mem` 。见 [文档](cpp/README.md#关于内存占用) 。
+- 小幅优化初始化耗时。
+- 支持 `PP-OCR V4` 系列模型库，及PPOCR算法挑战赛 [冠军方案模型库](https://github.com/PaddlePaddle/PaddleOCR/blob/main/doc/doc_ch/algorithm_rec_svtrv2.md) 。
+- 由于后端依赖库的更新，在 **非AVX512** 的CPU上，OCR速度可能有 **小幅下降** 。
+- 由于语言库`cyrillic`（斯拉夫字母/俄语）的准确度较低、使用频率较低，发行包中不再包含此语言库。有需要的用户可 [自行下载](https://paddleocr.bj.bcebos.com/PP-OCRv3/multilingual/cyrillic_PP-OCRv3_rec_infer.tar) 。
+- Python API： 修复了布尔类型启动参数设为 `False` 不生效的问题。
+
 #### [v1.4.0](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.4.0) `2024.7.22` 
 
 #### v1.4.0 beta 2 `2024.7.9` 
