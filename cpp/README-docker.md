@@ -5,13 +5,18 @@
 部署步骤：
 
 1. [安装Docker](https://yeasy.gitbook.io/docker_practice/install)
-2. 拉取 PaddleOCR-json 源码，并切换到 v1.4.0 稳定版分支：
+2. 拉取 PaddleOCR-json 源码，并切换到 v1.4.1 稳定版分支：
 
 ```sh
 git clone https://github.com/hiroi-sora/PaddleOCR-json.git
 cd PaddleOCR-json
-git checkout -b release/1.4.0 origin/release/1.4.0
+git checkout -b release/1.4.1 origin/release/1.4.1
 ```
+
+> [可选] 如果需要自动内存清理功能，拉取并切换到 `release/1.4.0_autoclean` 分支：  
+> ```sh
+> git checkout -b release/1.4.0_autoclean origin/release/1.4.0_autoclean
+> ```
 
 3. 接着我们在 `cpp` 文件夹下打开一个终端（或PowerShell），使用Docker来构建镜像：
 

@@ -28,12 +28,12 @@
 
 如果是 Linux / Mac 平台，则paddle_inference和Opencv需选择对应平台的资源。模型库通用，无需改。
 
-拉取 PaddleOCR-json 仓库，并切换到 v1.4.0 稳定版分支：
+拉取 PaddleOCR-json 仓库，并切换到 v1.4.1 稳定版分支：
 
 ```sh
 git clone https://github.com/hiroi-sora/PaddleOCR-json.git
 cd PaddleOCR-json
-git checkout -b release/1.4.0 origin/release/1.4.0
+git checkout -b release/1.4.1 origin/release/1.4.1
 ```
 
 > [可选] 如果需要自动内存清理功能，拉取并切换到 `release/1.4.0_autoclean` 分支：  

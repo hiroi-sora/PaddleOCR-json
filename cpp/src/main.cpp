@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // 版本信息
-#define PROJECT_VER "v1.4.0"
+#define PROJECT_VER "v1.4.1"
 #define PROJECT_NAME "PaddleOCR-json " PROJECT_VER
 
 #include "opencv2/core.hpp"
