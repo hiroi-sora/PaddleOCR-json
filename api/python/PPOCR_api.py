@@ -249,6 +249,8 @@ class PPOCR_socket(PPOCR_pipe):
             clientSocket.connect((self.ip, self.port))
             # 发送数据
             clientSocket.sendall(writeStr.encode())
+            # 发送完所有数据，关闭我方套接字，之后只能从服务器读取数据
+            clientSocket.shutdown(socket.SHUT_WR)
             # 接收数据
             resData = b""
             while True:
