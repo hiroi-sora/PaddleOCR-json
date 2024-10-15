@@ -214,10 +214,13 @@ namespace PaddleOCR
                     break;
             }
 
-            // 没有接收到数据 | 接收到0字节
-            if (bytesRecv <= 0)
+            if (bytesRecv == 0) // 客户端正常断开连接 (end of file)
             {
-                std::cerr << "Failed to receive data." << std::endl;
+                std::cerr << "Client has gracefully shutdown the socket." << std::endl;
+            }
+            else if (bytesRecv < 0) // 连接错误
+            {
+                std::cerr << "Failed to receive data, error code: " << errno << std::endl;
                 close(clientFd);
                 continue;
             }

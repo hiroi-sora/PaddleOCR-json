@@ -352,9 +352,14 @@ namespace PaddleOCR
                     break;
                 }
             }
-            if (n <= 0)
+
+            if (n == 0) // 客户端正常断开连接 (end of file)
             {
-                std::cerr << "Failed to receive data." << std::endl;
+                std::cerr << "Client has gracefully shutdown the socket." << std::endl;
+            }
+            else if (n < 0) // 连接错误
+            {
+                std::cerr << "Failed to receive data, error code: " << n << std::endl;
                 closesocket(client_fd);
                 continue;
             }
