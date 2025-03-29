@@ -42,6 +42,9 @@ Flags:                              fpu vme de pse tsc msr pae mce cx8 apic sep 
 > 如果你的CPU不支持AVX指令集，我们建议你尝试隔壁的[RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json)
 >
 > 当然，你也可以更换一个不需要AVX指令集的预测库来编译PaddleOCR-json（比如 `manylinux_cpu_noavx_openblas_gcc8.2` ）。不过大概率运行不了。
+> 
+> 如果你执意要使用无AVX指令集的预测库来编译PaddleOCR-json，编译、运行时遇到问题大概率为预测库不兼容，此时可以优先去[PaddleOCR官方的仓库看看](https://github.com/PaddlePaddle/PaddleOCR/issues)
+> * 如果你遇到了`核心已转储（core dump）`的报错，也可以看看[这个issue](https://github.com/hiroi-sora/PaddleOCR-json/issues/170)
 
 ### 1.1 安装所需工具
 

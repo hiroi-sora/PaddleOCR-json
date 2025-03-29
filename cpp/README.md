@@ -67,7 +67,7 @@ Where to build the binaries: `……/PaddleOCR-json/cpp/build`
 
 2. 填写三项配置：
 
-OPENCV_DIR 和 OpenCV_DIR:  
+OPENCV_DIR 或 OpenCV_DIR:  
 `……/PaddleOCR-json/cpp/.source/opencv/build/x64/vc16/lib`
 
 PADDLE_LIB:  
