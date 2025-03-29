@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.15...3.30)
 # cmake version range:
 # https://cmake.org/cmake/help/latest/command/cmake_minimum_required.html
+# https://github.com/jbeder/yaml-cpp/pull/1211#issuecomment-1681352550
 
 project(PaddleOCR-json CXX C)
 
