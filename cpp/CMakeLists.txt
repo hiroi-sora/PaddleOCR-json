@@ -1,4 +1,7 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.15...3.30)
+# cmake version range:
+# https://cmake.org/cmake/help/latest/command/cmake_minimum_required.html
+
 project(PaddleOCR-json CXX C)
 
 # 消除CMake Policy CMP0048警告
@@ -114,21 +117,26 @@ message(STATUS "    INSTALL_WITH_TOOLS: ${INSTALL_WITH_TOOLS}")
 # OpenCV
 # 尝试从人工提供的OpenCV路径寻找OpenCV
 # 请提供一个路径包含 "OpenCVConfig.cmake" 或 "opencv-config.cmake"这两个文件
+# 或者提供 OpenCV 编译后的安装目录
 
 # 由CMake参数提供（-DOPENCV_DIR）
 if(DEFINED OPENCV_DIR AND NOT "${OPENCV_DIR}" STREQUAL "")
     message(STATUS "Setting OPENCV_DIR: ${OPENCV_DIR}")
     find_package(OpenCV PATHS ${OPENCV_DIR} NO_DEFAULT_PATH)
+    set(CUSTOM_OPENCV_DIR ${OPENCV_DIR})
 elseif(DEFINED OpenCV_DIR AND NOT "${OpenCV_DIR}" STREQUAL "")
     message(STATUS "Setting OPENCV_DIR: ${OpenCV_DIR}")
     find_package(OpenCV PATHS ${OpenCV_DIR} NO_DEFAULT_PATH)
+    set(CUSTOM_OPENCV_DIR ${OpenCV_DIR})
 # 由环境变量提供 OPENCV_DIR 或 OpenCV_DIR 提供
 elseif(NOT "$ENV{OPENCV_DIR}" STREQUAL "")
     message(STATUS "Setting OPENCV_DIR: $ENV{OPENCV_DIR}")
     find_package(OpenCV PATHS $ENV{OPENCV_DIR} NO_DEFAULT_PATH)
+    set(CUSTOM_OPENCV_DIR $ENV{OPENCV_DIR})
 elseif(NOT "$ENV{OpenCV_DIR}" STREQUAL "")
     message(STATUS "Setting OPENCV_DIR: $ENV{OpenCV_DIR}")
     find_package(OpenCV PATHS $ENV{OpenCV_DIR} NO_DEFAULT_PATH)
+    set(CUSTOM_OPENCV_DIR $ENV{OpenCV_DIR})
 # 没有提供OpenCV路径，尝试让CMake自己寻找
 else()
     find_package(OpenCV REQUIRED)
@@ -337,10 +345,65 @@ add_executable(${DEMO_NAME} ${SRCS})
 target_link_libraries(${DEMO_NAME} ${DEPS})
 
 
-# 把 PADDLE_LIB 文件夹下的所有共享库找出
-file(GLOB_RECURSE PADDLE_LIB_FILES "${PADDLE_LIB}/*${CMAKE_SHARED_LIBRARY_SUFFIX}*")
-# 然后全部复制到TARGET的输出文件夹里
+# 设置需要安装的共享库
+
+# PaddleOCR，直接找出其路径下所有共享库即可
+message(STATUS "Collecting PaddleOCR shared libraries")
+file(GLOB_RECURSE PADDLE_LIB_FILES "${PADDLE_LIB}/**/*${CMAKE_SHARED_LIBRARY_SUFFIX}*")
 foreach(ITEM ${PADDLE_LIB_FILES})
+    list(APPEND LIBS_TO_INSTALL ${ITEM})
+endforeach()
+
+# OpenCV
+include(cmake/opencv-install-utils.cmake)
+if(DEFINED CUSTOM_OPENCV_DIR AND NOT "${CUSTOM_OPENCV_DIR}" STREQUAL "")
+    message(STATUS "Collecting custom OpenCV shared libraries")
+    set(OPENCV_MISS_LIBS FALSE)
+    
+    # 收集共享库及其符号链接信息
+    collect_opencv_lib(${CUSTOM_OPENCV_DIR} ${CMAKE_SHARED_LIBRARY_SUFFIX} "opencv_core" opencv_core_miss_lib opencv_core_regular opencv_core_symlink)
+    collect_opencv_lib(${CUSTOM_OPENCV_DIR} ${CMAKE_SHARED_LIBRARY_SUFFIX} "opencv_imgcodecs" opencv_imgcodecs_miss_lib opencv_imgcodecs_regular opencv_imgcodecs_symlink)
+    collect_opencv_lib(${CUSTOM_OPENCV_DIR} ${CMAKE_SHARED_LIBRARY_SUFFIX} "opencv_imgproc" opencv_imgproc_miss_lib opencv_imgproc_regular opencv_imgproc_symlink)
+    
+    if(opencv_core_miss_lib OR opencv_imgcodecs_miss_lib OR opencv_imgproc_miss_lib)
+        set(OPENCV_MISS_LIBS TRUE)
+    endif()
+    
+    # 有缺失就尝试opencv_world
+    if(DEFINED OPENCV_MISS_LIBS AND OPENCV_MISS_LIBS)
+        message(STATUS "Missing OpenCV independent shared libraries, try opencv_world")
+        collect_opencv_lib(${CUSTOM_OPENCV_DIR} ${CMAKE_SHARED_LIBRARY_SUFFIX} "opencv_world" opencv_world_miss_lib opencv_world_regular opencv_world_symlink)
+        if(opencv_world_miss_lib)
+            message(FATAL_ERROR "Cannot find OpenCV independent shared libraries or opencv_world. Please make sure your custom OpenCV directory contains the missing libraries.")
+        else()
+            list(APPEND LIBS_TO_INSTALL ${opencv_world_regular})
+            list(JOIN opencv_world_symlink "/" opencv_world_symlink_str)
+            list(APPEND SYMS_TO_INSTALL ${opencv_world_symlink_str})
+        endif()
+    
+    # 找到了就添加进变量里
+    else()
+        # 这里因为cmake无法储存list(list(str))，因此我们把list给合成一个str再APPEND进SYMS_TO_INSTALL，
+        # 之后要用时再拆回list。上面的opencv_world的处理方式也是一样的。输出的str长这样：
+        # "${OpenCV库普通文件名}/${OpenCV库符号链接名1}/${OpenCV库符号链接名2}/..."
+        
+        list(APPEND LIBS_TO_INSTALL ${opencv_core_regular})
+        list(JOIN opencv_core_symlink "/" opencv_core_symlink_str)
+        list(APPEND SYMS_TO_INSTALL ${opencv_core_symlink_str})
+        
+        list(APPEND LIBS_TO_INSTALL ${opencv_imgcodecs_regular})
+        list(JOIN opencv_imgcodecs_symlink "/" opencv_imgcodecs_symlink_str)
+        list(APPEND SYMS_TO_INSTALL ${opencv_imgcodecs_symlink_str})
+        
+        list(APPEND LIBS_TO_INSTALL ${opencv_imgproc_regular})
+        list(JOIN opencv_imgproc_symlink "/" opencv_imgproc_symlink_str)
+        list(APPEND SYMS_TO_INSTALL ${opencv_imgproc_symlink_str})
+    endif()
+endif()
+
+# 最后把所有要安装的共享库复制到TARGET的输出文件夹里
+# 在之后的安装环节会直接从这个文件夹安装
+foreach(ITEM ${LIBS_TO_INSTALL})
     add_custom_command(TARGET ${DEMO_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${ITEM}
@@ -399,6 +462,22 @@ else ()
         PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}*"
         PATTERN "${DEMO_NAME}*" EXCLUDE
     )
+    
+    # 创建共享库的符号链接
+    foreach(ITEM_STR ${SYMS_TO_INSTALL})
+        string(REPLACE "/" ";" ITEM_LIST ${ITEM_STR})
+        list(POP_FRONT ITEM_LIST ITEM_REGULAR_NAME)
+        foreach(ITEM_SYMLINK_NAME ${ITEM_LIST})
+            # 这里我们在 cmake_install.cmake 安装脚本里加入下面这行脚本：
+            # 进入到安装脚本环境里的 ${CMAKE_INSTALL_PREFIX}/lib 目录 
+            # 然后再创建符号链接
+            install(CODE "\
+                execute_process(COMMAND ${CMAKE_COMMAND} -E chdir \$\{CMAKE_INSTALL_PREFIX\}/lib \
+                ${CMAKE_COMMAND} -E create_symlink ${ITEM_REGULAR_NAME} ${ITEM_SYMLINK_NAME})"
+            )
+        endforeach()
+    endforeach()
+    
     if (INSTALL_WITH_TOOLS)
         # 安装启动脚本和安装脚本
         install(
