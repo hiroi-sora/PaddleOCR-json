@@ -284,7 +284,8 @@ cmake --build build/
 | `TENSORRT_DIR` | 使用TensorRT编译并设置其路径 |
 
 > [!NOTE]
-> * `OPENCV_DIR`: Linux下，如果已经安装到系统之中就不用指定了。
+> * 您也可以通过设置环境变量 `OpenCV_DIR` 来设置OpenCV库的路径，注意变量名大小写敏感。
+> * `OPENCV_DIR` 或环境变量: Linux下，如果已经安装到系统之中就不用指定了。
 
 以下是一些PaddleOCR-json功能相关参数。
 

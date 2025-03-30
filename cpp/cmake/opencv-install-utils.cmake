@@ -21,7 +21,7 @@ macro(collect_opencv_lib
     
     # 检查是否找到
     if("${__opencv_libs_found}" STREQUAL "")
-        message(WARNING "Missing independent shared library: ${in_opencv_lib_name}")
+        message(STATUS "Missing independent shared library: ${in_opencv_lib_name}")
         set(${out_opencv_miss_lib} TRUE)
     endif()
     
@@ -37,8 +37,10 @@ macro(collect_opencv_lib
     
     # 输出
     set(${out_opencv_lib_regular_file} ${__regular_libs})
-    get_filename_component(__regular_libs_name ${__regular_libs} NAME)
-    set(${out_opencv_lib_symlink} ${__regular_libs_name} ${__symlink_libs})
+    if(DEFINED __symlink_libs AND NOT "${__symlink_libs}" STREQUAL "")
+        get_filename_component(__regular_libs_name "${__regular_libs}" NAME)
+        set(${out_opencv_lib_symlink} ${__regular_libs_name} ${__symlink_libs})
+    endif()
     
     # 清理缓存的变量
     unset(__opencv_libs_found)

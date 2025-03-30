@@ -1,7 +1,15 @@
-cmake_minimum_required(VERSION 3.15...3.30)
+# cmake_minimum_required(VERSION 3.15...3.30)
+cmake_minimum_required(VERSION 3.14)
+# 这里本来想给cmake_minimum_required设置一下版本范围，
+# 然后发现如果将cmake最低版本改成3.15时，Windows MSVC下会出现
+# 大量的链接错误，基本都是一些libc底层函数的unresolved external symbol
+# 和symbol redefinition错误。具体原因未知，即使把cmake 3.15的新policies
+# 给禁用了也没用。不知道是3.15的什么改动造成的。不过现在用3.14也没有问题。
+# 
 # cmake version range:
 # https://cmake.org/cmake/help/latest/command/cmake_minimum_required.html
 # https://github.com/jbeder/yaml-cpp/pull/1211#issuecomment-1681352550
+
 
 project(PaddleOCR-json CXX C)
 
@@ -120,27 +128,20 @@ message(STATUS "    INSTALL_WITH_TOOLS: ${INSTALL_WITH_TOOLS}")
 # 请提供一个路径包含 "OpenCVConfig.cmake" 或 "opencv-config.cmake"这两个文件
 # 或者提供 OpenCV 编译后的安装目录
 
+set(OPENCV_COMPONENTS_TO_LOAD
+    core
+    imgproc
+    imgcodecs
+)
+
 # 由CMake参数提供（-DOPENCV_DIR）
 if(DEFINED OPENCV_DIR AND NOT "${OPENCV_DIR}" STREQUAL "")
     message(STATUS "Setting OPENCV_DIR: ${OPENCV_DIR}")
-    find_package(OpenCV PATHS ${OPENCV_DIR} NO_DEFAULT_PATH)
+    find_package(OpenCV REQUIRED PATHS ${OPENCV_DIR} COMPONENTS ${OPENCV_COMPONENTS_TO_LOAD} NO_DEFAULT_PATH)
     set(CUSTOM_OPENCV_DIR ${OPENCV_DIR})
-elseif(DEFINED OpenCV_DIR AND NOT "${OpenCV_DIR}" STREQUAL "")
-    message(STATUS "Setting OPENCV_DIR: ${OpenCV_DIR}")
-    find_package(OpenCV PATHS ${OpenCV_DIR} NO_DEFAULT_PATH)
-    set(CUSTOM_OPENCV_DIR ${OpenCV_DIR})
-# 由环境变量提供 OPENCV_DIR 或 OpenCV_DIR 提供
-elseif(NOT "$ENV{OPENCV_DIR}" STREQUAL "")
-    message(STATUS "Setting OPENCV_DIR: $ENV{OPENCV_DIR}")
-    find_package(OpenCV PATHS $ENV{OPENCV_DIR} NO_DEFAULT_PATH)
-    set(CUSTOM_OPENCV_DIR $ENV{OPENCV_DIR})
-elseif(NOT "$ENV{OpenCV_DIR}" STREQUAL "")
-    message(STATUS "Setting OPENCV_DIR: $ENV{OpenCV_DIR}")
-    find_package(OpenCV PATHS $ENV{OpenCV_DIR} NO_DEFAULT_PATH)
-    set(CUSTOM_OPENCV_DIR $ENV{OpenCV_DIR})
 # 没有提供OpenCV路径，尝试让CMake自己寻找
 else()
-    find_package(OpenCV REQUIRED)
+    find_package(OpenCV REQUIRED COMPONENTS ${OPENCV_COMPONENTS_TO_LOAD})
 endif()
 include_directories(${OpenCV_INCLUDE_DIRS})
 
@@ -331,11 +332,9 @@ if (NOT WIN32)
     set(DEPS ${DEPS} ${EXTERNAL_LIB})
 endif()
 
-set(DEPS ${DEPS}
-    opencv_core
-    opencv_imgcodecs
-    opencv_imgproc
-)
+# 在find_package时已经指定了需要加载的模块，
+# 这里直接用OpenCV_LIBS就行了
+set(DEPS ${DEPS} ${OpenCV_LIBS})
 
 include(FetchContent)
 include(external-cmake/auto-log.cmake)
@@ -377,6 +376,7 @@ if(DEFINED CUSTOM_OPENCV_DIR AND NOT "${CUSTOM_OPENCV_DIR}" STREQUAL "")
         if(opencv_world_miss_lib)
             message(FATAL_ERROR "Cannot find OpenCV independent shared libraries or opencv_world. Please make sure your custom OpenCV directory contains the missing libraries.")
         else()
+            message(STATUS "Found opencv_world")
             list(APPEND LIBS_TO_INSTALL ${opencv_world_regular})
             list(JOIN opencv_world_symlink "/" opencv_world_symlink_str)
             list(APPEND SYMS_TO_INSTALL ${opencv_world_symlink_str})
@@ -418,20 +418,20 @@ endforeach()
 # https://github.com/opencv/opencv/blob/a03b81316782ae30038b288fd3568993fa1e3538/CMakeLists.txt#L141-L152
 # https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT.html
 # 如果CMake安装路径为默认
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     # 本地编译
-    if (NOT CMAKE_TOOLCHAIN_FILE)
-        if (WIN32)
+    if(NOT CMAKE_TOOLCHAIN_FILE)
+        if(WIN32)
             set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "安装路径" FORCE)
-        else ()
+        else()
             set(CMAKE_INSTALL_PREFIX "/usr/" CACHE PATH "安装路径" FORCE)
-        endif ()
+        endif()
     
     # 其他跨平台编译
-    else ()
+    else()
         set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "安装路径" FORCE)
-    endif ()
-endif ()
+    endif()
+endif()
 
 # 设置安装文件的运行环境路径
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -445,7 +445,7 @@ install(
     RUNTIME DESTINATION "bin"
 )
 # 其他安装
-if (WIN32)
+if(WIN32)
     # 安装共享库
     install(
         DIRECTORY "$<TARGET_FILE_DIR:${DEMO_NAME}>/"
@@ -454,7 +454,7 @@ if (WIN32)
         PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}*"
         PATTERN "${DEMO_NAME}*" EXCLUDE
     )
-else ()
+else()
     # 安装共享库
     install(
         DIRECTORY "$<TARGET_FILE_DIR:${DEMO_NAME}>/"
@@ -467,7 +467,14 @@ else ()
     # 创建共享库的符号链接
     foreach(ITEM_STR ${SYMS_TO_INSTALL})
         string(REPLACE "/" ";" ITEM_LIST ${ITEM_STR})
-        list(POP_FRONT ITEM_LIST ITEM_REGULAR_NAME)
+        
+        # 这里本来想用cmake 3.15的list(POP_FRONT)功能的，
+        # 不过将cmake最低版本要求提到3.15会出现大量链接错误（详情请看文件顶部）
+        # 于是就用一套旧的API来实现了
+        # list(POP_FRONT ITEM_LIST ITEM_REGULAR_NAME)
+        list(GET ITEM_LIST 0 ITEM_REGULAR_NAME)
+        list(REMOVE_AT ITEM_LIST 0)
+        
         foreach(ITEM_SYMLINK_NAME ${ITEM_LIST})
             # 这里我们在 cmake_install.cmake 安装脚本里加入下面这行脚本：
             # 进入到安装脚本环境里的 ${CMAKE_INSTALL_PREFIX}/lib 目录 
@@ -495,5 +502,5 @@ else ()
             PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ
             DESTINATION "."
         )
-    endif ()
-endif ()
+    endif()
+endif()
