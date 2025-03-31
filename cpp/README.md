@@ -65,9 +65,9 @@ Where to build the binaries: `……/PaddleOCR-json/cpp/build`
 执行完会报错，很正常，点OK。
 ![](docs/imgs/b2.png)
 
-2. 填写三项配置：
+2. 填写两项配置：
 
-OPENCV_DIR 和 OpenCV_DIR:  
+OPENCV_DIR:  
 `……/PaddleOCR-json/cpp/.source/opencv/build/x64/vc16/lib`
 
 PADDLE_LIB:  
@@ -105,6 +105,9 @@ PADDLE_LIB:
 | `CUDA_LIB`     | 库的路径                     |
 | `CUDNN_LIB`    | 库的路径                     |
 | `TENSORRT_DIR` | 使用TensorRT编译并设置其路径 |
+
+> [!NOTE]
+> * 您也可以通过设置环境变量 `OpenCV_DIR` 来设置OpenCV库的路径，注意变量名大小写敏感。
 
 以下是一些PaddleOCR-json功能相关参数。
 
