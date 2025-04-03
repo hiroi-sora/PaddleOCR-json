@@ -165,19 +165,6 @@ ls -d opencv*/  # 检查解压后得到的目录名
 
 </details>
 
-#### 二进制包的放置
-
-如果使用上述方式1或方式3来准备 OpenCV ，那么在 **编译完 PaddleOCR-json 本体后** ，可以通过下列步骤将 OpenCV 二进制包复制到 PaddleOCR-json 目录中，方便转移到其他设备上使用。
-
-1. 确保已经完成了后续步骤：编译 PaddleOCR-json 本体！
-2. 确保当前在 `cpp/.source` 目录中。
-3. 复制三个关键库文件到 `bin` 目录，并修改一下后缀（`4.10.0`→`410`）：
-
-```sh
-cp "./opencv-release/lib/libopencv_core.so.4.10.0" "../build/bin/libopencv_core.so.410"
-cp "./opencv-release/lib/libopencv_imgcodecs.so.4.10.0" "../build/bin/libopencv_imgcodecs.so.410"
-cp "./opencv-release/lib/libopencv_imgproc.so.4.10.0" "../build/bin/libopencv_imgproc.so.410"
-```
 
 ### 1.4 检查
 
