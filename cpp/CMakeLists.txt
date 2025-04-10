@@ -124,9 +124,12 @@ message(STATUS "    INSTALL_WITH_TOOLS: ${INSTALL_WITH_TOOLS}")
 # 加载依赖
 
 # OpenCV
-# 尝试从人工提供的OpenCV路径寻找OpenCV
-# 请提供一个路径包含 "OpenCVConfig.cmake" 或 "opencv-config.cmake"这两个文件
-# 或者提供 OpenCV 编译后的安装目录
+
+# 加载OpenCV
+# 可以从系统里加载OpenCV，或者由用户通过`-DOPENCV_DIR`参数提供OpenCV目录
+# Unix & MacOS通过包管理器安装的cmake可以自动从系统加载
+# Windows下从官网安装的话需要指定`opencv\build`目录
+# 自己编译的一般指定OpenCV安装的根目录就行了
 
 set(OPENCV_COMPONENTS_TO_LOAD
     core
