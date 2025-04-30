@@ -266,10 +266,12 @@ OCR init completed.
 你可以使用CMake来安装PaddleOCR-json。在`cpp`下，Shift+右键，在此处打开终端（或PowerShell），运行下面这条命令。
 
 ```sh
-cmake --install build
+cmake --install build --strip
 ```
 
 CMake会将 `build` 文件夹下的可执行文件和运行库给安装到 `build/install/bin` 文件夹下。CMake无法在Windows下把软件安装到系统文件夹中，不过你可以将文件夹 `cpp/build/install/bin` 添加到Windows的 `PATH` 环境变量中。参考[这篇文档](https://cloud.baidu.com/article/3297806)。
+
+输入参数`--strip`后，CMake会尝试使用GNU strip来去除PaddleOCR-json二进制文件里不重要的信息，最后令安装的二进制文件变得更小。不过GNU strip是Unix/Linux的工具，因此在Windows下会被CMake忽略掉。
 
 如果你希望安装到指定位置，你可以为上面这条命令加上参数 `--prefix /安装路径/` 来指定一个安装路径。比如 `--prefix build/install` 会将所有的文件都安装到 `build/install` 文件夹下。
 

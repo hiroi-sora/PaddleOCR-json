@@ -465,12 +465,14 @@ LD_LIBRARY_PATH=$LIBS ./build/bin/PaddleOCR-json \
 你可以使用CMake来安装PaddleOCR-json到系统里。直接以 `sudo` 权限运行下面这条命令。
 
 ```sh
-sudo cmake --install build
+sudo cmake --install build --strip
 ```
 
 CMake会将 `build` 文件夹下的可执行文件和运行库给安装到系统文件夹 `/usr/` 下，这样你就可以直接用 `PaddleOCR-json` 来调用这个软件了。
 
-如果你希望安装到指定位置，你可以为上面这条命令加上参数 `--prefix /安装路径/` 来指定一个安装路径。比如 `--prefix build/install` 会将所有的文件都安装到 `build/install` 文件夹下。
+如果输入参数`--strip`后，CMake会尝试使用GNU strip来去除PaddleOCR-json二进制文件里不重要的信息，最后令安装的二进制文件变得更小。不过GNU strip是Unix/Linux的工具，因此在Windows下会被CMake忽略掉。
+
+你希望安装到指定位置，你可以为上面这条命令加上参数 `--prefix /安装路径/` 来指定一个安装路径。比如 `--prefix build/install` 会将所有的文件都安装到 `build/install` 文件夹下。
 
 > [!TIP]
 > 在Linux下安装时，CMake会额外安装一些工具脚本和文档以方便用户直接使用（[就是 `linux_dist_tools/` 文件夹下的东西](./tools/linux_dist_tools/)）。这个功能可以帮助开发者更方便的打包软件。但是，如果你希望将PaddleOCR-json安装到系统文件夹里，你则不需要这些工具文件。你可以通过关闭CMake参数 `INSTALL_WITH_TOOLS` 来禁用这些工具文件的安装。
