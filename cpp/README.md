@@ -68,7 +68,7 @@ Where to build the binaries: `……/PaddleOCR-json/cpp/build`
 2. 填写两项配置：
 
 OPENCV_DIR:  
-`……/PaddleOCR-json/cpp/.source/opencv/build/x64/vc16/lib`
+`……/PaddleOCR-json/cpp/.source/opencv/build`
 
 PADDLE_LIB:  
 `……/PaddleOCR-json/cpp/.source/paddle_inference_cpu_avx_mkl`
@@ -82,6 +82,83 @@ PADDLE_LIB:
 点击左下角 **第一个按钮Configure** 应用配置，等待几秒，看到输出 `Configuring done` 即可。
 
 点击左下角 **第二个按钮Generate** 即可生成Visual Studio 项目的sln文件。看到输出 `Generating done` 即可。那么，你会看到 `PaddleOCR-json/cpp/build` 下生成了 `PaddleOCR-json.sln` 及一堆文件。
+
+> [!TIP]
+> 
+> <details open>
+> <summary>怎么从系统里加载OpenCV？</summary>
+> 
+> * Windows下：
+>   * 如果您是从OpenCV官网下载安装的OpenCV，安装后cmake不一定能自动找到OpenCV，请参考下文手动提供安装目录
+> * Unix & MacOS下：
+>   * 如果您是通过包管理器安装的OpenCV，在运行cmake命令时不用添加 `-DOPENCV_DIR` 参数，cmake会自动寻找OpenCV
+> 
+> </details>
+> 
+> <details open>
+> <summary>用户手动提供OpenCV时应该选那个目录？</summary>
+> 
+> * Windows下：
+>   * 如果您是从OpenCV官网下载安装的OpenCV，您需要提供 `opencv安装目录\build` 给cmake
+>   * 如果您是自己编译、或下载的别人编译的OpenCV，您需要提供 `opencv根目录` 给cmake
+> * Unix & MacOS下：
+>   * 如果您是自己编译、或下载的别人编译的OpenCV，您需要提供 `opencv根目录` 给cmake
+> 
+> </details>
+> 
+> <details>
+> <summary>区分OpenCV目录</summary>
+> 
+> * Windows下从官网下载安装的OpenCV目录长这样。
+> * cmake需要运行`opencv/build`目录下的`OpenCVConfig.cmake`脚本来加载OpenCV。虽然`opencv/build/x64/vc16/lib`目录下也有一个`OpenCVConfig.cmake`脚本，但是cmake需要使用根目录下的脚本。
+> ```
+> opencv/
+> +---build/
+> ¦   +---bin/
+> ¦   +---etc/
+> ¦   +---include/
+> ¦   +---java/
+> ¦   +---python/
+> ¦   +---x64/
+> ¦   ¦   +---vc16/
+> ¦   ¦       +---bin/
+> ¦   ¦       +---lib/
+> ¦   ¦           +---OpenCVConfig-version.cmake
+> ¦   ¦           +---OpenCVConfig.cmake
+> ¦   ¦           +--- ...
+> ¦   +---LICENSE
+> ¦   +---OpenCVConfig-version.cmake
+> ¦   +---OpenCVConfig.cmake
+> ¦   +---setup_vars_opencv4.cmd
+> +---sources/
+> ```
+> 
+> * 如果是自己编译、或下载别人编译的OpenCV，则OpenCV目录大概长这样。
+> * 此时只要指定`opencv`目录给cmake，它就能自己加载OpenCV了，不需要指定`opencv/lib/cmake`目录
+> * 请注意：在别人编译的OpenCV里，这个目录树可能被藏在某个子目录下
+> ```
+> opencv/
+> +---bin/
+> +---include/
+> +---lib/
+> ¦   +---cmake/
+> ¦       +---opencv4/
+> ¦           +---OpenCVConfig-version.cmake
+> ¦           +---OpenCVConfig.cmake
+> ¦           +---OpenCVModules-relwithdebinfo.cmake
+> ¦           +---OpenCVModules.cmake
+> +---share/
+> ```
+> 
+> </details>
+>
+> <details>
+> <summary>OpenCV环境变量</summary>
+> 
+> * 在任意系统下，只要设置一个环境变量`OpenCV_DIR` (大小写敏感)，并且将正确的OpenCV目录设置给它，cmake就可以自动找到OpenCV了，不需要再添加`-DOPENCV_DIR`cmake参数。
+> 
+> </details>
+
 
 #### CMake构建参数说明
 
@@ -189,10 +266,12 @@ OCR init completed.
 你可以使用CMake来安装PaddleOCR-json。在`cpp`下，Shift+右键，在此处打开终端（或PowerShell），运行下面这条命令。
 
 ```sh
-cmake --install build
+cmake --install build --strip
 ```
 
 CMake会将 `build` 文件夹下的可执行文件和运行库给安装到 `build/install/bin` 文件夹下。CMake无法在Windows下把软件安装到系统文件夹中，不过你可以将文件夹 `cpp/build/install/bin` 添加到Windows的 `PATH` 环境变量中。参考[这篇文档](https://cloud.baidu.com/article/3297806)。
+
+输入参数`--strip`后，CMake会尝试使用GNU strip来去除PaddleOCR-json二进制文件里不重要的信息，最后令安装的二进制文件变得更小。不过GNU strip是Unix/Linux的工具，因此在Windows下会被CMake忽略掉。
 
 如果你希望安装到指定位置，你可以为上面这条命令加上参数 `--prefix /安装路径/` 来指定一个安装路径。比如 `--prefix build/install` 会将所有的文件都安装到 `build/install` 文件夹下。
 
