@@ -44,7 +44,7 @@ RUN cd /src/ && \
         -DENABLE_REMOTE_EXIT=${ENABLE_REMOTE_EXIT} \
         -DENABLE_JSON_IMAGE_PATH=${ENABLE_JSON_IMAGE_PATH} && \
     cmake --build build --config=Release && \
-    cmake --install build --prefix build/install
+    cmake --install build --prefix build/install --strip
 
 
 
